@@ -50,11 +50,14 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
 .zone{cursor:pointer;border-radius:14px}
 .zone.shake{animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-.pages{display:flex;gap:10px;margin-top:10px}
-.page{flex:1;background:#fff;border:3px solid #d1d5db;border-radius:14px;padding:12px;min-height:170px;cursor:pointer;position:relative}
-.picbox{background:#bae6fd;border:3px dashed #0284c7;border-radius:12px;text-align:center;padding:10px;cursor:pointer}
-.picbox .k{font-size:56px;line-height:1}
-.wordbox{text-align:center;font-size:34px;font-weight:800;color:#be185d;margin-top:10px;cursor:pointer;border:3px dashed #f9a8d4;border-radius:12px;padding:4px}
+.openbook{display:flex;background:#fff;border:3px solid #d1d5db;border-radius:14px;margin-top:10px;cursor:pointer;min-height:240px;overflow:hidden}
+.openpage{flex:1;padding:14px}
+.openpage.left{border-right:2px solid #e5e7eb}
+.picbox{background:#bae6fd;border:3px dashed #0284c7;border-radius:12px;text-align:center;padding:10px;cursor:pointer;width:82%;margin:0 auto}
+.picbox .k{font-size:52px;line-height:1}
+.textlines{margin:8px 0 16px}
+.textlines .line{height:10px;background:#d1d5db;border-radius:5px;margin:13px 0}
+.wordbox{text-align:center;font-size:30px;font-weight:800;color:#be185d;cursor:pointer;border:3px dashed #f9a8d4;border-radius:12px;padding:6px;width:82%;margin:0 auto}
 .backcover{background:#7f1d1d;color:#fff;border-radius:14px;padding:14px;text-align:center;border:4px solid #450a0a;cursor:pointer;margin-top:10px;font-weight:800;font-size:18px}
 .zone-label{font-size:12px;font-weight:800;color:#6b7280;text-align:center;margin-top:4px}
 /* Round 2 */
@@ -101,15 +104,13 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
       <div class="storytext"><b>Our story:</b>
         <ol>
           <li>On a windy Saturday, Sam took his red kite to the park.</li>
-          <li>The wind pulled hard, and the kite flew up, up, up — right into a tall tree!</li>
-          <li>Sam tried to reach it, but the tree was too tall. He felt sad.</li>
-          <li>His friend Maya came over with a long stick and a big smile.</li>
-          <li>Together they shook the branch, and down came the kite — a little torn, but still able to fly.</li>
-          <li>Sam and Maya taped the kite, ran across the park, and flew it together all afternoon.</li>
+          <li>The wind pulled hard, and the kite flew up — right into a tall tree!</li>
+          <li>Maya came over with a long stick, and together they shook the branch — down came the kite!</li>
+          <li>Sam and Maya taped the kite and flew it together all afternoon.</li>
         </ol>
       </div>
       <button class="bigbtn green" id="startBtn" type="button">▶ START THE GAME!</button>
-      <p class="note">29 chances to earn a star • Get 90% first try to win!</p>
+      <p class="note">27 chances to earn a star • Get 90% first try to win!</p>
     </div>
 
     <!-- ROUND 1 -->
@@ -119,9 +120,12 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
       <div class="prompt" id="r1Prompt"></div>
       <div class="book">
         <div class="cover-front zone" id="z-front"><div class="k">🪁</div><div class="t">The Lost Kite</div><div>by Sam &amp; Maya</div></div>
-        <div class="pages">
-          <div class="page zone" id="z-page">
+        <div class="openbook zone" id="z-page">
+          <div class="openpage left">
             <div class="picbox zone" id="z-picture"><div class="k">🪁</div><div style="font-weight:800">a kite in the sky</div></div>
+          </div>
+          <div class="openpage right">
+            <div class="textlines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
             <div class="wordbox zone" id="z-word">kite</div>
           </div>
         </div>
@@ -154,6 +158,15 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
       <button class="bigbtn green hidden" id="mcqNext" type="button">NEXT ➜</button>
     </div>
 
+    <!-- STORY (Round 3) -->
+    <div id="screen-story" class="hidden">
+      <div style="text-align:center"><span class="roundtag" id="storyTag"></span></div>
+      <h2 id="storyTitle"></h2>
+      <div class="storytext" id="storyText"></div>
+      <p class="note">Read it together, then answer 2 questions about it!</p>
+      <button class="bigbtn green" id="storyAskBtn" type="button">❓ ASK ME!</button>
+    </div>
+
     <!-- FINAL -->
     <div id="screen-end" class="hidden">
       <div class="emoji-big">🎉</div>
@@ -181,18 +194,14 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
 "use strict";
 var STORY = [
   "On a windy Saturday, Sam took his red kite to the park.",
-  "The wind pulled hard, and the kite flew up, up, up — right into a tall tree!",
-  "Sam tried to reach it, but the tree was too tall. He felt sad.",
-  "His friend Maya came over with a long stick and a big smile.",
-  "Together they shook the branch, and down came the kite — a little torn, but still able to fly.",
-  "Sam and Maya taped the kite, ran across the park, and flew it together all afternoon."
+  "The wind pulled hard, and the kite flew up — right into a tall tree!",
+  "Maya came over with a long stick, and together they shook the branch — down came the kite!",
+  "Sam and Maya taped the kite and flew it together all afternoon."
 ];
 var STORY_SHORT = [
   "Sam takes his red kite to the park",
   "The kite flies up into a tall tree!",
-  "Sam tries to reach it — too tall. He feels sad.",
-  "Maya comes over with a long stick and a smile",
-  "They shake the branch — down comes the kite!",
+  "Maya comes with a long stick — they shake the branch!",
   "They tape the kite and fly it together all afternoon"
 ];
 var R1 = [
@@ -202,17 +211,22 @@ var R1 = [
   {part:"picture", label:"a PICTURE", prompt:"Tap a PICTURE in the book!"},
   {part:"word", label:"a WORD", prompt:"Tap a WORD on the page!"}
 ];
-var R3 = [
-  {q:"What was this story MOSTLY about?", c:["A boy and his kite","A birthday party","A lost dog"], a:0},
-  {q:"Who was in the story?", c:["Sam and Maya","Sam and a teacher","Maya and a dog"], a:0},
-  {q:"Where did the story happen?", c:["At the park","At school","At the beach"], a:0},
-  {q:"What happened to the kite?", c:["It got stuck in a tall tree","It flew away forever","It fell in a lake"], a:0},
-  {q:"How did Sam feel when the kite got stuck?", c:["Sad","Angry at Maya","Sleepy"], a:0},
-  {q:"Who helped Sam?", c:["Maya","A teacher","His dog"], a:0},
-  {q:"What did Maya bring?", c:["A long stick","A ladder","A new kite"], a:0},
-  {q:"How did they get the kite down?", c:["They shook the branch","They climbed the tree","They called the wind"], a:0},
-  {q:"What did they do at the end?", c:["They taped the kite and flew it together","They went home alone","They bought a new kite"], a:0},
-  {q:"What is the main idea in ONE sentence?", c:["Sam lost his kite, his friend helped, and they flew it together","Sam went to school","Maya bought a kite"], a:0}
+var R3S = [
+{t:"Piano Practice", e:"🎹", text:"Mia practices piano every day after school. At first her fingers felt slow and the notes sounded wrong. She kept practicing, a little bit each day. Her teacher helped her learn a new song. One Saturday, Mia played the song at a recital. Her family clapped and cheered. Mia smiled — all that practice was worth it.",
+ qs:[{q:"What is the MAIN IDEA of this story?", c:["Mia practiced hard and played her song at a recital.","Mia's teacher helped her learn a new song.","Music is fun for everyone."], a:0},
+     {q:"What did Mia play at the recital?", c:["The song she had been practicing","A song she had never seen before","A song on the guitar"], a:0}]},
+{t:"The Birdhouse", e:"🐦", text:"Leo wanted to help the birds in his yard. He got wood, nails, and paint from the garage. Leo measured the wood and nailed the pieces together. He painted the little house bright blue. Then he hung it in the tree. The next morning, a small bird was already peeking out of the hole.",
+ qs:[{q:"What is the MAIN IDEA of this story?", c:["Leo built a birdhouse and hung it in a tree.","Leo painted the birdhouse bright blue.","Birds live in trees."], a:0},
+     {q:"What color did Leo paint the birdhouse?", c:["Blue","Red","Green"], a:0}]},
+{t:"The Class Garden", e:"🌻", text:"Ms. Green's class planted a garden behind the school. Each student got a small patch of soil. They planted carrots, beans, and sunflowers. Every week they watered the plants and pulled the weeds. By summer, the sunflowers were taller than the students. The class picked the carrots and ate them for lunch.",
+ qs:[{q:"What is the MAIN IDEA of this story?", c:["A class planted and cared for a garden at school.","The class planted carrots and beans.","Plants need water to grow."], a:0},
+     {q:"What did the class eat for lunch?", c:["The carrots they grew","Pizza from the cafeteria","Apples from a store"], a:0}]},
+{t:"The Lost Library Book", e:"📚", text:"Jonah could not find his library book anywhere. He looked under his bed, in his backpack, and behind the couch. He felt worried because the book was due back. Then he remembered: he had left it on the kitchen table. Jonah grabbed the book and ran to the library. He handed it to the librarian just in time.",
+ qs:[{q:"What is the MAIN IDEA of this story?", c:["Jonah lost his library book, then found it and returned it.","Jonah looked under his bed.","Libraries have lots of books."], a:0},
+     {q:"Where had Jonah left the book?", c:["On the kitchen table","At school","In the car"], a:0}]},
+{t:"The Rainy-Day Fort", e:"⛈️", text:"It rained all Saturday, so Noah and his friend could not go outside. They dragged chairs into the living room and draped blankets over them. Inside the fort they put pillows, books, and snacks. They read stories and pretended the fort was a castle. When the rain stopped, they did not want to take the fort down.",
+ qs:[{q:"What is the MAIN IDEA of this story?", c:["Two friends built a blanket fort on a rainy day.","They put pillows inside the fort.","Rain is good for plants."], a:0},
+     {q:"What did they pretend the fort was?", c:["A castle","A spaceship","A school"], a:0}]}
 ];
 var R4 = [
   {q:"Look at the cover! What do you think will happen in this story?", c:["Sam will fly his kite at the park","Sam will go swimming","Sam will bake a cake"], a:0},
@@ -224,7 +238,7 @@ var R4 = [
   {q:"Why did Maya smile when she came over?", c:["She was happy to help her friend","She was laughing at Sam","She was sleepy"], a:0},
   {q:"You want to join a game at the park. What do you say?", c:["“Can I play too?”","Grab the ball","Stand and watch silently"], a:0}
 ];
-var TOTAL = 5 + 6 + 10 + 8; // 29 trials
+var TOTAL = 5 + 4 + 10 + 8; // 27 trials
 
 var soundOn = true, audioCtx = null;
 var stars = 0, points = 0, firstTry = 0, trialsDone = 0, firstTryThis = true;
@@ -265,7 +279,7 @@ function recordTrial(correctFirst){
   if(stars===10 || stars===20){ danceBreak(stars + " STARS! 🕺💃"); }
 }
 function show(id){
-  ["screen-start","screen-r1","screen-r2","screen-mcq","screen-end"].forEach(function(s){ $(s).classList.add("hidden"); });
+  ["screen-start","screen-r1","screen-r2","screen-mcq","screen-story","screen-end"].forEach(function(s){ $(s).classList.add("hidden"); });
   $(id).classList.remove("hidden");
   window.scrollTo(0,0);
 }
@@ -337,7 +351,7 @@ function startR2(){
   $("retellBtn").classList.add("hidden");
   $("r2Feed").textContent = "";
   show("screen-r2");
-  var order = shuffle([0,1,2,3,4,5]);
+  var order = shuffle([0,1,2,3]);
   var grid = $("seqGrid"); grid.innerHTML = "";
   order.forEach(function(idx){
     var b = document.createElement("button");
@@ -362,7 +376,7 @@ function tapSeq(idx, btn){
     sl.innerHTML += "<div><b>" + (r2next+1) + ".</b> " + STORY[r2next] + "</div>";
     r2next++;
     sndGood();
-    if(r2next < 6){
+    if(r2next < 4){
       $("r2Feed").textContent = "⭐ Yes! What's next?";
       $("r2Feed").className = "feedback good";
     } else {
@@ -385,16 +399,31 @@ $("retellBtn").addEventListener("click", function(){
 });
 
 /* ---------- Rounds 3 & 4 ---------- */
+function showR3Story(si){
+  var st = R3S[si];
+  $("storyTag").textContent = "Story " + (si+1) + " of 5 • Main Idea Mission";
+  $("storyTitle").textContent = st.e + " " + st.t;
+  $("storyText").innerHTML = "<p>" + st.text + "</p>";
+  show("screen-story");
+}
 function startMCQ(round){
   mcqRound = round;
-  mcqList = (round===3 ? R3 : R4).map(function(q,i){ return {q:q, orig:i}; });
+  if(round===3){
+    mcqList = [];
+    R3S.forEach(function(st, si){
+      st.qs.forEach(function(q){ mcqList.push({q:q, story:si}); });
+    });
+  } else {
+    mcqList = R4.map(function(q,i){ return {q:q, orig:i}; });
+  }
   mcqIdx = 0; firstTryThis = true;
   $("roundLbl").textContent = "Round " + round;
   $("mcqTag").textContent = round===3 ? "Round 3 • Main Idea Mission 🎯" : "Round 4 • Detective Time 🕵️";
   $("mcqTitle").textContent = round===3 ? "Main Idea Mission!" : "Detective Time!";
-  show("screen-mcq");
-  askMCQ();
+  if(round===3){ showR3Story(0); }
+  else { show("screen-mcq"); askMCQ(); }
 }
+$("storyAskBtn").addEventListener("click", function(){ sndGood(); show("screen-mcq"); askMCQ(); });
 function askMCQ(){
   firstTryThis = true;
   var item = mcqList[mcqIdx].q;
@@ -437,7 +466,10 @@ function tapChoice(correct, btn){
 }
 $("mcqNext").addEventListener("click", function(){
   mcqIdx++;
-  if(mcqIdx < mcqList.length){ askMCQ(); }
+  if(mcqIdx < mcqList.length){
+    if(mcqRound===3 && mcqList[mcqIdx].story !== mcqList[mcqIdx-1].story){ showR3Story(mcqList[mcqIdx].story); }
+    else { askMCQ(); }
+  }
   else if(mcqRound===3){
     celebrate("🎯⭐", "Main Idea Mission — DONE!", "You answered all 10 main idea questions! One round left — Detective Time!", "LAST ROUND! 🕵️", function(){ startMCQ(4); });
   } else {
@@ -455,7 +487,7 @@ function finishGame(){
   $("endBreakdown").innerHTML =
     "<b>Your rounds:</b><br>" +
     "🔍 Book Detective: " + r1Score + " / 5 first try<br>" +
-    "🏃 Story Order Race: " + r2Score + " / 6 first try<br>" +
+    "🏃 Story Order Race: " + r2Score + " / 4 first try<br>" +
     "🎯 Main Idea Mission: " + r3Score + " / 10 first try<br>" +
     "🕵️ Detective Time: " + r4Score + " / 8 first try";
   sndCheer();

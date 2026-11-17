@@ -48,11 +48,14 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
 .cover-front{background:#dc2626;color:#fff;border-radius:14px;padding:18px;text-align:center;border:4px solid #991b1b;cursor:pointer;min-height:110px}
 .cover-front .t{font-size:26px;font-weight:800}
 .cover-front .k{font-size:56px;line-height:1}
-.pages{display:flex;gap:10px;margin-top:10px}
-.page{flex:1;background:#fff;border:3px solid #d1d5db;border-radius:14px;padding:12px;min-height:170px;cursor:pointer;position:relative}
-.picbox{background:#bae6fd;border:3px dashed #0284c7;border-radius:12px;text-align:center;padding:10px;cursor:pointer}
-.picbox .k{font-size:56px;line-height:1}
-.wordbox{text-align:center;font-size:34px;font-weight:800;color:#be185d;margin-top:10px;cursor:pointer;border:3px dashed #f9a8d4;border-radius:12px;padding:4px}
+.openbook{display:flex;background:#fff;border:3px solid #d1d5db;border-radius:14px;margin-top:10px;cursor:pointer;min-height:240px;overflow:hidden}
+.openpage{flex:1;padding:14px}
+.openpage.left{border-right:2px solid #e5e7eb}
+.picbox{background:#bae6fd;border:3px dashed #0284c7;border-radius:12px;text-align:center;padding:10px;cursor:pointer;width:82%;margin:0 auto}
+.picbox .k{font-size:52px;line-height:1}
+.textlines{margin:8px 0 16px}
+.textlines .line{height:10px;background:#d1d5db;border-radius:5px;margin:13px 0}
+.wordbox{text-align:center;font-size:30px;font-weight:800;color:#be185d;cursor:pointer;border:3px dashed #f9a8d4;border-radius:12px;padding:6px;width:82%;margin:0 auto}
 .backcover{background:#7f1d1d;color:#fff;border-radius:14px;padding:14px;text-align:center;border:4px solid #450a0a;cursor:pointer;margin-top:10px;font-weight:800;font-size:18px}
 .seqgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
 .seqcard{background:#eff6ff;border:3px solid #2563eb;border-radius:16px;padding:14px;font-size:16px;font-weight:700;line-height:1.35;min-height:96px;text-align:left;color:#111827}
@@ -99,9 +102,12 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
       <div class="prompt" id="prompt"></div>
       <div class="book">
         <div class="cover-front zone" id="z-front"><div class="k">🪁</div><div class="t">The Lost Kite</div><div>by Sam &amp; Maya</div></div>
-        <div class="pages">
-          <div class="page zone" id="z-page">
+        <div class="openbook zone" id="z-page">
+          <div class="openpage left">
             <div class="picbox zone" id="z-picture"><div class="k">🪁</div><div style="font-weight:800">a kite in the sky</div></div>
+          </div>
+          <div class="openpage right">
+            <div class="textlines"><div class="line"></div><div class="line"></div><div class="line"></div></div>
             <div class="wordbox zone" id="z-word">kite</div>
           </div>
         </div>
@@ -212,11 +218,11 @@ function tapPart(part, el){
     var label = trials[idx].label;
     recordTrial(ok);
     idx++;
+    if(idx < trials.length){ ask(); }
+    else { setTimeout(finish, 900); }
     $("feed").textContent = "⭐ Yes! That's " + label + "!";
     $("feed").className = "feedback good";
     sndGood();
-    if(idx < trials.length){ ask(); }
-    else { setTimeout(finish, 900); }
   } else {
     firstTryThis = false;
     $("feed").textContent = "Hmm, that's not it — try again! 🔍";

@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon.png">
-<title>Story Order Race — The Lost Kite</title>
+<title>Story Order Race — 40 Stories</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fde7ef;color:#1f2937;min-height:100vh}
@@ -42,26 +42,18 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
 .choice.correct{background:#dcfce7;border-color:#22c55e}
 .choice.wrong{background:#fee2e2;border-color:#dc2626;opacity:.6}
 .choice:disabled{cursor:default}
-.zone{cursor:pointer;border-radius:14px}
-.zone.shake{animation:shake .4s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-.cover-front{background:#dc2626;color:#fff;border-radius:14px;padding:18px;text-align:center;border:4px solid #991b1b;cursor:pointer;min-height:110px}
-.cover-front .t{font-size:26px;font-weight:800}
-.cover-front .k{font-size:56px;line-height:1}
-.pages{display:flex;gap:10px;margin-top:10px}
-.page{flex:1;background:#fff;border:3px solid #d1d5db;border-radius:14px;padding:12px;min-height:170px;cursor:pointer;position:relative}
-.picbox{background:#bae6fd;border:3px dashed #0284c7;border-radius:12px;text-align:center;padding:10px;cursor:pointer}
-.picbox .k{font-size:56px;line-height:1}
-.wordbox{text-align:center;font-size:34px;font-weight:800;color:#be185d;margin-top:10px;cursor:pointer;border:3px dashed #f9a8d4;border-radius:12px;padding:4px}
-.backcover{background:#7f1d1d;color:#fff;border-radius:14px;padding:14px;text-align:center;border:4px solid #450a0a;cursor:pointer;margin-top:10px;font-weight:800;font-size:18px}
 .seqgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.seqcard{background:#eff6ff;border:3px solid #2563eb;border-radius:16px;padding:14px;font-size:16px;font-weight:700;line-height:1.35;min-height:96px;text-align:left;color:#111827}
+.seqcard{background:#eff6ff;border:3px solid #2563eb;border-radius:16px;padding:14px;font-size:17px;font-weight:700;line-height:1.35;min-height:96px;text-align:left;color:#111827}
 .seqcard:active{transform:scale(.97)}
 .seqcard.done{background:#dcfce7;border-color:#22c55e;opacity:.55}
 .seqcard.wrong{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 .storyline{background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.6}
 .storyline b{color:#be185d}
 .timer{font-size:20px;font-weight:800;text-align:center}
+.picker{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;max-height:300px;overflow-y:auto}
+.pickbtn{background:#eff6ff;border:2px solid #2563eb;border-radius:14px;padding:10px;font-size:14px;font-weight:700;text-align:left;color:#111827}
+.pickbtn.on{background:#2563eb;color:#fff}
 #celebrate{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
 #celebrate .pop{background:#fff;border-radius:28px;padding:28px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
 #celebrate .pop .big{font-size:64px}
@@ -84,25 +76,19 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
       <button class="smallbtn" id="soundBtn" type="button">🔊 Sound on</button>
     </div>
     <div class="bar"><div id="barFill"></div></div>
-    <div style="text-align:center"><span class="pill">Goal: 90% first try — 9 of 10!</span></div>
+    <div style="text-align:center"><span class="pill">Goal: 90% first try!</span></div>
     <div id="screen-start" class="screen">
-      <div class="emoji-big">🪁🏃</div>
+      <div class="emoji-big">🏃📖</div>
       <h1>Story Order Race</h1>
-      <p class="sub">The Lost Kite<br>Put the story in order, then retell it!</p>
-      <div class="storytext"><b>Our story:</b><ol>
-          <li>On a windy Saturday, Sam took his red kite to the park.</li>
-          <li>The wind pulled hard, and the kite flew up, up, up — right into a tall tree!</li>
-          <li>Sam tried to reach it, but the tree was too tall. He felt sad.</li>
-          <li>His friend Maya came over with a long stick and a big smile.</li>
-          <li>Together they shook the branch, and down came the kite — a little torn, but still able to fly.</li>
-          <li>Sam and Maya taped the kite, ran across the park, and flew it together all afternoon.</li>
-        </ol></div>
+      <p class="sub">40 stories • 4 events each<br>Pick a story, put it in order, then retell it!</p>
+      <div class="picker" id="picker"></div>
+      <div class="storytext" id="preview"></div>
       <button class="bigbtn green" id="startBtn" type="button">▶ START THE RACE!</button>
-      <p class="note">10 chances to earn a star • Get 90% first try to win!</p>
+      <p class="note">8 chances to earn a star in each story • Get 90% first try to win!</p>
     </div>
     <div id="screen-order" class="screen hidden">
-      <div style="text-align:center"><span class="roundtag">Round 1 • Order the Story 🏃</span></div>
-      <h2>Story Order Race!</h2>
+      <div style="text-align:center"><span class="roundtag" id="orderTag"></span></div>
+      <h2 id="orderTitle">Story Order Race!</h2>
       <div class="timer">⏱ <span id="timer">0</span> seconds</div>
       <div class="prompt" id="orderPrompt">Tap the cards in story order — FIRST comes first!</div>
       <div class="seqgrid" id="seqGrid"></div>
@@ -111,7 +97,7 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
       <button class="bigbtn orange hidden" id="retellBtn" type="button">🎤 I RETOLD IT!</button>
     </div>
     <div id="screen-retell" class="screen hidden">
-      <div style="text-align:center"><span class="roundtag">Round 2 • Retell Check 🎤</span></div>
+      <div style="text-align:center"><span class="roundtag">Retell Check 🎤</span></div>
       <h2>Retell Check!</h2>
       <div class="qnum" id="qNum"></div>
       <div class="prompt" id="prompt"></div>
@@ -119,11 +105,19 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
       <div class="feedback" id="feed"></div>
       <button class="bigbtn green hidden" id="nextBtn" type="button">NEXT ➜</button>
     </div>
-    <div id="screen-end" class="screen hidden">
+    <div id="screen-done" class="screen hidden">
       <div class="emoji-big">🎉</div>
-      <h2>You did it!</h2>
+      <h2 id="doneTitle">Story complete!</h2>
+      <p class="sub" id="doneSummary"></p>
+      <div class="storytext" id="doneBreakdown"></div>
+      <button class="bigbtn green" id="nextStoryBtn" type="button">NEXT STORY ➜</button>
+      <button class="bigbtn blue" id="pickBtn" type="button">📖 PICK ANOTHER STORY</button>
+      <button class="bigbtn orange" id="replayBtn" type="button">🔄 PLAY THIS STORY AGAIN</button>
+    </div>
+    <div id="screen-end" class="screen hidden">
+      <div class="emoji-big">🏆</div>
+      <h2>You finished all 40 stories!</h2>
       <p class="sub" id="endSummary"></p>
-      <div class="storytext" id="endBreakdown"></div>
       <button class="bigbtn green" id="againBtn" type="button">🔄 PLAY AGAIN</button>
     </div>
     <div style="text-align:center;margin-top:14px">
@@ -139,7 +133,6 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
 </div></div>
 
 <script>
-
 "use strict";
 var soundOn = true, audioCtx = null;
 var stars = 0, points = 0, firstTry = 0, trialsDone = 0;
@@ -164,14 +157,14 @@ function updateHUD(){
   $("points").textContent = points;
   var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
   $("acc").textContent = acc + "%";
-  $("barFill").style.width = Math.round(firstTry/TOTAL*100) + "%";
+  $("barFill").style.width = acc + "%";
 }
 function recordTrial(correctFirst){
   trialsDone++;
   if(correctFirst){ firstTry++; stars++; points += 10; }
   else { points += 2; }
   updateHUD();
-  if(stars===5 || stars===10 || stars===15 || stars===20){ danceBreak(stars + " STARS!"); }
+  if(stars===5 || stars===10 || stars===15 || stars===20 || stars===40){ danceBreak(stars + " STARS!"); }
 }
 function show(id){
   document.querySelectorAll(".screen").forEach(function(s){ s.classList.add("hidden"); });
@@ -191,51 +184,99 @@ function danceBreak(msg){
   celebrate("\uD83D\uDD7A\uD83D\uDC83", "DANCE BREAK!", msg + " Stand up, shake it out, then keep going!", "KEEP PLAYING!");
 }
 
-var TOTAL = 10;
-var STORY = [
-  "On a windy Saturday, Sam took his red kite to the park.",
-  "The wind pulled hard, and the kite flew up, up, up — right into a tall tree!",
-  "Sam tried to reach it, but the tree was too tall. He felt sad.",
-  "His friend Maya came over with a long stick and a big smile.",
-  "Together they shook the branch, and down came the kite — a little torn, but still able to fly.",
-  "Sam and Maya taped the kite, ran across the park, and flew it together all afternoon."
+/* 40 stories, exactly 4 events each. short = card text, full = story sentence. */
+var STORIES = [
+{t:"Morning Routine",e:"☀️",short:["Wake up and stretch","Brush teeth and wash face","Eat breakfast","Put on shoes and grab the backpack"],full:["I wake up and stretch in my bed.","I brush my teeth and wash my face.","I eat breakfast at the table.","I put on my shoes and grab my backpack."]},
+{t:"Brushing Teeth",e:"🪥",short:["Get the toothbrush and toothpaste","Put toothpaste on the brush","Brush all the teeth","Rinse and smile"],full:["I get my toothbrush and toothpaste.","I put toothpaste on the brush.","I brush all my teeth.","I rinse my mouth and smile."]},
+{t:"Making a Sandwich",e:"🥪",short:["Get two slices of bread","Spread peanut butter and jelly","Put the slices together","Cut it and eat it"],full:["I get two slices of bread.","I spread peanut butter and jelly on them.","I put the slices together.","I cut the sandwich and eat it."]},
+{t:"Planting a Seed",e:"🌱",short:["Fill a pot with soil","Put a seed in the soil","Water the seed","Watch the plant grow"],full:["I fill a pot with soil.","I put a seed in the soil.","I water the seed.","I watch the little plant grow."]},
+{t:"Baking Cookies",e:"🍪",short:["Mix the dough in a bowl","Roll the dough into balls","Bake the cookies","Eat the warm cookies"],full:["I mix the dough in a big bowl.","I roll the dough into little balls.","I bake the cookies in the oven.","I eat the warm cookies."]},
+{t:"A Day at the Beach",e:"🏖️",short:["Pack a towel and sunscreen","Build a sandcastle","Swim in the waves","Dry off and go home"],full:["I pack a towel and sunscreen in my bag.","I build a big sandcastle.","I swim in the waves.","I dry off and go home."]},
+{t:"Washing Hands",e:"🧼",short:["Turn on the water","Rub soap all over hands","Rinse the soap off","Dry hands with a towel"],full:["I turn on the water.","I rub soap all over my hands.","I rinse all the soap off.","I dry my hands with a towel."]},
+{t:"Building a Snowman",e:"⛄",short:["Roll a big snowball for the body","Roll a smaller one for the head","Add a carrot nose and buttons","Put on a hat and scarf"],full:["I roll a big snowball for the body.","I roll a smaller one for the head.","I add a carrot nose and buttons.","I put a hat and scarf on the snowman."]},
+{t:"Feeding the Dog",e:"🐶",short:["Pour food into the bowl","Set the bowl on the floor","The dog eats it all up","Fill the water bowl too"],full:["I pour food into the dog's bowl.","I set the bowl on the floor.","The dog eats it all up.","I fill the water bowl too."]},
+{t:"Getting Ready for School",e:"🎒",short:["Get dressed","Eat breakfast","Pack the backpack","Walk to the bus"],full:["I get dressed for school.","I eat breakfast.","I pack my backpack.","I walk to the bus."]},
+{t:"Making Lemonade",e:"🍋",short:["Squeeze lemons into a pitcher","Add sugar and water","Stir it all up","Pour a cold glass"],full:["I squeeze lemons into a pitcher.","I add sugar and water.","I stir it all up.","I pour a cold glass of lemonade."]},
+{t:"Flying a Kite",e:"🪁",short:["Take the kite to the park","Run so the kite lifts up","Watch the kite fly high","Wind the string in to go home"],full:["I take my kite to the park.","I run so the kite lifts up.","I watch the kite fly high in the sky.","I wind the string in and go home."]},
+{t:"A Birthday Party",e:"🎂",short:["Hang up balloons and streamers","Sing happy birthday","Blow out the candles","Eat cake and open gifts"],full:["I hang up balloons and streamers.","Everyone sings happy birthday.","I blow out the candles.","I eat cake and open my gifts."]},
+{t:"Going Fishing",e:"🎣",short:["Put a worm on the hook","Cast the line into the water","Wait for a fish to bite","Reel in the fish"],full:["I put a worm on the hook.","I cast the line into the water.","I wait for a fish to bite.","I reel in the fish."]},
+{t:"Making the Bed",e:"🛏️",short:["Pull up the sheet","Smooth out the blanket","Fluff the pillow","Put the stuffed animals on top"],full:["I pull up the sheet.","I smooth out the blanket.","I fluff the pillow.","I put my stuffed animals on top."]},
+{t:"Washing the Car",e:"🚗",short:["Fill a bucket with soapy water","Scrub the car with a sponge","Rinse it with the hose","Dry it with a towel"],full:["I fill a bucket with soapy water.","I scrub the car with a sponge.","I rinse it with the hose.","I dry it with a towel."]},
+{t:"Making Pizza",e:"🍕",short:["Roll out the dough","Spread the tomato sauce","Sprinkle on cheese","Bake it and slice it up"],full:["I roll out the dough.","I spread the tomato sauce.","I sprinkle on the cheese.","I bake the pizza and slice it up."]},
+{t:"Reading a Book",e:"📖",short:["Pick a book from the shelf","Find a cozy spot to sit","Read the story","Close the book and put it back"],full:["I pick a book from the shelf.","I find a cozy spot to sit.","I read the whole story.","I close the book and put it back."]},
+{t:"Going to the Library",e:"📚",short:["Walk to the library","Pick out two books","Check out the books","Read them at home"],full:["I walk to the library.","I pick out two books.","I check out the books.","I read them at home."]},
+{t:"Riding a Bike",e:"🚲",short:["Put on a helmet","Get on the bike","Pedal down the street","Ring the bell and ride home"],full:["I put on my helmet.","I get on my bike.","I pedal down the street.","I ring the bell and ride home."]},
+{t:"Making a Snow Fort",e:"❄️",short:["Pack snow into blocks","Stack the blocks into walls","Make a little door","Sit inside the fort"],full:["I pack snow into blocks.","I stack the blocks into walls.","I make a little door.","I sit inside my snow fort."]},
+{t:"Watering the Garden",e:"🌻",short:["Fill the watering can","Pour water on the flowers","Watch the bees visit","Pick a flower for the table"],full:["I fill the watering can.","I pour water on the flowers.","I watch the bees visit the flowers.","I pick a flower for the table."]},
+{t:"Making a Card",e:"💌",short:["Fold a piece of paper","Draw a picture on the front","Write a happy message","Give the card to a friend"],full:["I fold a piece of paper.","I draw a picture on the front.","I write a happy message inside.","I give the card to my friend."]},
+{t:"Going to the Park",e:"🌳",short:["Walk to the park","Swing on the swings","Slide down the slide","Go home for lunch"],full:["I walk to the park.","I swing on the swings.","I slide down the slide.","I go home for lunch."]},
+{t:"Making Hot Chocolate",e:"☕",short:["Heat up the milk","Stir in the chocolate","Pour it into a mug","Add marshmallows on top"],full:["I heat up the milk.","I stir in the chocolate.","I pour it into a mug.","I add marshmallows on top."]},
+{t:"Picking Apples",e:"🍎",short:["Walk to the apple tree","Reach up and pick an apple","Put the apples in a basket","Wash one and take a bite"],full:["I walk to the apple tree.","I reach up and pick an apple.","I put the apples in a basket.","I wash one apple and take a bite."]},
+{t:"Making a Puppet",e:"🧸",short:["Glue eyes on a sock","Add yarn for hair","Put the puppet on your hand","Put on a puppet show"],full:["I glue eyes on a sock.","I add yarn for hair.","I put the puppet on my hand.","I put on a puppet show."]},
+{t:"Going Camping",e:"⛺",short:["Pack a tent and sleeping bags","Set up the tent","Roast marshmallows by the fire","Sleep under the stars"],full:["I pack a tent and sleeping bags.","I set up the tent.","I roast marshmallows by the fire.","I sleep under the stars."]},
+{t:"Making a Fruit Salad",e:"🍓",short:["Wash the fruit","Cut it into small pieces","Mix it all in a bowl","Eat it with a spoon"],full:["I wash the fruit.","I cut it into small pieces.","I mix it all in a bowl.","I eat it with a spoon."]},
+{t:"Blowing Bubbles",e:"🫧",short:["Dip the wand in the soap","Blow gently through the wand","Watch the bubbles float","Pop the bubbles"],full:["I dip the wand in the soap.","I blow gently through the wand.","I watch the bubbles float away.","I pop the bubbles."]},
+{t:"Making Playdough",e:"🎨",short:["Mix flour, salt, and water","Stir in food coloring","Knead the dough","Make shapes with the dough"],full:["I mix flour, salt, and water.","I stir in food coloring.","I knead the dough.","I make shapes with the dough."]},
+{t:"Going to the Dentist",e:"🦷",short:["Sit in the big chair","Open wide","The dentist counts the teeth","Get a sticker at the end"],full:["I sit in the big chair.","I open my mouth wide.","The dentist counts my teeth.","I get a sticker at the end."]},
+{t:"Making a Paper Plane",e:"✈️",short:["Fold a piece of paper in half","Fold the corners in","Fold the wings down","Throw it and watch it fly"],full:["I fold a piece of paper in half.","I fold the corners in.","I fold the wings down.","I throw it and watch it fly."]},
+{t:"Feeding the Fish",e:"🐟",short:["Open the fish food","Sprinkle a pinch in the tank","Watch the fish eat","Put the food away"],full:["I open the fish food.","I sprinkle a pinch in the tank.","I watch the fish eat.","I put the food away."]},
+{t:"Building a Blanket Fort",e:"🛖",short:["Drape blankets over chairs","Put pillows inside","Bring in books and snacks","Read inside the fort"],full:["I drape blankets over the chairs.","I put pillows inside.","I bring in books and snacks.","I read inside my fort."]},
+{t:"Going on a Picnic",e:"🧺",short:["Pack sandwiches and fruit","Spread a blanket on the grass","Eat lunch outside","Play a game before going home"],full:["I pack sandwiches and fruit.","I spread a blanket on the grass.","I eat lunch outside.","I play a game before going home."]},
+{t:"Making Ice Cream Sundaes",e:"🍨",short:["Scoop ice cream into a bowl","Pour on chocolate sauce","Add sprinkles","Eat it with a spoon"],full:["I scoop ice cream into a bowl.","I pour on chocolate sauce.","I add sprinkles.","I eat it with a spoon."]},
+{t:"Raking Leaves",e:"🍂",short:["Grab a rake","Rake the leaves into a pile","Jump in the pile","Bag up the leaves"],full:["I grab a rake.","I rake the leaves into a pile.","I jump right in the pile.","I bag up the leaves."]},
+{t:"Jumping in Puddles",e:"🌧️",short:["Put on rain boots","Find a big puddle","Jump right in","Splash and laugh"],full:["I put on my rain boots.","I find a big puddle.","I jump right in.","I splash and laugh."]},
+{t:"Bedtime Routine",e:"🌙",short:["Take a warm bath","Put on pajamas","Read a bedtime story","Turn off the light and sleep"],full:["I take a warm bath.","I put on my pajamas.","I read a bedtime story.","I turn off the light and go to sleep."]}
 ];
-var STORY_SHORT = [
-  "Sam takes his red kite to the park",
-  "The kite flies up into a tall tree!",
-  "Sam tries to reach it — too tall. He feels sad.",
-  "Maya comes over with a long stick and a smile",
-  "They shake the branch — down comes the kite!",
-  "They tape the kite and fly it together all afternoon"
-];
-var RETELL = [
-  {q:"What happens FIRST in the story?", c:["Sam takes his kite to the park","The kite gets stuck","Maya comes over"], a:0},
-  {q:"What happens NEXT, after Sam takes his kite to the park?", c:["The kite gets stuck in a tree","They fly the kite together","Maya brings a stick"], a:0},
-  {q:"What happens after the kite gets stuck?", c:["Sam feels sad and Maya comes to help","They go home","The kite flies away"], a:0},
-  {q:"How does the story END?", c:["They tape the kite and fly it together","Sam loses the kite forever","Maya goes home alone"], a:0}
-];
-var next = 0, firstTryThis = true, seconds = 0, timerInt = null;
-var orderScore = 0, retellScore = 0, qIdx = 0;
+
+var storyIdx = 0, next = 0, firstTryThis = true, seconds = 0, timerInt = null;
+var orderScore = 0, retellScore = 0, qIdx = 0, RETELL = [];
+
+function buildPicker(){
+  var pk = $("picker"); pk.innerHTML = "";
+  STORIES.forEach(function(s, i){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "pickbtn" + (i === storyIdx ? " on" : "");
+    b.textContent = (i+1) + ". " + s.e + " " + s.t;
+    b.addEventListener("click", function(){ storyIdx = i; buildPicker(); showPreview(); });
+    pk.appendChild(b);
+  });
+}
+function showPreview(){
+  var s = STORIES[storyIdx];
+  $("preview").innerHTML = "<b>" + s.e + " " + s.t + " — Story " + (storyIdx+1) + " of 40</b><ol>" +
+    s.full.map(function(f){ return "<li>" + f + "</li>"; }).join("") + "</ol>";
+}
 function startGame(){
   stars = 0; points = 0; firstTry = 0; trialsDone = 0;
-  orderScore = 0; retellScore = 0;
   updateHUD();
+  startStory(storyIdx);
+}
+function startPickedStory(){
+  sndGood();
+  startStory(storyIdx);
+}
+function startStory(i){
+  storyIdx = i;
+  orderScore = 0; retellScore = 0;
   startOrder();
 }
 function startOrder(){
+  var s = STORIES[storyIdx];
   next = 0; seconds = 0; firstTryThis = true;
+  $("orderTag").textContent = "Story " + (storyIdx+1) + " of 40 • " + s.t;
+  $("orderTitle").textContent = s.e + " " + s.t;
   $("timer").textContent = "0";
   $("storyline").classList.add("hidden");
   $("storyline").innerHTML = "";
   $("retellBtn").classList.add("hidden");
   $("orderFeed").textContent = "";
   show("screen-order");
-  var order = shuffle([0,1,2,3,4,5]);
+  var order = shuffle([0,1,2,3]);
   var grid = $("seqGrid"); grid.innerHTML = "";
   order.forEach(function(i){
     var b = document.createElement("button");
     b.type = "button"; b.className = "seqcard"; b.dataset.idx = i;
-    b.textContent = STORY_SHORT[i];
+    b.textContent = s.short[i];
     b.addEventListener("click", function(){ tapSeq(i, b); });
     grid.appendChild(b);
   });
@@ -244,6 +285,7 @@ function startOrder(){
   timerInt = setInterval(function(){ seconds = Math.floor((Date.now()-t0)/1000); $("timer").textContent = seconds; }, 1000);
 }
 function tapSeq(i, btn){
+  var s = STORIES[storyIdx];
   if(i === next){
     var ok = firstTryThis;
     recordTrial(ok);
@@ -252,10 +294,10 @@ function tapSeq(i, btn){
     btn.classList.add("done"); btn.disabled = true;
     var sl = $("storyline");
     sl.classList.remove("hidden");
-    sl.innerHTML += "<div><b>" + (next+1) + ".</b> " + STORY[next] + "</div>";
+    sl.innerHTML += "<div><b>" + (next+1) + ".</b> " + s.full[next] + "</div>";
     next++;
     sndGood();
-    if(next < 6){
+    if(next < 4){
       $("orderFeed").textContent = "⭐ Yes! What's next?";
       $("orderFeed").className = "feedback good";
     } else {
@@ -272,7 +314,17 @@ function tapSeq(i, btn){
     btn.classList.remove("wrong"); void btn.offsetWidth; btn.classList.add("wrong");
   }
 }
+function buildRetell(){
+  var s = STORIES[storyIdx].short;
+  return [
+    {q:"What happens FIRST in the story?", c:[s[0], s[2], s[3]], a:0},
+    {q:"What happens NEXT in the story?", c:[s[1], s[3], s[0]], a:0},
+    {q:"What happens THIRD in the story?", c:[s[2], s[0], s[3]], a:0},
+    {q:"How does the story END?", c:[s[3], s[1], s[0]], a:0}
+  ];
+}
 function startRetell(){
+  RETELL = buildRetell();
   qIdx = 0;
   show("screen-retell");
   askQ();
@@ -313,35 +365,49 @@ function tapChoice(correct, btn){
     sndBad();
   }
 }
-function finish(){
+function showStoryDone(){
+  clearInterval(timerInt);
+  var s = STORIES[storyIdx];
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("doneTitle").textContent = s.e + " " + s.t + " — complete!";
+  $("doneSummary").innerHTML = "⭐ " + stars + " stars &nbsp;•&nbsp; 🏆 " + points + " points<br>🎯 First-try accuracy so far: " + acc + "% (goal: 90%)";
+  $("doneBreakdown").innerHTML = "<b>This story:</b><br>🏃 Ordering: " + orderScore + " / 4 first try<br>🎤 Retell check: " + retellScore + " / 4 first try";
+  $("nextStoryBtn").style.display = storyIdx < STORIES.length - 1 ? "block" : "none";
+  show("screen-done");
+  sndCheer();
+}
+function finishAll(){
   clearInterval(timerInt);
   show("screen-end");
   var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
   $("endSummary").innerHTML = "⭐ " + stars + " stars &nbsp;•&nbsp; 🏆 " + points + " points<br>🎯 First-try accuracy: " + acc + "% (goal: 90%)<br>" +
     (acc >= 90 ? "🌟 WOW — you hit the 90% goal!" : "So close! Play again and beat your score!");
-  $("endBreakdown").innerHTML = "<b>Your rounds:</b><br>🏃 Ordering the story: " + orderScore + " / 6 first try<br>🎤 Retell check: " + retellScore + " / 4 first try";
   sndCheer();
 }
-$("startBtn").addEventListener("click", function(){ sndGood(); startGame(); });
+$("startBtn").addEventListener("click", startPickedStory);
 $("retellBtn").addEventListener("click", function(){
   stars++; points += 10; updateHUD();
   celebrate("🎤⭐", "You retold it!", "You told the whole story in order! Now answer 4 quick retell questions!", "LET'S GO! 🎤", startRetell);
 });
 $("nextBtn").addEventListener("click", function(){
   qIdx++;
-  if(qIdx < RETELL.length){ askQ(); } else { finish(); }
+  if(qIdx < RETELL.length){ askQ(); } else { showStoryDone(); }
 });
-$("againBtn").addEventListener("click", startGame);
-$("restartBtn").addEventListener("click", function(){ stars=0;points=0;firstTry=0;trialsDone=0;clearInterval(timerInt);updateHUD();show("screen-start"); });
+$("nextStoryBtn").addEventListener("click", function(){ startStory(storyIdx + 1); });
+$("pickBtn").addEventListener("click", function(){ buildPicker(); showPreview(); show("screen-start"); });
+$("replayBtn").addEventListener("click", function(){ startStory(storyIdx); });
+$("againBtn").addEventListener("click", function(){ stars=0;points=0;firstTry=0;trialsDone=0;updateHUD();buildPicker();showPreview();show("screen-start"); });
+$("restartBtn").addEventListener("click", function(){ stars=0;points=0;firstTry=0;trialsDone=0;clearInterval(timerInt);updateHUD();buildPicker();showPreview();show("screen-start"); });
 $("soundBtn").addEventListener("click", function(){
   soundOn = !soundOn;
-  $("soundBtn").textContent = soundOn ? "\uD83D\uDD0A Sound on" : "\uD83D\uDD07 Sound off";
+  $("soundBtn").textContent = soundOn ? "🔊 Sound on" : "🔇 Sound off";
   $("soundBtn").classList.toggle("on", !soundOn);
   if(soundOn) sndGood();
 });
 
+buildPicker();
+showPreview();
 updateHUD();
-
 </script>
 </body>
 </html>

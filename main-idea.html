@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon.png">
-<title>Main Idea Mission — The Lost Kite</title>
+<title>Main Idea Mission — 10 Stories</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fde7ef;color:#1f2937;min-height:100vh}
@@ -42,26 +42,6 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
 .choice.correct{background:#dcfce7;border-color:#22c55e}
 .choice.wrong{background:#fee2e2;border-color:#dc2626;opacity:.6}
 .choice:disabled{cursor:default}
-.zone{cursor:pointer;border-radius:14px}
-.zone.shake{animation:shake .4s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-.cover-front{background:#dc2626;color:#fff;border-radius:14px;padding:18px;text-align:center;border:4px solid #991b1b;cursor:pointer;min-height:110px}
-.cover-front .t{font-size:26px;font-weight:800}
-.cover-front .k{font-size:56px;line-height:1}
-.pages{display:flex;gap:10px;margin-top:10px}
-.page{flex:1;background:#fff;border:3px solid #d1d5db;border-radius:14px;padding:12px;min-height:170px;cursor:pointer;position:relative}
-.picbox{background:#bae6fd;border:3px dashed #0284c7;border-radius:12px;text-align:center;padding:10px;cursor:pointer}
-.picbox .k{font-size:56px;line-height:1}
-.wordbox{text-align:center;font-size:34px;font-weight:800;color:#be185d;margin-top:10px;cursor:pointer;border:3px dashed #f9a8d4;border-radius:12px;padding:4px}
-.backcover{background:#7f1d1d;color:#fff;border-radius:14px;padding:14px;text-align:center;border:4px solid #450a0a;cursor:pointer;margin-top:10px;font-weight:800;font-size:18px}
-.seqgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.seqcard{background:#eff6ff;border:3px solid #2563eb;border-radius:16px;padding:14px;font-size:16px;font-weight:700;line-height:1.35;min-height:96px;text-align:left;color:#111827}
-.seqcard:active{transform:scale(.97)}
-.seqcard.done{background:#dcfce7;border-color:#22c55e;opacity:.55}
-.seqcard.wrong{animation:shake .4s}
-.storyline{background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.6}
-.storyline b{color:#be185d}
-.timer{font-size:20px;font-weight:800;text-align:center}
 #celebrate{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
 #celebrate .pop{background:#fff;border-radius:28px;padding:28px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
 #celebrate .pop .big{font-size:64px}
@@ -70,8 +50,7 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
 .qnum{text-align:center;font-weight:800;color:#6b7280;font-size:15px}
 .roundtag{display:inline-block;background:#fce7f3;color:#be185d;border-radius:999px;padding:6px 14px;font-weight:800;font-size:14px}
 .storytext{font-size:18px;line-height:1.6;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:16px;margin:12px 0}
-.storytext ol{margin:0;padding-left:22px}
-.storytext li{margin:8px 0}
+.storytext p{margin:0 0 10px}
 .note{text-align:center;color:#6b7280;font-size:14px;margin-top:10px}
 </style>
 </head>
@@ -84,17 +63,25 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
       <button class="smallbtn" id="soundBtn" type="button">🔊 Sound on</button>
     </div>
     <div class="bar"><div id="barFill"></div></div>
-    <div style="text-align:center"><span class="pill">Goal: 90% first try — 9 of 10!</span></div>
+    <div style="text-align:center"><span class="pill">Goal: 90% first try — 18 of 20!</span></div>
     <div id="screen-start" class="screen">
-      <div class="emoji-big">🎯🪁</div>
+      <div class="emoji-big">🎯📖</div>
       <h1>Main Idea Mission</h1>
-      <p class="sub">The Lost Kite<br>What was the story MOSTLY about?<br>10 questions, no hints!</p>
+      <p class="sub">10 stories • 2 questions each<br>Read the story, then find the MAIN IDEA!<br>No hints — the story stays on screen.</p>
       <button class="bigbtn green" id="startBtn" type="button">▶ START!</button>
-      <p class="note">10 chances to earn a star • Get 90% first try to win!</p>
+      <p class="note">20 chances to earn a star • Get 90% first try to win!</p>
+    </div>
+    <div id="screen-story" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag" id="storyTag"></span></div>
+      <h2 id="storyTitle"></h2>
+      <div class="storytext" id="storyText"></div>
+      <p class="note">Read it together, then answer 2 questions about it!</p>
+      <button class="bigbtn green" id="askBtn" type="button">❓ ASK ME!</button>
     </div>
     <div id="screen-game" class="screen hidden">
-      <div style="text-align:center"><span class="roundtag">Main Idea Mission 🎯</span></div>
+      <div style="text-align:center"><span class="roundtag" id="gameTag"></span></div>
       <h2>Main Idea Mission!</h2>
+      <div class="storytext" id="gameStory"></div>
       <div class="qnum" id="qNum"></div>
       <div class="prompt" id="prompt"></div>
       <div id="choices"></div>
@@ -105,6 +92,7 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
       <div class="emoji-big">🎉</div>
       <h2>You did it!</h2>
       <p class="sub" id="endSummary"></p>
+      <div class="storytext" id="endBreakdown"></div>
       <button class="bigbtn green" id="againBtn" type="button">🔄 PLAY AGAIN</button>
     </div>
     <div style="text-align:center;margin-top:14px">
@@ -120,7 +108,6 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
 </div></div>
 
 <script>
-
 "use strict";
 var soundOn = true, audioCtx = null;
 var stars = 0, points = 0, firstTry = 0, trialsDone = 0;
@@ -172,31 +159,70 @@ function danceBreak(msg){
   celebrate("\uD83D\uDD7A\uD83D\uDC83", "DANCE BREAK!", msg + " Stand up, shake it out, then keep going!", "KEEP PLAYING!");
 }
 
-var TOTAL = 10;
-var QUESTIONS = [
-  {q:"What was this story MOSTLY about?", c:["A boy and his kite","A birthday party","A lost dog"], a:0},
-  {q:"Who was in the story?", c:["Sam and Maya","Sam and a teacher","Maya and a dog"], a:0},
-  {q:"Where did the story happen?", c:["At the park","At school","At the beach"], a:0},
-  {q:"What happened to the kite?", c:["It got stuck in a tall tree","It flew away forever","It fell in a lake"], a:0},
-  {q:"How did Sam feel when the kite got stuck?", c:["Sad","Angry at Maya","Sleepy"], a:0},
-  {q:"Who helped Sam?", c:["Maya","A teacher","His dog"], a:0},
-  {q:"What did Maya bring?", c:["A long stick","A ladder","A new kite"], a:0},
-  {q:"How did they get the kite down?", c:["They shook the branch","They climbed the tree","They called the wind"], a:0},
-  {q:"What did they do at the end?", c:["They taped the kite and flew it together","They went home alone","They bought a new kite"], a:0},
-  {q:"What is the main idea in ONE sentence?", c:["Sam lost his kite, his friend helped, and they flew it together","Sam went to school","Maya bought a kite"], a:0}
+/* 10 grade-level stories. Each: title, emoji, text, main-idea question
+   (correct main idea / true-but-narrow detail / too broad), detail question. */
+var TOTAL = 20;
+var STORIES = [
+{t:"Piano Practice", e:"🎹", text:"Mia practices piano every day after school. At first her fingers felt slow and the notes sounded wrong. She kept practicing, a little bit each day. Her teacher helped her learn a new song. One Saturday, Mia played the song at a recital. Her family clapped and cheered. Mia smiled — all that practice was worth it.",
+ mi:{q:"What is the MAIN IDEA of this story?", c:["Mia practiced hard and played her song at a recital.","Mia's teacher helped her learn a new song.","Music is fun for everyone."], a:0},
+ dq:{q:"What did Mia play at the recital?", c:["The song she had been practicing","A song she had never seen before","A song on the guitar"], a:0}},
+{t:"The Birdhouse", e:"🐦", text:"Leo wanted to help the birds in his yard. He got wood, nails, and paint from the garage. Leo measured the wood and nailed the pieces together. He painted the little house bright blue. Then he hung it in the tree. The next morning, a small bird was already peeking out of the hole.",
+ mi:{q:"What is the MAIN IDEA of this story?", c:["Leo built a birdhouse and hung it in a tree.","Leo painted the birdhouse bright blue.","Birds live in trees."], a:0},
+ dq:{q:"What color did Leo paint the birdhouse?", c:["Blue","Red","Green"], a:0}},
+{t:"The Class Garden", e:"🌻", text:"Ms. Green's class planted a garden behind the school. Each student got a small patch of soil. They planted carrots, beans, and sunflowers. Every week they watered the plants and pulled the weeds. By summer, the sunflowers were taller than the students. The class picked the carrots and ate them for lunch.",
+ mi:{q:"What is the MAIN IDEA of this story?", c:["A class planted and cared for a garden at school.","The class planted carrots and beans.","Plants need water to grow."], a:0},
+ dq:{q:"What did the class eat for lunch?", c:["The carrots they grew","Pizza from the cafeteria","Apples from a store"], a:0}},
+{t:"The Lost Library Book", e:"📚", text:"Jonah could not find his library book anywhere. He looked under his bed, in his backpack, and behind the couch. He felt worried because the book was due back. Then he remembered: he had left it on the kitchen table. Jonah grabbed the book and ran to the library. He handed it to the librarian just in time.",
+ mi:{q:"What is the MAIN IDEA of this story?", c:["Jonah lost his library book, then found it and returned it.","Jonah looked under his bed.","Libraries have lots of books."], a:0},
+ dq:{q:"Where had Jonah left the book?", c:["On the kitchen table","At school","In the car"], a:0}},
+{t:"The Rainy-Day Fort", e:"⛈️", text:"It rained all Saturday, so Noah and his friend could not go outside. They dragged chairs into the living room and draped blankets over them. Inside the fort they put pillows, books, and snacks. They read stories and pretended the fort was a castle. When the rain stopped, they did not want to take the fort down.",
+ mi:{q:"What is the MAIN IDEA of this story?", c:["Two friends built a blanket fort on a rainy day.","They put pillows inside the fort.","Rain is good for plants."], a:0},
+ dq:{q:"What did they pretend the fort was?", c:["A castle","A spaceship","A school"], a:0}},
+{t:"The New Bike", e:"🚲", text:"Ava saved her allowance for months to buy a new bike. She kept the money in a jar on her shelf. When she finally had enough, she went to the bike shop with her mom. Ava picked a purple bike with a bell. She rode it home, ringing the bell the whole way.",
+ mi:{q:"What is the MAIN IDEA of this story?", c:["Ava saved money and bought a purple bike.","Ava kept her money in a jar.","Bikes are fun to ride."], a:0},
+ dq:{q:"What color was Ava's new bike?", c:["Purple","Red","Blue"], a:0}},
+{t:"The Lemonade Stand", e:"🍋", text:"On a hot day, Sam and his friend set up a lemonade stand. They squeezed lemons, added sugar and water, and poured it into cups. They made a sign that said Lemonade — 25 cents! Neighbors stopped by and bought cup after cup. By the end of the day, their pitcher was empty and their pockets were full of coins.",
+ mi:{q:"What is the MAIN IDEA of this story?", c:["Two friends sold lemonade on a hot day.","They made a sign for the stand.","Summer is the hottest season."], a:0},
+ dq:{q:"How much did a cup of lemonade cost?", c:["25 cents","One dollar","Five dollars"], a:0}},
+{t:"The Lost Kitten", e:"🐱", text:"One evening, Rosa heard a tiny meow from behind the bushes. She found a small gray kitten, cold and hungry. Rosa brought the kitten inside and gave it warm milk. She made a soft bed from an old towel. The next day, Rosa put up signs to find the kitten's owner. A neighbor came by, smiled, and said, That is my kitten — thank you for taking care of her!",
+ mi:{q:"What is the MAIN IDEA of this story?", c:["Rosa found a lost kitten, cared for it, and returned it to its owner.","Rosa gave the kitten warm milk.","Cats make good pets."], a:0},
+ dq:{q:"What color was the kitten?", c:["Gray","Orange","Black"], a:0}},
+{t:"The Science Fair", e:"🔬", text:"Ben wanted to show how plants grow for the science fair. He planted beans in three cups: one in the sun, one in the shade, and one in a dark closet. Every day he watered them and measured how tall they grew. The bean in the sun grew tallest of all. At the fair, Ben showed his chart and explained what he learned.",
+ mi:{q:"What is the MAIN IDEA of this story?", c:["Ben did a plant experiment for the science fair.","Ben planted beans in three cups.","Science is important in school."], a:0},
+ dq:{q:"Which bean grew tallest?", c:["The one in the sun","The one in the shade","The one in the dark closet"], a:0}},
+{t:"The Snow Day", e:"❄️", text:"School was closed because of the snow, so Maya spent the day outside. She built a snowman with a carrot nose and button eyes. Then she made snow angels and had a snowball fight with her friends. When her fingers got cold, she went inside for hot chocolate. It was the best snow day ever.",
+ mi:{q:"What is the MAIN IDEA of this story?", c:["Maya played in the snow all day on a snow day.","Maya built a snowman.","Winter is cold."], a:0},
+ dq:{q:"What did Maya drink when she went inside?", c:["Hot chocolate","Lemonade","Cold milk"], a:0}}
 ];
-var qIdx = 0, firstTryThis = true, score = 0;
+
+var storyIdx = 0, qIdx = 0, firstTryThis = true, miScore = 0, dqScore = 0, QUESTIONS = [];
 function startGame(){
-  stars = 0; points = 0; firstTry = 0; trialsDone = 0; score = 0;
-  qIdx = 0;
+  stars = 0; points = 0; firstTry = 0; trialsDone = 0; miScore = 0; dqScore = 0;
+  storyIdx = 0;
   updateHUD();
+  showStory();
+}
+function showStory(){
+  var s = STORIES[storyIdx];
+  $("storyTag").textContent = "Story " + (storyIdx+1) + " of 10";
+  $("storyTitle").textContent = s.e + " " + s.t;
+  $("storyText").innerHTML = "<p>" + s.text + "</p>";
+  show("screen-story");
+}
+function startQuestions(){
+  var s = STORIES[storyIdx];
+  QUESTIONS = [s.mi, s.dq];
+  qIdx = 0;
   show("screen-game");
   askQ();
 }
 function askQ(){
   firstTryThis = true;
+  var s = STORIES[storyIdx];
   var item = QUESTIONS[qIdx];
-  $("qNum").textContent = "Question " + (qIdx+1) + " of " + QUESTIONS.length;
+  $("gameTag").textContent = "Story " + (storyIdx+1) + " of 10 • " + s.t;
+  $("gameStory").innerHTML = "<p>" + s.text + "</p>";
+  $("qNum").textContent = "Question " + (qIdx+1) + " of 2 • Trial " + (trialsDone+1) + " of 20";
   $("prompt").textContent = item.q;
   $("feed").textContent = "";
   $("feed").className = "feedback";
@@ -214,7 +240,8 @@ function tapChoice(correct, btn){
   if(correct){
     var ok = firstTryThis;
     recordTrial(ok);
-    if(ok) score++;
+    if(ok && qIdx === 0) miScore++;
+    if(ok && qIdx === 1) dqScore++;
     btn.classList.add("correct");
     $("feed").textContent = "⭐ Yes! Great thinking!";
     $("feed").className = "feedback good";
@@ -234,24 +261,29 @@ function finish(){
   var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
   $("endSummary").innerHTML = "⭐ " + stars + " stars &nbsp;•&nbsp; 🏆 " + points + " points<br>🎯 First-try accuracy: " + acc + "% (goal: 90%)<br>" +
     (acc >= 90 ? "🌟 WOW — you hit the 90% goal!" : "So close! Play again and beat your score!");
+  $("endBreakdown").innerHTML = "<b>Your scores:</b><br>🎯 Main idea questions: " + miScore + " / 10 first try<br>📖 Story detail questions: " + dqScore + " / 10 first try";
   sndCheer();
 }
 $("startBtn").addEventListener("click", function(){ sndGood(); startGame(); });
+$("askBtn").addEventListener("click", function(){ sndGood(); startQuestions(); });
 $("nextBtn").addEventListener("click", function(){
   qIdx++;
-  if(qIdx < QUESTIONS.length){ askQ(); } else { finish(); }
+  if(qIdx < QUESTIONS.length){ askQ(); }
+  else {
+    storyIdx++;
+    if(storyIdx < STORIES.length){ showStory(); } else { finish(); }
+  }
 });
 $("againBtn").addEventListener("click", startGame);
 $("restartBtn").addEventListener("click", function(){ stars=0;points=0;firstTry=0;trialsDone=0;updateHUD();show("screen-start"); });
 $("soundBtn").addEventListener("click", function(){
   soundOn = !soundOn;
-  $("soundBtn").textContent = soundOn ? "\uD83D\uDD0A Sound on" : "\uD83D\uDD07 Sound off";
+  $("soundBtn").textContent = soundOn ? "🔊 Sound on" : "🔇 Sound off";
   $("soundBtn").classList.toggle("on", !soundOn);
   if(soundOn) sndGood();
 });
 
 updateHUD();
-
 </script>
 </body>
 </html>
