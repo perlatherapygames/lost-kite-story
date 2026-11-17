@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Book Detective">
+<meta name="theme-color" content="#e85a9b">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.png">
+<title>Book Detective — The Lost Kite</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fde7ef;color:#1f2937;min-height:100vh}
+#app{max-width:640px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#e85a9b 0%,#f9a8d4 55%,#fde68a 100%);padding:14px 14px 30px}
+.card{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+h1{font-size:40px;line-height:1.05;margin:6px 0;color:#be185d;text-align:center}
+h2{font-size:26px;margin:8px 0;color:#be185d;text-align:center}
+.sub{text-align:center;font-size:18px;font-weight:700;color:#374151}
+.emoji-big{font-size:80px;text-align:center;line-height:1.1}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-weight:800}
+.bigbtn{display:block;width:100%;padding:18px;font-size:24px;background:#e85a9b;color:#fff;box-shadow:0 6px 0 #be185d;margin:16px 0}
+.bigbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #be185d}
+.bigbtn.green{background:#22c55e;box-shadow:0 6px 0 #15803d}
+.bigbtn.blue{background:#2563eb;box-shadow:0 6px 0 #1e40af}
+.bigbtn.orange{background:#f97316;box-shadow:0 6px 0 #c2410c}
+.smallbtn{padding:10px 14px;font-size:16px;background:#e5e7eb;color:#111827;margin:4px}
+.smallbtn.on{background:#e85a9b;color:#fff}
+.hud{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.pill{background:#fdf2f8;border:2px solid #f9a8d4;border-radius:999px;padding:8px 12px;font-weight:800;font-size:15px}
+.bar{height:16px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:8px 0}
+.bar>div{height:100%;background:linear-gradient(90deg,#e85a9b,#22c55e);width:0%;transition:width .4s}
+.prompt{font-size:22px;font-weight:800;text-align:center;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;line-height:1.35}
+.feedback{font-size:20px;font-weight:800;text-align:center;min-height:30px;margin:8px 0}
+.feedback.good{color:#15803d}
+.feedback.try{color:#dc2626}
+.choice{display:block;width:100%;text-align:left;padding:16px;font-size:19px;line-height:1.35;background:#fdf2f8;border:3px solid #e85a9b;color:#111827;border-radius:18px;margin:10px 0}
+.choice:active{transform:scale(.98)}
+.choice.correct{background:#dcfce7;border-color:#22c55e}
+.choice.wrong{background:#fee2e2;border-color:#dc2626;opacity:.6}
+.choice:disabled{cursor:default}
+.zone{cursor:pointer;border-radius:14px}
+.zone.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.cover-front{background:#dc2626;color:#fff;border-radius:14px;padding:18px;text-align:center;border:4px solid #991b1b;cursor:pointer;min-height:110px}
+.cover-front .t{font-size:26px;font-weight:800}
+.cover-front .k{font-size:56px;line-height:1}
+.pages{display:flex;gap:10px;margin-top:10px}
+.page{flex:1;background:#fff;border:3px solid #d1d5db;border-radius:14px;padding:12px;min-height:170px;cursor:pointer;position:relative}
+.picbox{background:#bae6fd;border:3px dashed #0284c7;border-radius:12px;text-align:center;padding:10px;cursor:pointer}
+.picbox .k{font-size:56px;line-height:1}
+.wordbox{text-align:center;font-size:34px;font-weight:800;color:#be185d;margin-top:10px;cursor:pointer;border:3px dashed #f9a8d4;border-radius:12px;padding:4px}
+.backcover{background:#7f1d1d;color:#fff;border-radius:14px;padding:14px;text-align:center;border:4px solid #450a0a;cursor:pointer;margin-top:10px;font-weight:800;font-size:18px}
+.seqgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.seqcard{background:#eff6ff;border:3px solid #2563eb;border-radius:16px;padding:14px;font-size:16px;font-weight:700;line-height:1.35;min-height:96px;text-align:left;color:#111827}
+.seqcard:active{transform:scale(.97)}
+.seqcard.done{background:#dcfce7;border-color:#22c55e;opacity:.55}
+.seqcard.wrong{animation:shake .4s}
+.storyline{background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.6}
+.storyline b{color:#be185d}
+.timer{font-size:20px;font-weight:800;text-align:center}
+#celebrate{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+#celebrate .pop{background:#fff;border-radius:28px;padding:28px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#celebrate .pop .big{font-size:64px}
+#celebrate h2{font-size:30px}
+.hidden{display:none}
+.qnum{text-align:center;font-weight:800;color:#6b7280;font-size:15px}
+.roundtag{display:inline-block;background:#fce7f3;color:#be185d;border-radius:999px;padding:6px 14px;font-weight:800;font-size:14px}
+.storytext{font-size:18px;line-height:1.6;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:16px;margin:12px 0}
+.storytext ol{margin:0;padding-left:22px}
+.storytext li{margin:8px 0}
+.note{text-align:center;color:#6b7280;font-size:14px;margin-top:10px}
+</style>
+</head>
+<body>
+<div id="app"><div class="card">
+<div class="hud">
+      <span class="pill">⭐ <span id="stars">0</span></span>
+      <span class="pill">🏆 <span id="points">0</span> pts</span>
+      <span class="pill">🎯 <span id="acc">0%</span> first try</span>
+      <button class="smallbtn" id="soundBtn" type="button">🔊 Sound on</button>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div style="text-align:center"><span class="pill">Goal: 90% first try — 9 of 10!</span></div>
+    <div id="screen-start" class="screen">
+      <div class="emoji-big">🔍📕</div>
+      <h1>Book Detective</h1>
+      <p class="sub">The Lost Kite<br>Find the parts of the book!<br>Front cover • Back cover • Page • Picture • Word</p>
+      <button class="bigbtn green" id="startBtn" type="button">▶ START!</button>
+      <p class="note">10 chances to earn a star • Get 90% first try to win!</p>
+    </div>
+    <div id="screen-game" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag">Book Detective 🔍</span></div>
+      <h2>Book Detective!</h2>
+      <div class="qnum" id="qNum"></div>
+      <div class="prompt" id="prompt"></div>
+      <div class="book">
+        <div class="cover-front zone" id="z-front"><div class="k">🪁</div><div class="t">The Lost Kite</div><div>by Sam &amp; Maya</div></div>
+        <div class="pages">
+          <div class="page zone" id="z-page">
+            <div class="picbox zone" id="z-picture"><div class="k">🪁</div><div style="font-weight:800">a kite in the sky</div></div>
+            <div class="wordbox zone" id="z-word">kite</div>
+          </div>
+        </div>
+        <div class="backcover zone" id="z-back">📕 The back of the book</div>
+      </div>
+      <div class="feedback" id="feed"></div>
+      <p class="note">Tap the part of the book I ask for!</p>
+    </div>
+    <div id="screen-end" class="screen hidden">
+      <div class="emoji-big">🎉</div>
+      <h2>You did it!</h2>
+      <p class="sub" id="endSummary"></p>
+      <button class="bigbtn green" id="againBtn" type="button">🔄 PLAY AGAIN</button>
+    </div>
+    <div style="text-align:center;margin-top:14px">
+      <button class="smallbtn" id="restartBtn" type="button">🔄 Start over</button>
+    </div>
+</div></div>
+
+<div id="celebrate"><div class="pop">
+  <div class="big" id="celEmoji"></div>
+  <h2 id="celTitle"></h2>
+  <p class="sub" id="celText"></p>
+  <button class="bigbtn green" id="celBtn" type="button">LET'S GO!</button>
+</div></div>
+
+<script>
+
+"use strict";
+var soundOn = true, audioCtx = null;
+var stars = 0, points = 0, firstTry = 0, trialsDone = 0;
+function $(id){ return document.getElementById(id); }
+function beep(freq, dur, type, delay){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    var t = audioCtx.currentTime + (delay||0);
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type||"sine"; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.18, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+dur);
+  }catch(e){}
+}
+function sndGood(){ beep(523,.12,"sine",0); beep(659,.12,"sine",.1); beep(784,.22,"sine",.2); }
+function sndBad(){ beep(200,.2,"sawtooth",0); }
+function sndCheer(){ [523,659,784,1047,784,1047].forEach(function(f,i){ beep(f,.15,"triangle",i*.12); }); }
+function shuffle(a){ var arr=a.slice(); for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; }
+function updateHUD(){
+  $("stars").textContent = stars;
+  $("points").textContent = points;
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("acc").textContent = acc + "%";
+  $("barFill").style.width = Math.round(firstTry/TOTAL*100) + "%";
+}
+function recordTrial(correctFirst){
+  trialsDone++;
+  if(correctFirst){ firstTry++; stars++; points += 10; }
+  else { points += 2; }
+  updateHUD();
+  if(stars===5 || stars===10 || stars===15 || stars===20){ danceBreak(stars + " STARS!"); }
+}
+function show(id){
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.add("hidden"); });
+  $(id).classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+function celebrate(emoji, title, text, btn, cb){
+  $("celEmoji").textContent = emoji;
+  $("celTitle").textContent = title;
+  $("celText").textContent = text;
+  $("celBtn").textContent = btn || "LET'S GO!";
+  $("celebrate").style.display = "flex";
+  sndCheer();
+  $("celBtn").onclick = function(){ $("celebrate").style.display = "none"; if(cb) cb(); };
+}
+function danceBreak(msg){
+  celebrate("\uD83D\uDD7A\uD83D\uDC83", "DANCE BREAK!", msg + " Stand up, shake it out, then keep going!", "KEEP PLAYING!");
+}
+
+var TOTAL = 10;
+var PARTS = [
+  {part:"front", label:"the FRONT cover", prompt:"Tap the FRONT cover of the book!"},
+  {part:"back", label:"the BACK cover", prompt:"Tap the BACK cover of the book!"},
+  {part:"page", label:"a PAGE", prompt:"Tap a PAGE of the book!"},
+  {part:"picture", label:"a PICTURE", prompt:"Tap a PICTURE in the book!"},
+  {part:"word", label:"a WORD", prompt:"Tap a WORD on the page!"}
+];
+var trials = [], idx = 0, firstTryThis = true;
+function startGame(){
+  stars = 0; points = 0; firstTry = 0; trialsDone = 0;
+  trials = shuffle(PARTS.concat(PARTS)); // each part twice, mixed order
+  idx = 0;
+  updateHUD();
+  show("screen-game");
+  ask();
+}
+function ask(){
+  firstTryThis = true;
+  $("qNum").textContent = "Trial " + (idx+1) + " of 10";
+  $("prompt").textContent = trials[idx].prompt;
+  $("feed").textContent = "";
+  $("feed").className = "feedback";
+}
+function tapPart(part, el){
+  if(idx >= trials.length) return;
+  if(part === trials[idx].part){
+    var ok = firstTryThis;
+    var label = trials[idx].label;
+    recordTrial(ok);
+    idx++;
+    $("feed").textContent = "⭐ Yes! That's " + label + "!";
+    $("feed").className = "feedback good";
+    sndGood();
+    if(idx < trials.length){ ask(); }
+    else { setTimeout(finish, 900); }
+  } else {
+    firstTryThis = false;
+    $("feed").textContent = "Hmm, that's not it — try again! 🔍";
+    $("feed").className = "feedback try";
+    sndBad();
+    if(el){ el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
+  }
+}
+function finish(){
+  show("screen-end");
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("endSummary").innerHTML = "⭐ " + stars + " stars &nbsp;•&nbsp; 🏆 " + points + " points<br>🎯 First-try accuracy: " + acc + "% (goal: 90%)<br>" +
+    (acc >= 90 ? "🌟 WOW — you hit the 90% goal!" : "So close! Play again and beat your score!");
+  sndCheer();
+}
+["z-front","z-back","z-page","z-picture","z-word"].forEach(function(id){
+  $(id).addEventListener("click", function(e){
+    e.stopPropagation();
+    tapPart(id.replace("z-",""), $(id));
+  });
+});
+$("startBtn").addEventListener("click", function(){ sndGood(); startGame(); });
+$("againBtn").addEventListener("click", startGame);
+$("restartBtn").addEventListener("click", function(){ stars=0;points=0;firstTry=0;trialsDone=0;updateHUD();show("screen-start"); });
+$("soundBtn").addEventListener("click", function(){
+  soundOn = !soundOn;
+  $("soundBtn").textContent = soundOn ? "\uD83D\uDD0A Sound on" : "\uD83D\uDD07 Sound off";
+  $("soundBtn").classList.toggle("on", !soundOn);
+  if(soundOn) sndGood();
+});
+
+updateHUD();
+
+</script>
+</body>
+</html>

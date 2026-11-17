@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Story Order Race">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.png">
+<title>Story Order Race — The Lost Kite</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fde7ef;color:#1f2937;min-height:100vh}
+#app{max-width:640px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#e85a9b 0%,#f9a8d4 55%,#fde68a 100%);padding:14px 14px 30px}
+.card{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+h1{font-size:40px;line-height:1.05;margin:6px 0;color:#be185d;text-align:center}
+h2{font-size:26px;margin:8px 0;color:#be185d;text-align:center}
+.sub{text-align:center;font-size:18px;font-weight:700;color:#374151}
+.emoji-big{font-size:80px;text-align:center;line-height:1.1}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-weight:800}
+.bigbtn{display:block;width:100%;padding:18px;font-size:24px;background:#e85a9b;color:#fff;box-shadow:0 6px 0 #be185d;margin:16px 0}
+.bigbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #be185d}
+.bigbtn.green{background:#22c55e;box-shadow:0 6px 0 #15803d}
+.bigbtn.blue{background:#2563eb;box-shadow:0 6px 0 #1e40af}
+.bigbtn.orange{background:#f97316;box-shadow:0 6px 0 #c2410c}
+.smallbtn{padding:10px 14px;font-size:16px;background:#e5e7eb;color:#111827;margin:4px}
+.smallbtn.on{background:#e85a9b;color:#fff}
+.hud{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.pill{background:#fdf2f8;border:2px solid #f9a8d4;border-radius:999px;padding:8px 12px;font-weight:800;font-size:15px}
+.bar{height:16px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:8px 0}
+.bar>div{height:100%;background:linear-gradient(90deg,#e85a9b,#22c55e);width:0%;transition:width .4s}
+.prompt{font-size:22px;font-weight:800;text-align:center;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;line-height:1.35}
+.feedback{font-size:20px;font-weight:800;text-align:center;min-height:30px;margin:8px 0}
+.feedback.good{color:#15803d}
+.feedback.try{color:#dc2626}
+.choice{display:block;width:100%;text-align:left;padding:16px;font-size:19px;line-height:1.35;background:#fdf2f8;border:3px solid #e85a9b;color:#111827;border-radius:18px;margin:10px 0}
+.choice:active{transform:scale(.98)}
+.choice.correct{background:#dcfce7;border-color:#22c55e}
+.choice.wrong{background:#fee2e2;border-color:#dc2626;opacity:.6}
+.choice:disabled{cursor:default}
+.zone{cursor:pointer;border-radius:14px}
+.zone.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.cover-front{background:#dc2626;color:#fff;border-radius:14px;padding:18px;text-align:center;border:4px solid #991b1b;cursor:pointer;min-height:110px}
+.cover-front .t{font-size:26px;font-weight:800}
+.cover-front .k{font-size:56px;line-height:1}
+.pages{display:flex;gap:10px;margin-top:10px}
+.page{flex:1;background:#fff;border:3px solid #d1d5db;border-radius:14px;padding:12px;min-height:170px;cursor:pointer;position:relative}
+.picbox{background:#bae6fd;border:3px dashed #0284c7;border-radius:12px;text-align:center;padding:10px;cursor:pointer}
+.picbox .k{font-size:56px;line-height:1}
+.wordbox{text-align:center;font-size:34px;font-weight:800;color:#be185d;margin-top:10px;cursor:pointer;border:3px dashed #f9a8d4;border-radius:12px;padding:4px}
+.backcover{background:#7f1d1d;color:#fff;border-radius:14px;padding:14px;text-align:center;border:4px solid #450a0a;cursor:pointer;margin-top:10px;font-weight:800;font-size:18px}
+.seqgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.seqcard{background:#eff6ff;border:3px solid #2563eb;border-radius:16px;padding:14px;font-size:16px;font-weight:700;line-height:1.35;min-height:96px;text-align:left;color:#111827}
+.seqcard:active{transform:scale(.97)}
+.seqcard.done{background:#dcfce7;border-color:#22c55e;opacity:.55}
+.seqcard.wrong{animation:shake .4s}
+.storyline{background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.6}
+.storyline b{color:#be185d}
+.timer{font-size:20px;font-weight:800;text-align:center}
+#celebrate{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+#celebrate .pop{background:#fff;border-radius:28px;padding:28px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#celebrate .pop .big{font-size:64px}
+#celebrate h2{font-size:30px}
+.hidden{display:none}
+.qnum{text-align:center;font-weight:800;color:#6b7280;font-size:15px}
+.roundtag{display:inline-block;background:#fce7f3;color:#be185d;border-radius:999px;padding:6px 14px;font-weight:800;font-size:14px}
+.storytext{font-size:18px;line-height:1.6;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:16px;margin:12px 0}
+.storytext ol{margin:0;padding-left:22px}
+.storytext li{margin:8px 0}
+.note{text-align:center;color:#6b7280;font-size:14px;margin-top:10px}
+</style>
+</head>
+<body>
+<div id="app"><div class="card">
+<div class="hud">
+      <span class="pill">⭐ <span id="stars">0</span></span>
+      <span class="pill">🏆 <span id="points">0</span> pts</span>
+      <span class="pill">🎯 <span id="acc">0%</span> first try</span>
+      <button class="smallbtn" id="soundBtn" type="button">🔊 Sound on</button>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div style="text-align:center"><span class="pill">Goal: 90% first try — 9 of 10!</span></div>
+    <div id="screen-start" class="screen">
+      <div class="emoji-big">🪁🏃</div>
+      <h1>Story Order Race</h1>
+      <p class="sub">The Lost Kite<br>Put the story in order, then retell it!</p>
+      <div class="storytext"><b>Our story:</b><ol>
+          <li>On a windy Saturday, Sam took his red kite to the park.</li>
+          <li>The wind pulled hard, and the kite flew up, up, up — right into a tall tree!</li>
+          <li>Sam tried to reach it, but the tree was too tall. He felt sad.</li>
+          <li>His friend Maya came over with a long stick and a big smile.</li>
+          <li>Together they shook the branch, and down came the kite — a little torn, but still able to fly.</li>
+          <li>Sam and Maya taped the kite, ran across the park, and flew it together all afternoon.</li>
+        </ol></div>
+      <button class="bigbtn green" id="startBtn" type="button">▶ START THE RACE!</button>
+      <p class="note">10 chances to earn a star • Get 90% first try to win!</p>
+    </div>
+    <div id="screen-order" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag">Round 1 • Order the Story 🏃</span></div>
+      <h2>Story Order Race!</h2>
+      <div class="timer">⏱ <span id="timer">0</span> seconds</div>
+      <div class="prompt" id="orderPrompt">Tap the cards in story order — FIRST comes first!</div>
+      <div class="seqgrid" id="seqGrid"></div>
+      <div class="storyline hidden" id="storyline"></div>
+      <div class="feedback" id="orderFeed"></div>
+      <button class="bigbtn orange hidden" id="retellBtn" type="button">🎤 I RETOLD IT!</button>
+    </div>
+    <div id="screen-retell" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag">Round 2 • Retell Check 🎤</span></div>
+      <h2>Retell Check!</h2>
+      <div class="qnum" id="qNum"></div>
+      <div class="prompt" id="prompt"></div>
+      <div id="choices"></div>
+      <div class="feedback" id="feed"></div>
+      <button class="bigbtn green hidden" id="nextBtn" type="button">NEXT ➜</button>
+    </div>
+    <div id="screen-end" class="screen hidden">
+      <div class="emoji-big">🎉</div>
+      <h2>You did it!</h2>
+      <p class="sub" id="endSummary"></p>
+      <div class="storytext" id="endBreakdown"></div>
+      <button class="bigbtn green" id="againBtn" type="button">🔄 PLAY AGAIN</button>
+    </div>
+    <div style="text-align:center;margin-top:14px">
+      <button class="smallbtn" id="restartBtn" type="button">🔄 Start over</button>
+    </div>
+</div></div>
+
+<div id="celebrate"><div class="pop">
+  <div class="big" id="celEmoji"></div>
+  <h2 id="celTitle"></h2>
+  <p class="sub" id="celText"></p>
+  <button class="bigbtn green" id="celBtn" type="button">LET'S GO!</button>
+</div></div>
+
+<script>
+
+"use strict";
+var soundOn = true, audioCtx = null;
+var stars = 0, points = 0, firstTry = 0, trialsDone = 0;
+function $(id){ return document.getElementById(id); }
+function beep(freq, dur, type, delay){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    var t = audioCtx.currentTime + (delay||0);
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type||"sine"; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.18, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+dur);
+  }catch(e){}
+}
+function sndGood(){ beep(523,.12,"sine",0); beep(659,.12,"sine",.1); beep(784,.22,"sine",.2); }
+function sndBad(){ beep(200,.2,"sawtooth",0); }
+function sndCheer(){ [523,659,784,1047,784,1047].forEach(function(f,i){ beep(f,.15,"triangle",i*.12); }); }
+function shuffle(a){ var arr=a.slice(); for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; }
+function updateHUD(){
+  $("stars").textContent = stars;
+  $("points").textContent = points;
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("acc").textContent = acc + "%";
+  $("barFill").style.width = Math.round(firstTry/TOTAL*100) + "%";
+}
+function recordTrial(correctFirst){
+  trialsDone++;
+  if(correctFirst){ firstTry++; stars++; points += 10; }
+  else { points += 2; }
+  updateHUD();
+  if(stars===5 || stars===10 || stars===15 || stars===20){ danceBreak(stars + " STARS!"); }
+}
+function show(id){
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.add("hidden"); });
+  $(id).classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+function celebrate(emoji, title, text, btn, cb){
+  $("celEmoji").textContent = emoji;
+  $("celTitle").textContent = title;
+  $("celText").textContent = text;
+  $("celBtn").textContent = btn || "LET'S GO!";
+  $("celebrate").style.display = "flex";
+  sndCheer();
+  $("celBtn").onclick = function(){ $("celebrate").style.display = "none"; if(cb) cb(); };
+}
+function danceBreak(msg){
+  celebrate("\uD83D\uDD7A\uD83D\uDC83", "DANCE BREAK!", msg + " Stand up, shake it out, then keep going!", "KEEP PLAYING!");
+}
+
+var TOTAL = 10;
+var STORY = [
+  "On a windy Saturday, Sam took his red kite to the park.",
+  "The wind pulled hard, and the kite flew up, up, up — right into a tall tree!",
+  "Sam tried to reach it, but the tree was too tall. He felt sad.",
+  "His friend Maya came over with a long stick and a big smile.",
+  "Together they shook the branch, and down came the kite — a little torn, but still able to fly.",
+  "Sam and Maya taped the kite, ran across the park, and flew it together all afternoon."
+];
+var STORY_SHORT = [
+  "Sam takes his red kite to the park",
+  "The kite flies up into a tall tree!",
+  "Sam tries to reach it — too tall. He feels sad.",
+  "Maya comes over with a long stick and a smile",
+  "They shake the branch — down comes the kite!",
+  "They tape the kite and fly it together all afternoon"
+];
+var RETELL = [
+  {q:"What happens FIRST in the story?", c:["Sam takes his kite to the park","The kite gets stuck","Maya comes over"], a:0},
+  {q:"What happens NEXT, after Sam takes his kite to the park?", c:["The kite gets stuck in a tree","They fly the kite together","Maya brings a stick"], a:0},
+  {q:"What happens after the kite gets stuck?", c:["Sam feels sad and Maya comes to help","They go home","The kite flies away"], a:0},
+  {q:"How does the story END?", c:["They tape the kite and fly it together","Sam loses the kite forever","Maya goes home alone"], a:0}
+];
+var next = 0, firstTryThis = true, seconds = 0, timerInt = null;
+var orderScore = 0, retellScore = 0, qIdx = 0;
+function startGame(){
+  stars = 0; points = 0; firstTry = 0; trialsDone = 0;
+  orderScore = 0; retellScore = 0;
+  updateHUD();
+  startOrder();
+}
+function startOrder(){
+  next = 0; seconds = 0; firstTryThis = true;
+  $("timer").textContent = "0";
+  $("storyline").classList.add("hidden");
+  $("storyline").innerHTML = "";
+  $("retellBtn").classList.add("hidden");
+  $("orderFeed").textContent = "";
+  show("screen-order");
+  var order = shuffle([0,1,2,3,4,5]);
+  var grid = $("seqGrid"); grid.innerHTML = "";
+  order.forEach(function(i){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "seqcard"; b.dataset.idx = i;
+    b.textContent = STORY_SHORT[i];
+    b.addEventListener("click", function(){ tapSeq(i, b); });
+    grid.appendChild(b);
+  });
+  var t0 = Date.now();
+  clearInterval(timerInt);
+  timerInt = setInterval(function(){ seconds = Math.floor((Date.now()-t0)/1000); $("timer").textContent = seconds; }, 1000);
+}
+function tapSeq(i, btn){
+  if(i === next){
+    var ok = firstTryThis;
+    recordTrial(ok);
+    if(ok) orderScore++;
+    firstTryThis = true;
+    btn.classList.add("done"); btn.disabled = true;
+    var sl = $("storyline");
+    sl.classList.remove("hidden");
+    sl.innerHTML += "<div><b>" + (next+1) + ".</b> " + STORY[next] + "</div>";
+    next++;
+    sndGood();
+    if(next < 6){
+      $("orderFeed").textContent = "⭐ Yes! What's next?";
+      $("orderFeed").className = "feedback good";
+    } else {
+      clearInterval(timerInt);
+      $("orderFeed").textContent = "🎉 You put the whole story in order in " + seconds + " seconds! Now retell it out loud!";
+      $("orderFeed").className = "feedback good";
+      $("retellBtn").classList.remove("hidden");
+    }
+  } else {
+    firstTryThis = false;
+    $("orderFeed").textContent = "Not yet — that comes later in the story. Try another card!";
+    $("orderFeed").className = "feedback try";
+    sndBad();
+    btn.classList.remove("wrong"); void btn.offsetWidth; btn.classList.add("wrong");
+  }
+}
+function startRetell(){
+  qIdx = 0;
+  show("screen-retell");
+  askQ();
+}
+function askQ(){
+  firstTryThis = true;
+  var item = RETELL[qIdx];
+  $("qNum").textContent = "Retell question " + (qIdx+1) + " of 4";
+  $("prompt").textContent = item.q;
+  $("feed").textContent = "";
+  $("feed").className = "feedback";
+  $("nextBtn").classList.add("hidden");
+  var box = $("choices"); box.innerHTML = "";
+  shuffle([0,1,2]).forEach(function(ci){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "choice";
+    b.textContent = item.c[ci];
+    b.addEventListener("click", function(){ tapChoice(ci === item.a, b); });
+    box.appendChild(b);
+  });
+}
+function tapChoice(correct, btn){
+  if(correct){
+    var ok = firstTryThis;
+    recordTrial(ok);
+    if(ok) retellScore++;
+    btn.classList.add("correct");
+    $("feed").textContent = "⭐ Yes! Great retelling!";
+    $("feed").className = "feedback good";
+    sndGood();
+    Array.prototype.forEach.call(document.querySelectorAll("#choices .choice"), function(b){ b.disabled = true; });
+    $("nextBtn").classList.remove("hidden");
+  } else {
+    firstTryThis = false;
+    btn.classList.add("wrong"); btn.disabled = true;
+    $("feed").textContent = "Not quite — try another one!";
+    $("feed").className = "feedback try";
+    sndBad();
+  }
+}
+function finish(){
+  clearInterval(timerInt);
+  show("screen-end");
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("endSummary").innerHTML = "⭐ " + stars + " stars &nbsp;•&nbsp; 🏆 " + points + " points<br>🎯 First-try accuracy: " + acc + "% (goal: 90%)<br>" +
+    (acc >= 90 ? "🌟 WOW — you hit the 90% goal!" : "So close! Play again and beat your score!");
+  $("endBreakdown").innerHTML = "<b>Your rounds:</b><br>🏃 Ordering the story: " + orderScore + " / 6 first try<br>🎤 Retell check: " + retellScore + " / 4 first try";
+  sndCheer();
+}
+$("startBtn").addEventListener("click", function(){ sndGood(); startGame(); });
+$("retellBtn").addEventListener("click", function(){
+  stars++; points += 10; updateHUD();
+  celebrate("🎤⭐", "You retold it!", "You told the whole story in order! Now answer 4 quick retell questions!", "LET'S GO! 🎤", startRetell);
+});
+$("nextBtn").addEventListener("click", function(){
+  qIdx++;
+  if(qIdx < RETELL.length){ askQ(); } else { finish(); }
+});
+$("againBtn").addEventListener("click", startGame);
+$("restartBtn").addEventListener("click", function(){ stars=0;points=0;firstTry=0;trialsDone=0;clearInterval(timerInt);updateHUD();show("screen-start"); });
+$("soundBtn").addEventListener("click", function(){
+  soundOn = !soundOn;
+  $("soundBtn").textContent = soundOn ? "\uD83D\uDD0A Sound on" : "\uD83D\uDD07 Sound off";
+  $("soundBtn").classList.toggle("on", !soundOn);
+  if(soundOn) sndGood();
+});
+
+updateHUD();
+
+</script>
+</body>
+</html>
