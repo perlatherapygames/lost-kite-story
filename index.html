@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Lost Kite">
+<meta name="theme-color" content="#e85a9b">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.png">
+<title>The Lost Kite — Story Game</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fde7ef;color:#1f2937;min-height:100vh}
+#app{max-width:640px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#e85a9b 0%,#f9a8d4 55%,#fde68a 100%);padding:14px 14px 30px}
+.card{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+h1{font-size:40px;line-height:1.05;margin:6px 0;color:#be185d;text-align:center}
+h2{font-size:26px;margin:8px 0;color:#be185d;text-align:center}
+.sub{text-align:center;font-size:18px;font-weight:700;color:#374151}
+.emoji-big{font-size:80px;text-align:center;line-height:1.1}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-weight:800}
+.bigbtn{display:block;width:100%;padding:18px;font-size:24px;background:#e85a9b;color:#fff;box-shadow:0 6px 0 #be185d;margin:16px 0}
+.bigbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #be185d}
+.bigbtn.green{background:#22c55e;box-shadow:0 6px 0 #15803d}
+.bigbtn.blue{background:#2563eb;box-shadow:0 6px 0 #1e40af}
+.bigbtn.orange{background:#f97316;box-shadow:0 6px 0 #c2410c}
+.smallbtn{padding:10px 14px;font-size:16px;background:#e5e7eb;color:#111827;margin:4px}
+.smallbtn.on{background:#e85a9b;color:#fff}
+.hud{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.pill{background:#fdf2f8;border:2px solid #f9a8d4;border-radius:999px;padding:8px 12px;font-weight:800;font-size:15px}
+.bar{height:16px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:8px 0}
+.bar>div{height:100%;background:linear-gradient(90deg,#e85a9b,#22c55e);width:0%;transition:width .4s}
+.prompt{font-size:22px;font-weight:800;text-align:center;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;line-height:1.35}
+.feedback{font-size:20px;font-weight:800;text-align:center;min-height:30px;margin:8px 0}
+.feedback.good{color:#15803d}
+.feedback.try{color:#dc2626}
+.choice{display:block;width:100%;text-align:left;padding:16px;font-size:19px;line-height:1.35;background:#fdf2f8;border:3px solid #e85a9b;color:#111827;border-radius:18px;margin:10px 0}
+.choice:active{transform:scale(.98)}
+.choice.correct{background:#dcfce7;border-color:#22c55e}
+.choice.wrong{background:#fee2e2;border-color:#dc2626;opacity:.6}
+.choice:disabled{cursor:default}
+/* Round 1 book */
+.book{margin:12px 0}
+.cover-front{background:#dc2626;color:#fff;border-radius:14px;padding:18px;text-align:center;border:4px solid #991b1b;cursor:pointer;min-height:110px}
+.cover-front .t{font-size:26px;font-weight:800}
+.cover-front .k{font-size:56px;line-height:1}
+.zone{cursor:pointer;border-radius:14px}
+.zone.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pages{display:flex;gap:10px;margin-top:10px}
+.page{flex:1;background:#fff;border:3px solid #d1d5db;border-radius:14px;padding:12px;min-height:170px;cursor:pointer;position:relative}
+.picbox{background:#bae6fd;border:3px dashed #0284c7;border-radius:12px;text-align:center;padding:10px;cursor:pointer}
+.picbox .k{font-size:56px;line-height:1}
+.wordbox{text-align:center;font-size:34px;font-weight:800;color:#be185d;margin-top:10px;cursor:pointer;border:3px dashed #f9a8d4;border-radius:12px;padding:4px}
+.backcover{background:#7f1d1d;color:#fff;border-radius:14px;padding:14px;text-align:center;border:4px solid #450a0a;cursor:pointer;margin-top:10px;font-weight:800;font-size:18px}
+.zone-label{font-size:12px;font-weight:800;color:#6b7280;text-align:center;margin-top:4px}
+/* Round 2 */
+.seqgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.seqcard{background:#eff6ff;border:3px solid #2563eb;border-radius:16px;padding:14px;font-size:16px;font-weight:700;line-height:1.35;min-height:96px;text-align:left;color:#111827}
+.seqcard:active{transform:scale(.97)}
+.seqcard.done{background:#dcfce7;border-color:#22c55e;opacity:.55}
+.seqcard.wrong{animation:shake .4s}
+.storyline{background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.6}
+.storyline b{color:#be185d}
+.timer{font-size:20px;font-weight:800;text-align:center}
+/* Celebration overlay */
+#celebrate{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+#celebrate .pop{background:#fff;border-radius:28px;padding:28px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#celebrate .pop .big{font-size:64px}
+#celebrate h2{font-size:30px}
+.hidden{display:none}
+.qnum{text-align:center;font-weight:800;color:#6b7280;font-size:15px}
+.roundtag{display:inline-block;background:#fce7f3;color:#be185d;border-radius:999px;padding:6px 14px;font-weight:800;font-size:14px}
+.storytext{font-size:18px;line-height:1.6;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:16px;margin:12px 0}
+.storytext ol{margin:0;padding-left:22px}
+.storytext li{margin:8px 0}
+.note{text-align:center;color:#6b7280;font-size:14px;margin-top:10px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="card">
+    <div class="hud">
+      <span class="pill">⭐ <span id="stars">0</span></span>
+      <span class="pill">🏆 <span id="points">0</span> pts</span>
+      <span class="pill">🎯 <span id="acc">0%</span> first try</span>
+      <span class="pill">📖 <span id="roundLbl">Start</span></span>
+      <button class="smallbtn" id="soundBtn" type="button">🔊 Sound on</button>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div style="text-align:center"><span class="pill">Goal: 90% first try!</span></div>
+
+    <!-- START -->
+    <div id="screen-start">
+      <div class="emoji-big">🪁</div>
+      <h1>The Lost Kite</h1>
+      <p class="sub">One story, four games!<br>Book Detective • Story Order Race<br>Main Idea Mission • Detective Time</p>
+      <div class="storytext"><b>Our story:</b>
+        <ol>
+          <li>On a windy Saturday, Sam took his red kite to the park.</li>
+          <li>The wind pulled hard, and the kite flew up, up, up — right into a tall tree!</li>
+          <li>Sam tried to reach it, but the tree was too tall. He felt sad.</li>
+          <li>His friend Maya came over with a long stick and a big smile.</li>
+          <li>Together they shook the branch, and down came the kite — a little torn, but still able to fly.</li>
+          <li>Sam and Maya taped the kite, ran across the park, and flew it together all afternoon.</li>
+        </ol>
+      </div>
+      <button class="bigbtn green" id="startBtn" type="button">▶ START THE GAME!</button>
+      <p class="note">29 chances to earn a star • Get 90% first try to win!</p>
+    </div>
+
+    <!-- ROUND 1 -->
+    <div id="screen-r1" class="hidden">
+      <div style="text-align:center"><span class="roundtag">Round 1 • Book Detective 🔍</span></div>
+      <h2>Book Detective!</h2>
+      <div class="prompt" id="r1Prompt"></div>
+      <div class="book">
+        <div class="cover-front zone" id="z-front"><div class="k">🪁</div><div class="t">The Lost Kite</div><div>by Sam &amp; Maya</div></div>
+        <div class="pages">
+          <div class="page zone" id="z-page">
+            <div class="picbox zone" id="z-picture"><div class="k">🪁</div><div style="font-weight:800">a kite in the sky</div></div>
+            <div class="wordbox zone" id="z-word">kite</div>
+          </div>
+        </div>
+        <div class="backcover zone" id="z-back">📕 The back of the book</div>
+      </div>
+      <div class="feedback" id="r1Feed"></div>
+      <p class="note">Tap the part of the book I ask for!</p>
+    </div>
+
+    <!-- ROUND 2 -->
+    <div id="screen-r2" class="hidden">
+      <div style="text-align:center"><span class="roundtag">Round 2 • Story Order Race 🏃</span></div>
+      <h2>Story Order Race!</h2>
+      <div class="timer">⏱ <span id="timer">0</span> seconds</div>
+      <div class="prompt" id="r2Prompt">Tap the cards in story order — FIRST comes first!</div>
+      <div class="seqgrid" id="seqGrid"></div>
+      <div class="storyline hidden" id="storyline"></div>
+      <div class="feedback" id="r2Feed"></div>
+      <button class="bigbtn orange hidden" id="retellBtn" type="button">🎤 I RETOLD IT!</button>
+    </div>
+
+    <!-- ROUND 3 / 4 shared MCQ -->
+    <div id="screen-mcq" class="hidden">
+      <div style="text-align:center"><span class="roundtag" id="mcqTag"></span></div>
+      <h2 id="mcqTitle"></h2>
+      <div class="qnum" id="mcqNum"></div>
+      <div class="prompt" id="mcqQ"></div>
+      <div id="mcqChoices"></div>
+      <div class="feedback" id="mcqFeed"></div>
+      <button class="bigbtn green hidden" id="mcqNext" type="button">NEXT ➜</button>
+    </div>
+
+    <!-- FINAL -->
+    <div id="screen-end" class="hidden">
+      <div class="emoji-big">🎉</div>
+      <h2>You did it!</h2>
+      <p class="sub" id="endSummary"></p>
+      <div class="storytext" id="endBreakdown"></div>
+      <button class="bigbtn green" id="againBtn" type="button">🔄 PLAY AGAIN</button>
+    </div>
+
+    <div style="text-align:center;margin-top:14px">
+      <button class="smallbtn" id="restartBtn" type="button">🔄 Start over</button>
+      <button class="smallbtn" id="shuffleBtn" type="button">🔀 Shuffle &amp; play again</button>
+    </div>
+  </div>
+</div>
+
+<div id="celebrate"><div class="pop">
+  <div class="big" id="celEmoji">🎉</div>
+  <h2 id="celTitle">Great job!</h2>
+  <p class="sub" id="celText"></p>
+  <button class="bigbtn green" id="celBtn" type="button">LET'S GO! 💃</button>
+</div></div>
+
+<script>
+"use strict";
+var STORY = [
+  "On a windy Saturday, Sam took his red kite to the park.",
+  "The wind pulled hard, and the kite flew up, up, up — right into a tall tree!",
+  "Sam tried to reach it, but the tree was too tall. He felt sad.",
+  "His friend Maya came over with a long stick and a big smile.",
+  "Together they shook the branch, and down came the kite — a little torn, but still able to fly.",
+  "Sam and Maya taped the kite, ran across the park, and flew it together all afternoon."
+];
+var STORY_SHORT = [
+  "Sam takes his red kite to the park",
+  "The kite flies up into a tall tree!",
+  "Sam tries to reach it — too tall. He feels sad.",
+  "Maya comes over with a long stick and a smile",
+  "They shake the branch — down comes the kite!",
+  "They tape the kite and fly it together all afternoon"
+];
+var R1 = [
+  {part:"front", label:"the FRONT cover", prompt:"Tap the FRONT cover of the book!"},
+  {part:"back", label:"the BACK cover", prompt:"Tap the BACK cover of the book!"},
+  {part:"page", label:"a PAGE", prompt:"Tap a PAGE of the book!"},
+  {part:"picture", label:"a PICTURE", prompt:"Tap a PICTURE in the book!"},
+  {part:"word", label:"a WORD", prompt:"Tap a WORD on the page!"}
+];
+var R3 = [
+  {q:"What was this story MOSTLY about?", c:["A boy and his kite","A birthday party","A lost dog"], a:0},
+  {q:"Who was in the story?", c:["Sam and Maya","Sam and a teacher","Maya and a dog"], a:0},
+  {q:"Where did the story happen?", c:["At the park","At school","At the beach"], a:0},
+  {q:"What happened to the kite?", c:["It got stuck in a tall tree","It flew away forever","It fell in a lake"], a:0},
+  {q:"How did Sam feel when the kite got stuck?", c:["Sad","Angry at Maya","Sleepy"], a:0},
+  {q:"Who helped Sam?", c:["Maya","A teacher","His dog"], a:0},
+  {q:"What did Maya bring?", c:["A long stick","A ladder","A new kite"], a:0},
+  {q:"How did they get the kite down?", c:["They shook the branch","They climbed the tree","They called the wind"], a:0},
+  {q:"What did they do at the end?", c:["They taped the kite and flew it together","They went home alone","They bought a new kite"], a:0},
+  {q:"What is the main idea in ONE sentence?", c:["Sam lost his kite, his friend helped, and they flew it together","Sam went to school","Maya bought a kite"], a:0}
+];
+var R4 = [
+  {q:"Look at the cover! What do you think will happen in this story?", c:["Sam will fly his kite at the park","Sam will go swimming","Sam will bake a cake"], a:0},
+  {q:"Sam's kite is stuck in the tree. How do you think Sam feels? How do you know?", c:["Sad, because his kite is stuck","Happy, because he loves trees","Scared of Maya"], a:0},
+  {q:"Maya is coming with a long stick. What do you think she will do?", c:["Help reach the kite","Hit Sam with it","Plant a tree"], a:0},
+  {q:"Why did Sam and Maya tape the kite?", c:["It was a little torn","They wanted a new colour","To make it heavier"], a:0},
+  {q:"Your friend is sad because their toy broke. What do you say or do?", c:["“Are you okay? Want help fixing it?”","Laugh at them","Walk away"], a:0},
+  {q:"What do you think Sam and Maya will do tomorrow at the park?", c:["Fly the kite again","Never go to the park again","Lose the kite forever"], a:0},
+  {q:"Why did Maya smile when she came over?", c:["She was happy to help her friend","She was laughing at Sam","She was sleepy"], a:0},
+  {q:"You want to join a game at the park. What do you say?", c:["“Can I play too?”","Grab the ball","Stand and watch silently"], a:0}
+];
+var TOTAL = 5 + 6 + 10 + 8; // 29 trials
+
+var soundOn = true, audioCtx = null;
+var stars = 0, points = 0, firstTry = 0, trialsDone = 0, firstTryThis = true;
+var r1i = 0, r2next = 0, r2start = 0, r2timer = null, r2seconds = 0;
+var mcqList = [], mcqIdx = 0, mcqRound = 3;
+var r1Score = 0, r2Score = 0, r3Score = 0, r4Score = 0;
+
+function $(id){ return document.getElementById(id); }
+function beep(freq, dur, type, delay){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    var t = audioCtx.currentTime + (delay||0);
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type||"sine"; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.18, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+dur);
+  }catch(e){}
+}
+function sndGood(){ beep(523,.12,"sine",0); beep(659,.12,"sine",.1); beep(784,.22,"sine",.2); }
+function sndBad(){ beep(200,.2,"sawtooth",0); }
+function sndCheer(){ [523,659,784,1047,784,1047].forEach(function(f,i){ beep(f,.15,"triangle",i*.12); }); }
+function shuffle(a){ var arr=a.slice(); for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; }
+function updateHUD(){
+  $("stars").textContent = stars;
+  $("points").textContent = points;
+  var pct = trialsDone ? Math.round(firstTry/TOTAL*100) : 0;
+  // accuracy shown as first-try correct out of trials done so far, plus overall progress
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("acc").textContent = acc + "%";
+  $("barFill").style.width = Math.round(firstTry/TOTAL*100) + "%";
+}
+function recordTrial(correctFirst){
+  trialsDone++;
+  if(correctFirst){ firstTry++; stars++; points += 10; }
+  else { points += 2; }
+  updateHUD();
+  if(stars===10 || stars===20){ danceBreak(stars + " STARS! 🕺💃"); }
+}
+function show(id){
+  ["screen-start","screen-r1","screen-r2","screen-mcq","screen-end"].forEach(function(s){ $(s).classList.add("hidden"); });
+  $(id).classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+function celebrate(emoji, title, text, btn, cb){
+  $("celEmoji").textContent = emoji;
+  $("celTitle").textContent = title;
+  $("celText").textContent = text;
+  $("celBtn").textContent = btn || "LET'S GO! 💃";
+  $("celebrate").style.display = "flex";
+  sndCheer();
+  $("celBtn").onclick = function(){ $("celebrate").style.display = "none"; if(cb) cb(); };
+}
+function danceBreak(msg){
+  celebrate("🕺💃", "DANCE BREAK!", msg + " Stand up, shake it out, then keep going!", "KEEP PLAYING! 🎉");
+}
+
+/* ---------- Round 1 ---------- */
+function startR1(){
+  r1i = 0; firstTryThis = true;
+  $("roundLbl").textContent = "Round 1";
+  $("r1Feed").textContent = "";
+  $("r1Feed").className = "feedback";
+  show("screen-r1");
+  askR1();
+}
+function askR1(){
+  if(r1i >= R1.length) return;
+  firstTryThis = true;
+  $("r1Prompt").textContent = R1[r1i].prompt;
+}
+function tapPart(part, el){
+  if(r1i >= R1.length) return;
+  if(part === R1[r1i].part){
+    var ok = firstTryThis;
+    var label = R1[r1i].label;
+    recordTrial(ok);
+    if(ok) r1Score++;
+    r1i++;
+    if(r1i < R1.length){ askR1(); }
+    $("r1Feed").textContent = "⭐ Yes! That's " + label + "!";
+    $("r1Feed").className = "feedback good";
+    sndGood();
+    if(r1i >= R1.length){ setTimeout(function(){
+      celebrate("🔍⭐", "Book Detective — DONE!", "You found all 5 book parts! Time for the Story Order Race!", "NEXT ROUND! 🏃", startR2);
+    }, 900); }
+  } else {
+    firstTryThis = false;
+    $("r1Feed").textContent = "Hmm, that's not it — try again! 🔍";
+    $("r1Feed").className = "feedback try";
+    sndBad();
+    if(el){ el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
+  }
+}
+["z-front","z-back","z-page","z-picture","z-word"].forEach(function(id){
+  $(id).addEventListener("click", function(e){
+    e.stopPropagation();
+    var part = id.replace("z-","");
+    tapPart(part, $(id));
+  });
+});
+
+/* ---------- Round 2 ---------- */
+function startR2(){
+  r2next = 0; r2seconds = 0; firstTryThis = true;
+  $("roundLbl").textContent = "Round 2";
+  $("timer").textContent = "0";
+  $("storyline").classList.add("hidden");
+  $("storyline").innerHTML = "";
+  $("retellBtn").classList.add("hidden");
+  $("r2Feed").textContent = "";
+  show("screen-r2");
+  var order = shuffle([0,1,2,3,4,5]);
+  var grid = $("seqGrid"); grid.innerHTML = "";
+  order.forEach(function(idx){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "seqcard"; b.dataset.idx = idx;
+    b.textContent = STORY_SHORT[idx];
+    b.addEventListener("click", function(){ tapSeq(idx, b); });
+    grid.appendChild(b);
+  });
+  r2start = Date.now();
+  clearInterval(r2timer);
+  r2timer = setInterval(function(){ r2seconds = Math.floor((Date.now()-r2start)/1000); $("timer").textContent = r2seconds; }, 1000);
+}
+function tapSeq(idx, btn){
+  if(idx === r2next){
+    var ok = firstTryThis;
+    recordTrial(ok);
+    if(ok) r2Score++;
+    firstTryThis = true;
+    btn.classList.add("done"); btn.disabled = true;
+    var sl = $("storyline");
+    sl.classList.remove("hidden");
+    sl.innerHTML += "<div><b>" + (r2next+1) + ".</b> " + STORY[r2next] + "</div>";
+    r2next++;
+    sndGood();
+    if(r2next < 6){
+      $("r2Feed").textContent = "⭐ Yes! What's next?";
+      $("r2Feed").className = "feedback good";
+    } else {
+      clearInterval(r2timer);
+      $("r2Feed").textContent = "🎉 You put the whole story in order in " + r2seconds + " seconds!";
+      $("r2Feed").className = "feedback good";
+      $("retellBtn").classList.remove("hidden");
+    }
+  } else {
+    firstTryThis = false;
+    $("r2Feed").textContent = "Not yet — that comes later in the story. Try another card!";
+    $("r2Feed").className = "feedback try";
+    sndBad();
+    btn.classList.remove("wrong"); void btn.offsetWidth; btn.classList.add("wrong");
+  }
+}
+$("retellBtn").addEventListener("click", function(){
+  stars++; points += 10; updateHUD();
+  celebrate("🎤⭐", "Story Order Race — DONE!", "You retold the whole story! Now for the Main Idea Mission!", "NEXT ROUND! 🎯", function(){ startMCQ(3); });
+});
+
+/* ---------- Rounds 3 & 4 ---------- */
+function startMCQ(round){
+  mcqRound = round;
+  mcqList = (round===3 ? R3 : R4).map(function(q,i){ return {q:q, orig:i}; });
+  mcqIdx = 0; firstTryThis = true;
+  $("roundLbl").textContent = "Round " + round;
+  $("mcqTag").textContent = round===3 ? "Round 3 • Main Idea Mission 🎯" : "Round 4 • Detective Time 🕵️";
+  $("mcqTitle").textContent = round===3 ? "Main Idea Mission!" : "Detective Time!";
+  show("screen-mcq");
+  askMCQ();
+}
+function askMCQ(){
+  firstTryThis = true;
+  var item = mcqList[mcqIdx].q;
+  var total = mcqList.length;
+  $("mcqNum").textContent = "Question " + (mcqIdx+1) + " of " + total;
+  $("mcqQ").textContent = item.q;
+  $("mcqFeed").textContent = "";
+  $("mcqFeed").className = "feedback";
+  $("mcqNext").classList.add("hidden");
+  var box = $("mcqChoices"); box.innerHTML = "";
+  // shuffle choice order, keep track of correct text
+  var order = shuffle([0,1,2]);
+  order.forEach(function(ci){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "choice";
+    b.textContent = item.c[ci];
+    b.addEventListener("click", function(){ tapChoice(ci === item.a, b); });
+    box.appendChild(b);
+  });
+}
+function tapChoice(correct, btn){
+  if(correct){
+    var ok = firstTryThis;
+    recordTrial(ok);
+    if(mcqRound===3 && ok) r3Score++;
+    if(mcqRound===4 && ok) r4Score++;
+    btn.classList.add("correct");
+    $("mcqFeed").textContent = "⭐ Yes! Great thinking!";
+    $("mcqFeed").className = "feedback good";
+    sndGood();
+    Array.prototype.forEach.call(document.querySelectorAll("#mcqChoices .choice"), function(b){ b.disabled = true; });
+    $("mcqNext").classList.remove("hidden");
+  } else {
+    firstTryThis = false;
+    btn.classList.add("wrong"); btn.disabled = true;
+    $("mcqFeed").textContent = "Not quite — try another one!";
+    $("mcqFeed").className = "feedback try";
+    sndBad();
+  }
+}
+$("mcqNext").addEventListener("click", function(){
+  mcqIdx++;
+  if(mcqIdx < mcqList.length){ askMCQ(); }
+  else if(mcqRound===3){
+    celebrate("🎯⭐", "Main Idea Mission — DONE!", "You answered all 10 main idea questions! One round left — Detective Time!", "LAST ROUND! 🕵️", function(){ startMCQ(4); });
+  } else {
+    finishGame();
+  }
+});
+
+/* ---------- Finish / reset ---------- */
+function finishGame(){
+  show("screen-end");
+  $("roundLbl").textContent = "Done!";
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("endSummary").innerHTML = "⭐ " + stars + " stars &nbsp;•&nbsp; 🏆 " + points + " points<br>🎯 First-try accuracy: " + acc + "% (goal: 90%)<br>" +
+    (acc >= 90 ? "🌟 WOW — you hit the 90% goal!" : "So close! Play again and beat your score!");
+  $("endBreakdown").innerHTML =
+    "<b>Your rounds:</b><br>" +
+    "🔍 Book Detective: " + r1Score + " / 5 first try<br>" +
+    "🏃 Story Order Race: " + r2Score + " / 6 first try<br>" +
+    "🎯 Main Idea Mission: " + r3Score + " / 10 first try<br>" +
+    "🕵️ Detective Time: " + r4Score + " / 8 first try";
+  sndCheer();
+}
+function resetGame(){
+  stars = 0; points = 0; firstTry = 0; trialsDone = 0;
+  r1Score = 0; r2Score = 0; r3Score = 0; r4Score = 0;
+  clearInterval(r2timer);
+  updateHUD();
+  show("screen-start");
+  $("roundLbl").textContent = "Start";
+}
+$("startBtn").addEventListener("click", function(){ sndGood(); startR1(); });
+$("againBtn").addEventListener("click", resetGame);
+$("restartBtn").addEventListener("click", resetGame);
+$("shuffleBtn").addEventListener("click", resetGame);
+$("soundBtn").addEventListener("click", function(){
+  soundOn = !soundOn;
+  $("soundBtn").textContent = soundOn ? "🔊 Sound on" : "🔇 Sound off";
+  $("soundBtn").classList.toggle("on", !soundOn);
+  if(soundOn) sndGood();
+});
+updateHUD();
+</script>
+</body>
+</html>
