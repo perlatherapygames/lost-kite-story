@@ -84,13 +84,13 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
       <button class="smallbtn" id="soundBtn" type="button">🔊 Sound on</button>
     </div>
     <div class="bar"><div id="barFill"></div></div>
-    <div style="text-align:center"><span class="pill">Goal: 90% first try!</span></div>
+    <div style="text-align:center"><span class="pill">Goal: 90% first try — 18 of 20!</span></div>
     <div id="screen-start" class="screen">
       <div class="emoji-big">🕵️🔮</div>
       <h1>Detective Time</h1>
-      <p class="sub">The Lost Kite<br>Predict and infer — what will happen?<br>How do they feel? What would YOU say?<br>8 questions, no hints!</p>
+      <p class="sub">The Lost Kite<br>Predict and infer — what will happen?<br>How do they feel? What would YOU say?<br>20 questions, no hints!</p>
       <button class="bigbtn green" id="startBtn" type="button">▶ START!</button>
-      <p class="note">8 chances to earn a star • Get 90% first try to win!</p>
+      <p class="note">20 chances to earn a star • Get 90% first try to win!</p>
     </div>
     <div id="screen-game" class="screen hidden">
       <div style="text-align:center"><span class="roundtag">Detective Time 🕵️</span></div>
@@ -172,17 +172,8 @@ function danceBreak(msg){
   celebrate("\uD83D\uDD7A\uD83D\uDC83", "DANCE BREAK!", msg + " Stand up, shake it out, then keep going!", "KEEP PLAYING!");
 }
 
-var TOTAL = 8;
-var QUESTIONS = [
-  {q:"Look at the cover! What do you think will happen in this story?", c:["Sam will fly his kite at the park","Sam will go swimming","Sam will bake a cake"], a:0},
-  {q:"Sam's kite is stuck in the tree. How do you think Sam feels? How do you know?", c:["Sad, because his kite is stuck","Happy, because he loves trees","Scared of Maya"], a:0},
-  {q:"Maya is coming with a long stick. What do you think she will do?", c:["Help reach the kite","Hit Sam with it","Plant a tree"], a:0},
-  {q:"Why did Sam and Maya tape the kite?", c:["It was a little torn","They wanted a new colour","To make it heavier"], a:0},
-  {q:"Your friend is sad because their toy broke. What do you say or do?", c:["\u201CAre you okay? Want help fixing it?\u201D","Laugh at them","Walk away"], a:0},
-  {q:"What do you think Sam and Maya will do tomorrow at the park?", c:["Fly the kite again","Never go to the park again","Lose the kite forever"], a:0},
-  {q:"Why did Maya smile when she came over?", c:["She was happy to help her friend","She was laughing at Sam","She was sleepy"], a:0},
-  {q:"You want to join a game at the park. What do you say?", c:["\u201CCan I play too?\u201D","Grab the ball","Stand and watch silently"], a:0}
-];
+var TOTAL = 20;
+var QUESTIONS = [{"q": "Look at the cover! What do you think will happen in this story?", "c": ["Sam will fly his kite at the park", "Sam will go swimming", "Sam will bake a cake"], "a": 0}, {"q": "Sam's kite is stuck in the tree. How do you think Sam feels? How do you know?", "c": ["Sad, because his kite is stuck", "Happy, because he loves trees", "Scared of Maya"], "a": 0}, {"q": "Maya is coming with a long stick. What do you think she will do?", "c": ["Help reach the kite", "Hit Sam with it", "Plant a tree"], "a": 0}, {"q": "Why did Sam and Maya tape the kite?", "c": ["It was a little torn", "They wanted a new colour", "To make it heavier"], "a": 0}, {"q": "Your friend is sad because their toy broke. What do you say or do?", "c": ["“Are you okay? Want help fixing it?”", "Laugh at them", "Walk away"], "a": 0}, {"q": "What do you think Sam and Maya will do tomorrow at the park?", "c": ["Fly the kite again", "Never go to the park again", "Lose the kite forever"], "a": 0}, {"q": "Why did Maya smile when she came over?", "c": ["She was happy to help her friend", "She was laughing at Sam", "She was sleepy"], "a": 0}, {"q": "You want to join a game at the park. What do you say?", "c": ["“Can I play too?”", "Grab the ball", "Stand and watch silently"], "a": 0}, {"q": "Mia practiced piano every day, even when her fingers felt slow. What do you think happened at her recital?", "c": ["She played her song all the way through", "She forgot how to play the piano", "She played a song she never practiced"], "a": 0}, {"q": "Leo hung his blue birdhouse in the oak tree. What do you think will happen next spring?", "c": ["Birds will move into the birdhouse", "The birdhouse will turn into a real house", "Leo will live in the birdhouse"], "a": 0}, {"q": "Jonah found his library book on the kitchen table. How do you think he felt?", "c": ["Relieved and happy", "Angry at the book", "Sleepy"], "a": 0}, {"q": "Maya's fingers got cold in the snow. What do you think she did next?", "c": ["Went inside for hot chocolate", "Took off her coat in the snow", "Built another snowman with bare hands"], "a": 0}, {"q": "A new kid is standing alone at lunch. What should you do?", "c": ["Invite them to sit with you", "Ignore them", "Tell them to go away"], "a": 0}, {"q": "Someone drops their lunch tray in the cafeteria. What do you do?", "c": ["Help them pick it up", "Laugh at them", "Walk away"], "a": 0}, {"q": "Your friend is crying because they lost their game. What do you say?", "c": ["Do you want to play again with me?", "You are bad at games", "Stop crying"], "a": 0}, {"q": "You see a friend fall down on the playground. What do you do?", "c": ["Ask if they are okay and help them up", "Keep playing", "Run away"], "a": 0}, {"q": "A classmate takes your pencil without asking. What do you say?", "c": ["Please ask before you take my things", "Grab it back and yell", "Say nothing and stay mad"], "a": 0}, {"q": "You want to play with a toy your friend is using. What do you say?", "c": ["Can I have a turn when you are done?", "Take it from them", "Cry until they give it to you"], "a": 0}, {"q": "Your friend says they don't want to play your game. What do you do?", "c": ["Ask what they want to play instead", "Never talk to them again", "Yell at them"], "a": 0}, {"q": "It is raining and your friend has no umbrella. What do you do?", "c": ["Share your umbrella", "Run ahead and leave them", "Tell them to get wet"], "a": 0}];
 var qIdx = 0, firstTryThis = true, score = 0;
 function startGame(){
   stars = 0; points = 0; firstTry = 0; trialsDone = 0; score = 0;
