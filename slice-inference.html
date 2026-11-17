@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Detective Slicer">
+<meta name="theme-color" content="#e85a9b">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.png">
+<title>Detective Slicer</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fde7ef;color:#1f2937;min-height:100vh}
+#app{max-width:640px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#e85a9b 0%,#f9a8d4 55%,#fde68a 100%);padding:14px 14px 30px}
+.card{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+h1{font-size:38px;line-height:1.05;margin:6px 0;color:#be185d;text-align:center}
+h2{font-size:26px;margin:8px 0;color:#be185d;text-align:center}
+.sub{text-align:center;font-size:18px;font-weight:700;color:#374151}
+.emoji-big{font-size:80px;text-align:center;line-height:1.1}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-weight:800}
+.bigbtn{display:block;width:100%;padding:18px;font-size:24px;background:#e85a9b;color:#fff;box-shadow:0 6px 0 #be185d;margin:16px 0}
+.bigbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #be185d}
+.bigbtn.green{background:#22c55e;box-shadow:0 6px 0 #15803d}
+.bigbtn.blue{background:#2563eb;box-shadow:0 6px 0 #1e40af}
+.bigbtn.orange{background:#f97316;box-shadow:0 6px 0 #c2410c}
+.smallbtn{padding:10px 14px;font-size:16px;background:#e5e7eb;color:#111827;margin:4px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.pill{background:#fdf2f8;border:2px solid #f9a8d4;border-radius:999px;padding:8px 12px;font-weight:800;font-size:15px}
+.pill.lives{background:#fef2f2;border-color:#fca5a5}
+.bar{height:16px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:8px 0}
+.bar>div{height:100%;background:linear-gradient(90deg,#e85a9b,#22c55e);width:0%;transition:width .4s}
+.prompt{font-size:22px;font-weight:800;text-align:center;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;line-height:1.35}
+.feedback{font-size:20px;font-weight:800;text-align:center;min-height:30px;margin:8px 0}
+.feedback.good{color:#15803d}
+.feedback.try{color:#dc2626}
+.choice{display:block;width:100%;text-align:left;padding:16px;font-size:19px;line-height:1.35;background:#fdf2f8;border:3px solid #e85a9b;color:#111827;border-radius:18px;margin:10px 0}
+.choice:active{transform:scale(.98)}
+.choice.correct{background:#dcfce7;border-color:#22c55e}
+.choice.wrong{background:#fee2e2;border-color:#dc2626;opacity:.6}
+.choice:disabled{cursor:default}
+.storytext{font-size:18px;line-height:1.6;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:16px;margin:12px 0}
+.storytext b{color:#be185d}
+.storybox{font-size:17px;line-height:1.55;background:#eff6ff;border:2px solid #2563eb;border-radius:16px;padding:14px;margin:12px 0;max-height:190px;overflow-y:auto}
+.storybox b{color:#1e40af}
+.parts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.part{background:#eff6ff;border:2px solid #2563eb;border-radius:14px;padding:10px;font-size:15px;line-height:1.35}
+.part b{display:block;color:#1e40af;font-size:13px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.part.wide{grid-column:1 / -1}
+.mapbox{background:#f0fdf4;border:2px solid #22c55e;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.55}
+.mapbox b{color:#15803d}
+.cluebox{background:#eff6ff;border:2px solid #2563eb;border-radius:16px;padding:14px;margin:12px 0;font-size:18px;line-height:1.5;font-weight:700}
+#gameCanvas{width:100%;height:auto;display:block;border-radius:20px;border:3px solid #f9a8d4;background:linear-gradient(180deg,#dbeafe 0%,#fef3c7 100%);touch-action:none}
+.badge{display:inline-block;background:#2563eb;color:#fff;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:800;margin:2px;letter-spacing:1px}
+.badge.done{background:#22c55e}
+.badge.next{background:#f97316}
+.choices-list{font-size:16px;line-height:1.5;background:#fdf2f8;border:2px solid #f9a8d4;border-radius:14px;padding:10px 14px;margin:10px 0;text-align:left}
+.choices-list div{margin:4px 0}
+#celebrate{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+#celebrate .pop{background:#fff;border-radius:28px;padding:28px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#celebrate .pop .big{font-size:64px}
+#celebrate h2{font-size:30px}
+.hidden{display:none}
+.qnum{text-align:center;font-weight:800;color:#6b7280;font-size:15px}
+.roundtag{display:inline-block;background:#fce7f3;color:#be185d;border-radius:999px;padding:6px 14px;font-weight:800;font-size:14px}
+.note{text-align:center;color:#6b7280;font-size:14px;margin-top:10px}
+.seqword{display:inline-block;background:#2563eb;color:#fff;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:800;margin-top:10px;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div id="app"><div class="card">
+<div class="hud">
+      <span class="pill">⭐ <span id="stars">0</span></span>
+      <span class="pill">🏆 <span id="points">0</span> pts</span>
+      <span class="pill">🎯 <span id="acc">0%</span> first try</span>
+      <span class="pill lives" id="livesPill">❤️❤️❤️</span>
+      <button class="smallbtn" id="soundBtn" type="button">🔊 Sound on</button>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div style="text-align:center"><span class="pill">Goal: 90% first try!</span></div>
+
+    <div id="screen-start" class="screen">
+      <div class="emoji-big">🍉🕵️</div>
+      <h1>Detective Slicer!</h1>
+      <p class="sub">20 detective questions • Read the story, then slice the right answer<br>Feelings • Why • What Happens Next • What Does It Mean • How Do You Know</p>
+      <p class="note">Slice the fruit with the right answer — you have 3 lives! A clue pops up after every right slice.</p>
+      <button class="bigbtn green" id="startBtn" type="button">▶ START SLICING!</button>
+      <p class="note">20 trials • Goal: 18/20 first try = 90%!</p>
+    </div>
+    <div id="screen-read" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag" id="readTag"></span></div>
+      <h2 id="readTitle"></h2>
+      <div class="storybox" id="readText"></div>
+      <p class="note">Read the story, then slice the right answer!</p>
+      <button class="bigbtn blue" id="readGoBtn" type="button">🍉 SLICE THE ANSWER!</button>
+    </div>
+    <div id="screen-slice" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag" id="sliceTag"></span></div>
+      <div class="prompt" id="slicePrompt"></div>
+      <div style="text-align:center" id="seqBadges"></div>
+      <div class="storybox" id="sliceStory"></div>
+      <div class="choices-list" id="sliceChoices"></div>
+      <canvas id="gameCanvas" width="600" height="420"></canvas>
+      <div class="feedback" id="sliceFeed"></div>
+      <div class="mapbox hidden" id="mapBox"></div>
+      <button class="bigbtn green hidden" id="nextBtn" type="button">NEXT ➜</button>
+      <button class="bigbtn orange hidden" id="retryBtn" type="button">🔄 TRY THIS QUESTION AGAIN</button>
+    </div>
+    <div id="screen-retell" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag">Retell Check 🎤</span></div>
+      <h2>Retell Check!</h2>
+      <div class="qnum" id="qNum"></div>
+      <div class="prompt" id="prompt"></div>
+      <div id="choices"></div>
+      <div class="feedback" id="feed"></div>
+      <button class="bigbtn green hidden" id="retellNextBtn" type="button">NEXT ➜</button>
+    </div>
+    <div id="screen-done" class="screen hidden">
+      <div class="emoji-big">🎉</div>
+      <h2 id="doneTitle">Story complete!</h2>
+      <p class="sub" id="doneSummary"></p>
+      <button class="bigbtn green" id="nextStoryBtn" type="button">NEXT QUESTION ➜</button>
+      <button class="bigbtn blue" id="shuffleBtn" type="button">🔀 Shuffle the rest</button>
+      <button class="bigbtn orange" id="replayBtn" type="button">🔄 PLAY THIS QUESTION AGAIN</button>
+    </div>
+    <div id="screen-end" class="screen hidden">
+      <div class="emoji-big">🏆</div>
+      <h2>You sliced all 20 questions!</h2>
+      <p class="sub" id="endSummary"></p>
+      <button class="bigbtn green" id="againBtn" type="button">🔄 PLAY AGAIN</button>
+    </div>
+    <div style="text-align:center;margin-top:14px">
+      <button class="smallbtn" id="restartBtn" type="button">🔄 Start over</button>
+    </div>
+
+</div></div>
+
+<div id="celebrate"><div class="pop">
+  <div class="big" id="celEmoji"></div>
+  <h2 id="celTitle"></h2>
+  <p class="sub" id="celText"></p>
+  <button class="bigbtn green" id="celBtn" type="button">LET'S GO!</button>
+</div></div>
+
+<script>
+"use strict";
+
+var soundOn = true, audioCtx = null;
+var stars = 0, points = 0, firstTry = 0, trialsDone = 0;
+var lives = 3, misses = 0;
+var order = [], orderPos = 0, storyIdx = 0;
+var expected = 0, trialFirst = true, trialResolved = false;
+var fruits = [], parts_fx = [], halves = [], trail = [];
+var sliceActive = false, engineOn = true, curScreen = "screen-start";
+var RETELL = [], qIdx = 0, retellScore = 0, storyFirst = 0, storyTrials = 0;
+var FRUIT_EMOJI = ["\uD83C\uDF4E","\uD83C\uDF4A","\uD83C\uDF4B","\uD83C\uDF47","\uD83C\uDF53","\uD83C\uDF49","\uD83C\uDF51","\uD83E\uDD5D","\uD83C\uDF52","\uD83C\uDF4D","\uD83E\uDD6D","\uD83E\uDED0"];
+var FRUIT_COLOR = ["#ef4444","#f97316","#eab308","#a855f7","#ec4899","#22c55e","#fb7185","#84cc16","#dc2626","#f59e0b","#facc15","#38bdf8"];
+var SEQWORDS = ["FIRST","NEXT","THEN","LAST"];
+var CW = 600, CH = 420, GRAV = 0.32;
+
+function $(id){ return document.getElementById(id); }
+function beep(freq, dur, type, delay){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    var t = audioCtx.currentTime + (delay||0);
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type||"sine"; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.18, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+dur);
+  }catch(e){}
+}
+function sndSlice(){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    var t = audioCtx.currentTime;
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = "sawtooth"; o.frequency.setValueAtTime(900, t);
+    o.frequency.exponentialRampToValueAtTime(250, t+0.15);
+    g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.16);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.16);
+  }catch(e){}
+}
+function sndGood(){ beep(523,.12,"sine",0); beep(659,.12,"sine",.1); beep(784,.22,"sine",.2); }
+function sndBad(){ beep(200,.2,"sawtooth",0); }
+function sndCheer(){ [523,659,784,1047,784,1047].forEach(function(f,i){ beep(f,.15,"triangle",i*.12); }); }
+function shuffle(a){ var arr=a.slice(); for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; }
+function updateHUD(){
+  $("stars").textContent = stars;
+  $("points").textContent = points;
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("acc").textContent = acc + "%";
+  $("barFill").style.width = acc + "%";
+  if(CONFIG.kind === "seq"){
+    $("livesPill").textContent = "😬 Misses: " + misses + "/3";
+  } else {
+    var h = "";
+    for(var i=0;i<3;i++){ h += (i<lives) ? "❤️" : "🖤"; }
+    $("livesPill").textContent = h;
+  }
+}
+function recordTrial(correctFirst){
+  trialsDone++; storyTrials++;
+  if(correctFirst){ firstTry++; storyFirst++; stars++; points += 10; }
+  else { points += 2; }
+  updateHUD();
+  if(stars===5 || stars===10 || stars===15 || stars===20 || stars===25 || stars===30 || stars===40){ danceBreak(stars + " STARS!"); }
+}
+function show(id){
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.add("hidden"); });
+  $(id).classList.remove("hidden");
+  curScreen = id;
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+function celebrate(emoji, title, text, btn, cb){
+  $("celEmoji").textContent = emoji;
+  $("celTitle").textContent = title;
+  $("celText").textContent = text;
+  $("celBtn").textContent = btn || "LET'S GO!";
+  $("celebrate").style.display = "flex";
+  sndCheer();
+  $("celBtn").onclick = function(){ $("celebrate").style.display = "none"; if(cb) cb(); };
+}
+function danceBreak(msg){
+  celebrate("\uD83D\uDD7A\uD83D\uDC83", "DANCE BREAK!", msg + " Stand up, shake it out, then keep going!", "KEEP PLAYING!");
+}
+function shortLabel(t){
+  var w = t.split(" ");
+  if(w.length <= 5) return t;
+  return w.slice(0,5).join(" ") + "…";
+}
+function uniqueLabels(choices){
+  var labels = choices.map(shortLabel);
+  for(var i=0;i<labels.length;i++){
+    for(var j=i+1;j<labels.length;j++){
+      if(labels[i] === labels[j]){ labels[j] = choices[j]; }
+    }
+  }
+  return labels;
+}
+function wrapLines(ctx, text, maxW){
+  var words = text.split(" "), lines = [], cur = "";
+  for(var i=0;i<words.length;i++){
+    var t = cur ? cur + " " + words[i] : words[i];
+    if(ctx.measureText(t).width <= maxW || !cur){ cur = t; }
+    else { lines.push(cur); cur = words[i]; }
+  }
+  if(cur) lines.push(cur);
+  while(lines.length > 2){ lines = lines.slice(0,2); lines[1] = lines[1].replace(/…?$/, "…"); }
+  return lines;
+}
+
+/* ---------- slicing engine ---------- */
+var canvas = null, ctx = null;
+function initCanvas(){
+  canvas = $("gameCanvas");
+  ctx = null;
+  try{ ctx = canvas.getContext("2d"); }catch(e){ ctx = null; }
+  if(!ctx) return;
+  var onDown = function(e){ e.preventDefault(); var p = toCanvas(e); trail = [p]; trySlicePoint(p.x, p.y); };
+  var onMove = function(e){ if(trail.length===0) return; e.preventDefault(); var p = toCanvas(e); var prev = trail[trail.length-1]; trail.push(p); if(trail.length>14) trail.shift(); sliceSegment(prev.x, prev.y, p.x, p.y); };
+  var onUp = function(){ trail = []; };
+  canvas.addEventListener("pointerdown", onDown);
+  canvas.addEventListener("pointermove", onMove);
+  canvas.addEventListener("pointerup", onUp);
+  canvas.addEventListener("pointerleave", onUp);
+  canvas.addEventListener("mousedown", onDown);
+  canvas.addEventListener("mousemove", onMove);
+  canvas.addEventListener("mouseup", onUp);
+}
+function toCanvas(e){
+  var r = canvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * (CW / r.width), y: (e.clientY - r.top) * (CH / r.height) };
+}
+function distSeg(px, py, x1, y1, x2, y2){
+  var dx = x2-x1, dy = y2-y1, len2 = dx*dx + dy*dy;
+  var t = len2 ? ((px-x1)*dx + (py-y1)*dy) / len2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  var cx = x1 + t*dx, cy = y1 + t*dy;
+  return Math.hypot(px-cx, py-cy);
+}
+function trySlicePoint(x, y){
+  if(!sliceActive) return;
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state !== "fly") continue;
+    if(Math.hypot(x-f.x, y-f.y) <= f.r + 4){ sliceFruit(f); return; }
+  }
+}
+function sliceSegment(x1, y1, x2, y2){
+  if(!sliceActive) return;
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state !== "fly") continue;
+    if(distSeg(f.x, f.y, x1, y1, x2, y2) <= f.r + 6){ sliceFruit(f); }
+  }
+}
+function launchFruit(f, delayFrames){
+  f.x = 60 + Math.random() * (CW - 120);
+  f.y = CH + 60;
+  f.vy = -(13 + Math.random() * 3.5);
+  f.vx = (Math.random() - 0.5) * 3;
+  f.state = "fly";
+  f.delay = delayFrames || 0;
+}
+function spawnHalves(f){
+  halves.push({x:f.x-14, y:f.y, vx:-3.2, vy:f.vy*0.4, rot:-0.5, emoji:f.emoji, life:28});
+  halves.push({x:f.x+14, y:f.y, vx:3.2, vy:f.vy*0.4, rot:0.5, emoji:f.emoji, life:28});
+  for(var i=0;i<10;i++){
+    parts_fx.push({x:f.x, y:f.y, vx:(Math.random()-0.5)*8, vy:(Math.random()-0.7)*7, life:22, color:f.color, r:3+Math.random()*4});
+  }
+}
+function sliceFruit(f){
+  if(f.state !== "fly" || !sliceActive) return;
+  f.state = "sliced";
+  spawnHalves(f);
+  sndSlice();
+  onSlice(f);
+  if(!f.gone && f.state === "sliced"){ f.respawn = 45; }
+}
+function step(){
+  if(!sliceActive) return;
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state === "sliced"){
+      if(!f.gone){
+        f.respawn = (f.respawn === undefined ? 45 : f.respawn) - 1;
+        if(f.respawn <= 0){ launchFruit(f, 10); }
+      }
+      continue;
+    }
+    if(f.state !== "fly") continue;
+    if(f.delay > 0){ f.delay--; continue; }
+    f.vy += GRAV; f.x += f.vx; f.y += f.vy;
+    if(f.x < f.r){ f.x = f.r; f.vx = Math.abs(f.vx); }
+    if(f.x > CW - f.r){ f.x = CW - f.r; f.vx = -Math.abs(f.vx); }
+    if(f.y - f.r > CH + 40){ maybeRelaunch(f); }
+  }
+  for(var i=halves.length-1;i>=0;i--){
+    var h = halves[i];
+    h.vy += GRAV; h.x += h.vx; h.y += h.vy; h.life--;
+    if(h.life <= 0) halves.splice(i,1);
+  }
+  for(var i=parts_fx.length-1;i>=0;i--){
+    var p = parts_fx[i];
+    p.vy += 0.25; p.x += p.vx; p.y += p.vy; p.life--;
+    if(p.life <= 0) parts_fx.splice(i,1);
+  }
+  draw();
+}
+function maybeRelaunch(f){
+  if(!sliceActive) return;
+  if(CONFIG.kind === "seq"){
+    if(f.done) { f.state = "gone"; return; }
+  } else {
+    if(trialResolved) { f.state = "gone"; return; }
+  }
+  launchFruit(f, 15 + Math.floor(Math.random()*30));
+}
+function draw(){
+  if(!ctx) return;
+  ctx.clearRect(0, 0, CW, CH);
+  var g = ctx.createLinearGradient(0, 0, 0, CH);
+  g.addColorStop(0, "#dbeafe"); g.addColorStop(1, "#fef3c7");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
+  // swipe trail
+  if(trail.length > 1){
+    ctx.beginPath();
+    ctx.moveTo(trail[0].x, trail[0].y);
+    for(var i=1;i<trail.length;i++){ ctx.lineTo(trail[i].x, trail[i].y); }
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
+    ctx.lineWidth = 7; ctx.lineCap = "round"; ctx.stroke();
+    ctx.strokeStyle = "rgba(232,90,155,0.7)";
+    ctx.lineWidth = 3; ctx.stroke();
+  }
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state !== "fly" || f.delay > 0) continue;
+    var fg = ctx.createRadialGradient(f.x-14, f.y-16, 6, f.x, f.y, f.r);
+    fg.addColorStop(0, "#ffffff"); fg.addColorStop(0.25, f.color); fg.addColorStop(1, f.color);
+    ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+    ctx.fillStyle = fg; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.stroke();
+    ctx.font = "42px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(f.emoji, f.x, f.y - 12);
+    ctx.font = "bold 12px sans-serif";
+    var lines = wrapLines(ctx, f.label, f.r * 1.5);
+    ctx.fillStyle = "#fff";
+    ctx.shadowColor = "rgba(0,0,0,0.55)"; ctx.shadowBlur = 3;
+    for(var li=0; li<lines.length; li++){
+      ctx.fillText(lines[li], f.x, f.y + 16 + li * 14);
+    }
+    ctx.shadowBlur = 0;
+    if(CONFIG.kind === "seq" && f.badge){
+      ctx.font = "bold 13px sans-serif";
+      ctx.fillStyle = "#2563eb";
+      ctx.fillText(f.badge, f.x, f.y - f.r - 8);
+    }
+  }
+  for(var i=0;i<halves.length;i++){
+    var h = halves[i];
+    ctx.globalAlpha = Math.max(0, h.life / 28);
+    ctx.font = "36px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(h.emoji, h.x, h.y);
+    ctx.globalAlpha = 1;
+  }
+  for(var i=0;i<parts_fx.length;i++){
+    var p = parts_fx[i];
+    ctx.globalAlpha = Math.max(0, p.life / 22);
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = p.color; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+function loop(){
+  if(!engineOn) return;
+  step();
+  if(window.requestAnimationFrame){ requestAnimationFrame(loop); }
+  else { setTimeout(loop, 16); }
+}
+
+var CONFIG = { kind: "inf", data: [{"type": "next", "q": "Look at the cover! What do you think will happen in this story?", "c": ["Sam will fly his kite at the park", "Sam will go swimming", "Sam will bake a cake"], "a": 0, "clue": "The cover shows Sam with a red kite at the park.", "story": "On a windy Saturday, Sam took his red kite to the park. The cover shows Sam holding his red kite. The park is big and open, and the wind is blowing. Sam smiles as he looks up at the sky."}, {"type": "feelings", "q": "Sam's kite is stuck in the tree. How do you think Sam feels? How do you know?", "c": ["Sad, because his kite is stuck", "Happy, because he loves trees", "Scared of Maya"], "a": 0, "clue": "Sam's kite is stuck and he cannot reach it \u2014 that would make anyone feel sad.", "story": "Sam's red kite flew up into a tall tree. Sam looked up at it and tried to reach it, but it was too high. His kite was stuck, and he could not get it down. Sam's shoulders dropped, and he felt sad."}, {"type": "next", "q": "Maya is coming with a long stick. What do you think she will do?", "c": ["Help reach the kite", "Hit Sam with it", "Plant a tree"], "a": 0, "clue": "Maya is coming to help her friend, and the kite is stuck high up.", "story": "Maya saw Sam looking up at the tall tree. His red kite was stuck high in the branches. Maya ran home and came back with a long stick. She held the stick up toward the tree."}, {"type": "why", "q": "Why did Sam and Maya tape the kite?", "c": ["It was a little torn", "They wanted a new colour", "To make it heavier"], "a": 0, "clue": "The kite got a little torn when it came down from the tree.", "story": "Maya and Sam shook the branch, and down came the kite. But the kite had a small rip in it. Sam and Maya found some tape. They put the tape over the rip to fix it."}, {"type": "feelings", "q": "Your friend is sad because their toy broke. What do you say or do?", "c": ["\u201cAre you okay? Want help fixing it?\u201d", "Laugh at them", "Walk away"], "a": 0, "clue": "Your friend feels sad, so kind words help them feel better.", "story": "At the park, your friend's toy car broke. A wheel fell off, and the car would not roll anymore. Your friend looked down at the broken car and started to cry. They felt very sad about their toy."}, {"type": "next", "q": "What do you think Sam and Maya will do tomorrow at the park?", "c": ["Fly the kite again", "Never go to the park again", "Lose the kite forever"], "a": 0, "clue": "They taped the kite and flew it together all afternoon \u2014 they had fun!", "story": "Sam and Maya taped the kite and flew it together all afternoon. They laughed and ran with the kite in the wind. It was the best day at the park. The sun was going down, and it was time to go home."}, {"type": "why", "q": "Why did Maya smile when she came over?", "c": ["She was happy to help her friend", "She was laughing at Sam", "She was sleepy"], "a": 0, "clue": "Maya came with a stick to help Sam get his kite down.", "story": "Sam was sad because his kite was stuck in the tree. Maya saw Sam and walked over with a big smile. She was carrying a long stick. She wanted to help her friend get his kite down."}, {"type": "meaning", "q": "You want to join a game at the park. What do you say?", "c": ["\u201cCan I play too?\u201d", "Grab the ball", "Stand and watch silently"], "a": 0, "clue": "Asking \u201cCan I play too?\u201d tells the other kids you want to join their game.", "story": "At the park, some kids were playing a fun ball game. You stood nearby and watched them play. You wanted to join their game. But the kids did not know you wanted to play."}, {"type": "meaning", "q": "Mia's mom said, \u201cGetting good at anything takes time.\u201d What does she mean?", "c": ["You have to practice a little bit each day to get better", "You should quit when something is hard", "You need a brand-new piano to play well"], "a": 0, "clue": "Mia practiced a little every day, and her song got better and better.", "story": "Mia played the piano every day after school. At first, her fingers felt slow and the notes came out wrong. But Mia kept practicing a little bit each day. After weeks of practice, her song started to sound smooth and pretty."}, {"type": "next", "q": "Leo hung his blue birdhouse in the oak tree. What do you think will happen next spring?", "c": ["Birds will move into the birdhouse", "The birdhouse will turn into a real house", "Leo will live in the birdhouse"], "a": 0, "clue": "A small brown bird was already peeking out of the birdhouse.", "story": "Leo built a birdhouse and painted it bright blue. He hung it on a strong branch of the big oak tree. The next morning, Leo looked out his window. A small brown bird was already peeking out of the round hole."}, {"type": "feelings", "q": "Jonah found his library book on the kitchen table. How do you think he felt?", "c": ["Relieved and happy", "Angry at the book", "Sleepy"], "a": 0, "clue": "Jonah was worried about being late, and now he found the book just in time.", "story": "Jonah could not find his library book anywhere. He looked under his bed, in his backpack, and behind the couch. The book was due back that very day, and Jonah was worried. Then he saw the book on the kitchen table, under a pile of papers."}, {"type": "evidence", "q": "Maya went inside and sat by the window with hot chocolate. How do you know she was cold?", "c": ["Her fingers started to feel cold in the snow", "She built a snowman", "She was laughing with her friends"], "a": 0, "clue": "The story says her fingers started to feel cold.", "story": "Maya played outside in the snow with her friends. The snow was cold and white all around them. After a while, Maya's fingers started to feel cold. She went inside and sat by the window with hot chocolate."}, {"type": "feelings", "q": "Mia walked up to the big piano, took a deep breath, and played her song. How do you think she felt?", "c": ["Nervous but brave \u2014 and then proud", "Bored and sleepy", "Angry at the piano"], "a": 0, "clue": "Mia took a deep breath before she played, and smiled and took a bow after.", "story": "It was the day of the spring recital. Mia walked up to the big piano on the stage. She took a deep breath and played her song from start to finish. When the last note faded away, the whole room clapped. Mia smiled and took a bow."}, {"type": "why", "q": "Why did Leo paint the birdhouse bright blue?", "c": ["So it would be easy to spot among the green leaves", "So the birds would stay away", "So the paint would dry faster"], "a": 0, "clue": "The story says he painted it bright blue so it would be easy to spot.", "story": "Leo built a birdhouse out of wood. He wanted the birds to find it in the big oak tree. The tree had lots of green leaves. So Leo painted the birdhouse bright blue, so it would be easy to spot."}, {"type": "why", "q": "Why did Jonah run all the way to the library?", "c": ["His book was due back that very day", "He wanted to buy a new book", "He was late for lunch"], "a": 0, "clue": "The book was due that day, and Jonah did not want to pay a fine.", "story": "Jonah found his library book on the kitchen table. The book was due back that very day. Jonah did not want to pay a fine. He grabbed the book and ran all the way to the library."}, {"type": "meaning", "q": "Ben's teacher said it was a great experiment. What is an experiment?", "c": ["A test you do to find out an answer", "A kind of board game", "A new kind of book"], "a": 0, "clue": "Ben asked a question, tested three bean plants, and wrote down what happened.", "story": "Ben had a question about bean plants. He planted three bean plants in cups. He gave each plant a different amount of water. Then he wrote down what happened to each plant."}, {"type": "meaning", "q": "Grace walked over and asked Ella, \u201cCan I sit with you?\u201d What does Grace mean?", "c": ["She wants to eat lunch with Ella and be her friend", "She wants Ella to leave", "She wants Ella's sandwich"], "a": 0, "clue": "Grace came over with her tray and wanted to sit with Ella.", "story": "At lunch, Ella sat alone at a table with her tray. Grace walked over with her lunch tray. Grace looked at the empty seat next to Ella. She asked, \"Can I sit with you?\""}, {"type": "evidence", "q": "How do you know Sam is sad about his kite?", "c": ["His kite is stuck in the tree and he cannot reach it", "He is smiling and laughing", "He is eating lunch at the park"], "a": 0, "clue": "The story says Sam can't reach the kite, and he feels sad.", "story": "Sam took his red kite to the park on a windy Saturday. The wind pulled the kite up into a tall tree. Sam tried to reach it, but the tree was too tall. Sam felt sad because his kite was stuck."}, {"type": "evidence", "q": "How do you know Jonah was worried about his library book?", "c": ["He looked everywhere for it, and it was due back that day", "He was laughing at the kitchen table", "He was asleep in his bed"], "a": 0, "clue": "Jonah looked under his bed, in his backpack, and behind the couch.", "story": "Jonah could not find his library book. He looked under his bed and inside his backpack. He looked behind the couch and even in the bathtub. The book was due back that very day, and Jonah felt worried."}, {"type": "evidence", "q": "How do you know the class garden grew well?", "c": ["The sunflowers grew taller than some of the students", "The carrots were slow to grow", "It rained on the garden"], "a": 0, "clue": "By summer, the sunflowers were taller than some of the students.", "story": "Ms. Green's class planted a garden behind the school. Every week, they watered the plants and pulled out weeds. The carrots were slow to grow. But by summer, the sunflowers were taller than some of the students."}], TYPE_LABEL: {"feelings": "😊 Feelings", "why": "🤔 Why", "next": "🔮 What Happens Next", "meaning": "💡 What Does It Mean", "evidence": "🔍 How Do You Know"} };
+/* ---------- per-game flow ---------- */
+function curStory(){ return CONFIG.data[order[orderPos]]; }
+function startGame(){
+  order = shuffle(CONFIG.data.map(function(_, i){ return i; }));
+  orderPos = 0; stars = 0; points = 0; firstTry = 0; trialsDone = 0;
+  lives = 3; misses = 0;
+  updateHUD();
+  showRead();
+}
+function showRead(){
+  sliceActive = false;
+  storyIdx = order[orderPos];
+  storyFirst = 0; storyTrials = 0;
+  var s = curStory();
+  if(CONFIG.kind === "seq"){
+    $("readTag").textContent = "Story " + (orderPos+1) + " of " + order.length;
+    $("readTitle").textContent = s.e + " " + s.t;
+    $("readText").textContent = s.story;
+    $("readParts").innerHTML =
+      "<div class=\"part\"><b>Character</b>" + s.parts.who + "</div>" +
+      "<div class=\"part\"><b>Setting</b>" + s.parts.where + "</div>" +
+      "<div class=\"part\"><b>Problem</b>" + s.parts.problem + "</div>" +
+      "<div class=\"part\"><b>Events</b>" + s.parts.events + "</div>" +
+      "<div class=\"part wide\"><b>Ending</b>" + s.parts.ending + "</div>";
+  } else if(CONFIG.kind === "mi"){
+    $("readTag").textContent = "Story " + (orderPos+1) + " of " + order.length;
+    $("readTitle").textContent = s.e + " " + s.t;
+    $("readText").textContent = s.text;
+  } else {
+    $("readTag").textContent = CONFIG.TYPE_LABEL[s.type] + "  •  Question " + (orderPos+1) + " of " + order.length;
+    $("readTitle").textContent = s.q;
+    $("readText").innerHTML = "<b>📖 The story:</b><br>" + s.story;
+  }
+  show("screen-read");
+}
+function startSlice(){
+  var s = curStory();
+  trialFirst = true; trialResolved = false;
+  fruits = []; halves = []; parts_fx = []; trail = [];
+  if(CONFIG.kind === "seq"){
+    expected = 0; misses = 0;
+    updateHUD();
+    $("sliceTag").textContent = s.e + " " + s.t;
+    $("slicePrompt").textContent = "Slice FIRST! 🍉 Swipe the fruit that happens FIRST!";
+    $("sliceStory").classList.add("hidden");
+    $("sliceChoices").classList.add("hidden");
+    for(var i=0;i<4;i++){
+      var f = { id:i, emoji:s.pics[i].e, label:s.pics[i].c, color:FRUIT_COLOR[i], r:52, state:"fly", done:false, badge:null };
+      launchFruit(f, i * 22);
+      fruits.push(f);
+    }
+    updateSeqBadges();
+  } else if(CONFIG.kind === "mi"){
+    lives = 3; updateHUD();
+    $("sliceTag").textContent = s.e + " " + s.t;
+    $("slicePrompt").textContent = "Slice ONLY the MAIN IDEA! 🍉";
+    $("sliceStory").innerHTML = "<b>📖 " + s.e + " " + s.t + "</b><br>" + s.text;
+    $("sliceStory").classList.remove("hidden");
+    var labels = uniqueLabels(s.mi.c);
+    var html = "<b>Choices:</b>";
+    for(var i=0;i<3;i++){ html += "<div>🍉 " + s.mi.c[i] + "</div>"; }
+    $("sliceChoices").innerHTML = html;
+    $("sliceChoices").classList.remove("hidden");
+    var ord = shuffle([0,1,2]);
+    for(var i=0;i<3;i++){
+      var ci = ord[i];
+      var f = { id:ci, emoji:FRUIT_EMOJI[i], label:labels[ci], color:FRUIT_COLOR[i], r:52, state:"fly", correct:(ci === s.mi.a) };
+      launchFruit(f, i * 22);
+      fruits.push(f);
+    }
+  } else {
+    lives = 3; updateHUD();
+    $("sliceTag").textContent = CONFIG.TYPE_LABEL[s.type];
+    $("slicePrompt").textContent = s.q + " 🍉 Slice the right answer!";
+    $("sliceStory").innerHTML = "<b>📖 The story:</b><br>" + s.story;
+    $("sliceStory").classList.remove("hidden");
+    var labels = uniqueLabels(s.c);
+    var html = "<b>Choices:</b>";
+    for(var i=0;i<3;i++){ html += "<div>🍉 " + s.c[i] + "</div>"; }
+    $("sliceChoices").innerHTML = html;
+    $("sliceChoices").classList.remove("hidden");
+    var ord = shuffle([0,1,2]);
+    for(var i=0;i<3;i++){
+      var ci = ord[i];
+      var f = { id:ci, emoji:FRUIT_EMOJI[i+3], label:labels[ci], color:FRUIT_COLOR[i+3], r:52, state:"fly", correct:(ci === s.a) };
+      launchFruit(f, i * 22);
+      fruits.push(f);
+    }
+  }
+  $("sliceFeed").textContent = "";
+  $("sliceFeed").className = "feedback";
+  $("nextBtn").classList.add("hidden");
+  $("retryBtn").classList.add("hidden");
+  $("mapBox").classList.add("hidden");
+  show("screen-slice");
+  sliceActive = true;
+}
+function updateSeqBadges(){
+  var el = $("seqBadges");
+  if(!el) return;
+  var html = "";
+  for(var i=0;i<4;i++){
+    var cls = i < expected ? "badge done" : (i === expected ? "badge next" : "badge");
+    html += "<span class=\"" + cls + "\">" + SEQWORDS[i] + "</span>";
+  }
+  el.innerHTML = html;
+}
+function onSlice(f){
+  var s = curStory();
+  if(CONFIG.kind === "seq"){
+    if(f.id === expected){
+      recordTrial(trialFirst);
+      trialFirst = true;
+      f.done = true; f.gone = true; f.state = "gone";
+      expected++;
+      updateSeqBadges();
+      sndGood();
+      if(expected >= 4){
+        sliceActive = false;
+        $("sliceFeed").textContent = "🎉 You sliced the whole story in order!";
+        $("sliceFeed").className = "feedback good";
+        setTimeout(function(){ startRetell(); }, 900);
+      } else {
+        $("sliceFeed").textContent = "⭐ Yes! Now slice " + SEQWORDS[expected] + "!";
+        $("sliceFeed").className = "feedback good";
+      }
+    } else {
+      trialFirst = false;
+      misses++;
+      updateHUD();
+      sndBad();
+      if(misses >= 3){
+        sliceActive = false;
+        $("sliceFeed").textContent = "😅 3 misses — let's try this story again!";
+        $("sliceFeed").className = "feedback try";
+        $("retryBtn").classList.remove("hidden");
+      } else {
+        $("sliceFeed").textContent = "Not yet — that comes " + (f.id < expected ? "earlier" : "later") + " in the story. " + (3-misses) + " tries left!";
+        $("sliceFeed").className = "feedback try";
+      }
+    }
+  } else {
+    if(trialResolved) return;
+    if(f.correct){
+      trialResolved = true;
+      sliceActive = false;
+      recordTrial(trialFirst);
+      f.gone = true;
+      sndGood();
+      if(CONFIG.kind === "mi"){
+        $("sliceFeed").textContent = "⭐ Yes! That's the main idea!";
+        var m = s.map;
+        $("mapBox").innerHTML = "<b>🗺️ Story map:</b><br><b>Who:</b> " + m.who + "<br><b>Where:</b> " + m.where + "<br><b>Problem:</b> " + m.problem + "<br><b>How it ended:</b> " + m.ended;
+      } else {
+        $("sliceFeed").textContent = "⭐ Yes! Great thinking! 🔍 Clue: " + s.clue;
+        $("mapBox").innerHTML = "<b>🔍 Clue:</b> " + s.clue;
+      }
+      $("sliceFeed").className = "feedback good";
+      $("mapBox").classList.remove("hidden");
+      $("nextBtn").classList.remove("hidden");
+    } else {
+      trialFirst = false;
+      lives--;
+      updateHUD();
+      sndBad();
+      if(lives <= 0){
+        trialResolved = true;
+        sliceActive = false;
+        recordTrial(false);
+        var ans = (CONFIG.kind === "mi") ? s.mi.c[s.mi.a] : s.c[s.a];
+        $("sliceFeed").textContent = "The right answer was: " + ans;
+        $("sliceFeed").className = "feedback try";
+        $("nextBtn").classList.remove("hidden");
+      } else {
+        $("sliceFeed").textContent = "Nope — that's not it! " + lives + (lives===1 ? " life" : " lives") + " left. Try again!";
+        $("sliceFeed").className = "feedback try";
+      }
+    }
+  }
+}
+function retrySlice(){
+  misses = 0; trialFirst = true;
+  halves = []; parts_fx = []; trail = [];
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.done){ f.state = "gone"; continue; }
+    launchFruit(f, i * 22);
+  }
+  updateHUD(); updateSeqBadges();
+  $("sliceFeed").textContent = "";
+  $("sliceFeed").className = "feedback";
+  $("retryBtn").classList.add("hidden");
+  $("slicePrompt").textContent = "Slice " + SEQWORDS[expected] + "! 🍉 Swipe the fruit that comes " + SEQWORDS[expected].toLowerCase() + "!";
+  sliceActive = true;
+}
+function buildRetell(){
+  var s = curStory();
+  var sh = s.short, w = s.why;
+  return [
+    {q:"What happens FIRST in the story?", c:[sh[0], sh[2], sh[3]], a:0},
+    {q:"What happens NEXT in the story?", c:[sh[1], sh[3], sh[0]], a:0},
+    {q:w.q, c:w.c, a:w.a},
+    {q:"How does the story END?", c:[sh[3], sh[1], sh[0]], a:0}
+  ];
+}
+function startRetell(){
+  sliceActive = false;
+  RETELL = buildRetell();
+  qIdx = 0; retellScore = 0;
+  show("screen-retell");
+  askRetell();
+}
+function askRetell(){
+  var item = RETELL[qIdx];
+  $("qNum").textContent = "Retell question " + (qIdx+1) + " of " + RETELL.length;
+  $("prompt").textContent = item.q;
+  $("feed").textContent = "";
+  $("feed").className = "feedback";
+  $("retellNextBtn").classList.add("hidden");
+  var box = $("choices");
+  box.innerHTML = "";
+  var ord = shuffle([0,1,2]);
+  var firstTryQ = true;
+  ord.forEach(function(ci){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "choice";
+    b.textContent = item.c[ci];
+    b.onclick = function(){
+      var ok = (ci === item.a);
+      if(ok){
+        recordTrial(firstTryQ);
+        if(firstTryQ) retellScore++;
+        b.classList.add("correct");
+        $("feed").textContent = "⭐ Yes! Great retelling!";
+        $("feed").className = "feedback good";
+        sndGood();
+      } else {
+        firstTryQ = false;
+        b.classList.add("wrong");
+        b.disabled = true;
+        $("feed").textContent = "Try again — which one really happened?";
+        $("feed").className = "feedback try";
+        sndBad();
+        return;
+      }
+      Array.prototype.forEach.call(box.children, function(ch){ ch.disabled = true; });
+      $("retellNextBtn").classList.remove("hidden");
+    };
+    box.appendChild(b);
+  });
+}
+function showDone(){
+  sliceActive = false;
+  var s = curStory();
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("doneTitle").textContent = "Story complete! 🎉";
+  var nm = s.t ? s.t : s.q;
+  $("doneSummary").textContent = nm + " — " + storyFirst + " / " + storyTrials + " first try this story • " + acc + "% overall";
+  show("screen-done");
+}
+function nextStory(){
+  orderPos++;
+  if(orderPos >= order.length){ showEnd(); }
+  else { showRead(); }
+}
+function showEnd(){
+  sliceActive = false;
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("endSummary").textContent = "⭐ " + stars + " stars • 🏆 " + points + " points • 🎯 " + acc + "% first try (" + firstTry + " / " + trialsDone + ")";
+  show("screen-end");
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  initCanvas();
+  $("soundBtn").addEventListener("click", function(){
+    soundOn = !soundOn;
+    $("soundBtn").textContent = soundOn ? "🔊 Sound on" : "🔇 Sound off";
+  });
+  $("startBtn").addEventListener("click", function(){ startGame(); });
+  $("readGoBtn").addEventListener("click", function(){ startSlice(); });
+  $("nextBtn").addEventListener("click", function(){ showDone(); });
+  $("retryBtn").addEventListener("click", function(){ if(CONFIG.kind === "seq"){ retrySlice(); } else { startSlice(); } });
+  $("retellNextBtn").addEventListener("click", function(){
+    qIdx++;
+    if(qIdx < RETELL.length){ askRetell(); } else { showDone(); }
+  });
+  $("nextStoryBtn").addEventListener("click", function(){ nextStory(); });
+  $("shuffleBtn").addEventListener("click", function(){
+    var rest = order.slice(orderPos+1);
+    order = order.slice(0, orderPos+1).concat(shuffle(rest));
+    $("shuffleBtn").textContent = "🔀 Shuffled!";
+    setTimeout(function(){ $("shuffleBtn").textContent = "🔀 Shuffle the rest"; }, 1200);
+  });
+  $("replayBtn").addEventListener("click", function(){ showRead(); });
+  $("againBtn").addEventListener("click", function(){ startGame(); });
+  $("restartBtn").addEventListener("click", function(){ startGame(); });
+  loop();
+});
+
+window.SLICE_TEST = {
+  get state(){ return { stars:stars, points:points, trialsDone:trialsDone, firstTry:firstTry, lives:lives, misses:misses, expected:expected, orderPos:orderPos, screen:curScreen, sliceActive:sliceActive, trialResolved:trialResolved,
+    fruits: fruits.map(function(f){ return {id:f.id, x:Math.round(f.x), y:Math.round(f.y), state:f.state, correct:!!f.correct, done:!!f.done}; }) }; },
+  sliceAt: function(x, y){ trySlicePoint(x, y); },
+  swipe: function(x1, y1, x2, y2){ trail = [{x:x1, y:y1}]; sliceSegment(x1, y1, x2, y2); trail = []; },
+  step: function(n){ for(var i=0;i<(n||1);i++){ step(); } },
+  start: function(){ startGame(); },
+  stop: function(){ engineOn = false; sliceActive = false; }
+};
+
+</script>
+</body>
+</html>

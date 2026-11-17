@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Slice the Story">
+<meta name="theme-color" content="#e85a9b">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.png">
+<title>Slice the Story</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fde7ef;color:#1f2937;min-height:100vh}
+#app{max-width:640px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#e85a9b 0%,#f9a8d4 55%,#fde68a 100%);padding:14px 14px 30px}
+.card{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+h1{font-size:38px;line-height:1.05;margin:6px 0;color:#be185d;text-align:center}
+h2{font-size:26px;margin:8px 0;color:#be185d;text-align:center}
+.sub{text-align:center;font-size:18px;font-weight:700;color:#374151}
+.emoji-big{font-size:80px;text-align:center;line-height:1.1}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-weight:800}
+.bigbtn{display:block;width:100%;padding:18px;font-size:24px;background:#e85a9b;color:#fff;box-shadow:0 6px 0 #be185d;margin:16px 0}
+.bigbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #be185d}
+.bigbtn.green{background:#22c55e;box-shadow:0 6px 0 #15803d}
+.bigbtn.blue{background:#2563eb;box-shadow:0 6px 0 #1e40af}
+.bigbtn.orange{background:#f97316;box-shadow:0 6px 0 #c2410c}
+.smallbtn{padding:10px 14px;font-size:16px;background:#e5e7eb;color:#111827;margin:4px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.pill{background:#fdf2f8;border:2px solid #f9a8d4;border-radius:999px;padding:8px 12px;font-weight:800;font-size:15px}
+.pill.lives{background:#fef2f2;border-color:#fca5a5}
+.bar{height:16px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:8px 0}
+.bar>div{height:100%;background:linear-gradient(90deg,#e85a9b,#22c55e);width:0%;transition:width .4s}
+.prompt{font-size:22px;font-weight:800;text-align:center;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;line-height:1.35}
+.feedback{font-size:20px;font-weight:800;text-align:center;min-height:30px;margin:8px 0}
+.feedback.good{color:#15803d}
+.feedback.try{color:#dc2626}
+.choice{display:block;width:100%;text-align:left;padding:16px;font-size:19px;line-height:1.35;background:#fdf2f8;border:3px solid #e85a9b;color:#111827;border-radius:18px;margin:10px 0}
+.choice:active{transform:scale(.98)}
+.choice.correct{background:#dcfce7;border-color:#22c55e}
+.choice.wrong{background:#fee2e2;border-color:#dc2626;opacity:.6}
+.choice:disabled{cursor:default}
+.storytext{font-size:18px;line-height:1.6;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:16px;margin:12px 0}
+.storytext b{color:#be185d}
+.storybox{font-size:17px;line-height:1.55;background:#eff6ff;border:2px solid #2563eb;border-radius:16px;padding:14px;margin:12px 0;max-height:190px;overflow-y:auto}
+.storybox b{color:#1e40af}
+.parts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.part{background:#eff6ff;border:2px solid #2563eb;border-radius:14px;padding:10px;font-size:15px;line-height:1.35}
+.part b{display:block;color:#1e40af;font-size:13px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.part.wide{grid-column:1 / -1}
+.mapbox{background:#f0fdf4;border:2px solid #22c55e;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.55}
+.mapbox b{color:#15803d}
+.cluebox{background:#eff6ff;border:2px solid #2563eb;border-radius:16px;padding:14px;margin:12px 0;font-size:18px;line-height:1.5;font-weight:700}
+#gameCanvas{width:100%;height:auto;display:block;border-radius:20px;border:3px solid #f9a8d4;background:linear-gradient(180deg,#dbeafe 0%,#fef3c7 100%);touch-action:none}
+.badge{display:inline-block;background:#2563eb;color:#fff;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:800;margin:2px;letter-spacing:1px}
+.badge.done{background:#22c55e}
+.badge.next{background:#f97316}
+.choices-list{font-size:16px;line-height:1.5;background:#fdf2f8;border:2px solid #f9a8d4;border-radius:14px;padding:10px 14px;margin:10px 0;text-align:left}
+.choices-list div{margin:4px 0}
+#celebrate{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+#celebrate .pop{background:#fff;border-radius:28px;padding:28px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#celebrate .pop .big{font-size:64px}
+#celebrate h2{font-size:30px}
+.hidden{display:none}
+.qnum{text-align:center;font-weight:800;color:#6b7280;font-size:15px}
+.roundtag{display:inline-block;background:#fce7f3;color:#be185d;border-radius:999px;padding:6px 14px;font-weight:800;font-size:14px}
+.note{text-align:center;color:#6b7280;font-size:14px;margin-top:10px}
+.seqword{display:inline-block;background:#2563eb;color:#fff;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:800;margin-top:10px;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div id="app"><div class="card">
+<div class="hud">
+      <span class="pill">⭐ <span id="stars">0</span></span>
+      <span class="pill">🏆 <span id="points">0</span> pts</span>
+      <span class="pill">🎯 <span id="acc">0%</span> first try</span>
+      <span class="pill lives" id="livesPill">❤️❤️❤️</span>
+      <button class="smallbtn" id="soundBtn" type="button">🔊 Sound on</button>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div style="text-align:center"><span class="pill">Goal: 90% first try!</span></div>
+
+    <div id="screen-start" class="screen">
+      <div class="emoji-big">🍉📖</div>
+      <h1>Slice the Story!</h1>
+      <p class="sub">40 stories • Swipe to slice the 4 events in order<br>Read first, then slice FIRST → NEXT → THEN → LAST!</p>
+      <p class="note">Swipe with your finger — slice the fruit that comes next in the story. 3 misses and you retry the story!</p>
+      <button class="bigbtn green" id="startBtn" type="button">▶ START SLICING!</button>
+      <p class="note">Goal: 90% first try!</p>
+    </div>
+    <div id="screen-read" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag" id="readTag"></span></div>
+      <h2 id="readTitle"></h2>
+      <div class="storytext" id="readText"></div>
+      <div class="parts" id="readParts"></div>
+      <p class="note">Read the story, then slice the 4 fruits in order!</p>
+      <button class="bigbtn blue" id="readGoBtn" type="button">🍉 SLICE THE STORY!</button>
+    </div>
+    <div id="screen-slice" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag" id="sliceTag"></span></div>
+      <div class="prompt" id="slicePrompt"></div>
+      <div style="text-align:center" id="seqBadges"></div>
+      <div class="storytext hidden" id="sliceStory"></div>
+      <div class="choices-list hidden" id="sliceChoices"></div>
+      <canvas id="gameCanvas" width="600" height="420"></canvas>
+      <div class="feedback" id="sliceFeed"></div>
+      <div class="mapbox hidden" id="mapBox"></div>
+      <button class="bigbtn green hidden" id="nextBtn" type="button">NEXT ➜</button>
+      <button class="bigbtn orange hidden" id="retryBtn" type="button">🔄 TRY THIS STORY AGAIN</button>
+    </div>
+    <div id="screen-retell" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag">Retell Check 🎤</span></div>
+      <h2>Retell Check!</h2>
+      <div class="qnum" id="qNum"></div>
+      <div class="prompt" id="prompt"></div>
+      <div id="choices"></div>
+      <div class="feedback" id="feed"></div>
+      <button class="bigbtn green hidden" id="retellNextBtn" type="button">NEXT ➜</button>
+    </div>
+    <div id="screen-done" class="screen hidden">
+      <div class="emoji-big">🎉</div>
+      <h2 id="doneTitle">Story complete!</h2>
+      <p class="sub" id="doneSummary"></p>
+      <button class="bigbtn green" id="nextStoryBtn" type="button">NEXT STORY ➜</button>
+      <button class="bigbtn blue" id="shuffleBtn" type="button">🔀 Shuffle the rest</button>
+      <button class="bigbtn orange" id="replayBtn" type="button">🔄 PLAY THIS STORY AGAIN</button>
+    </div>
+    <div id="screen-end" class="screen hidden">
+      <div class="emoji-big">🏆</div>
+      <h2>You sliced all 40 stories!</h2>
+      <p class="sub" id="endSummary"></p>
+      <button class="bigbtn green" id="againBtn" type="button">🔄 PLAY AGAIN</button>
+    </div>
+    <div style="text-align:center;margin-top:14px">
+      <button class="smallbtn" id="restartBtn" type="button">🔄 Start over</button>
+    </div>
+
+</div></div>
+
+<div id="celebrate"><div class="pop">
+  <div class="big" id="celEmoji"></div>
+  <h2 id="celTitle"></h2>
+  <p class="sub" id="celText"></p>
+  <button class="bigbtn green" id="celBtn" type="button">LET'S GO!</button>
+</div></div>
+
+<script>
+"use strict";
+
+var soundOn = true, audioCtx = null;
+var stars = 0, points = 0, firstTry = 0, trialsDone = 0;
+var lives = 3, misses = 0;
+var order = [], orderPos = 0, storyIdx = 0;
+var expected = 0, trialFirst = true, trialResolved = false;
+var fruits = [], parts_fx = [], halves = [], trail = [];
+var sliceActive = false, engineOn = true, curScreen = "screen-start";
+var RETELL = [], qIdx = 0, retellScore = 0, storyFirst = 0, storyTrials = 0;
+var FRUIT_EMOJI = ["\uD83C\uDF4E","\uD83C\uDF4A","\uD83C\uDF4B","\uD83C\uDF47","\uD83C\uDF53","\uD83C\uDF49","\uD83C\uDF51","\uD83E\uDD5D","\uD83C\uDF52","\uD83C\uDF4D","\uD83E\uDD6D","\uD83E\uDED0"];
+var FRUIT_COLOR = ["#ef4444","#f97316","#eab308","#a855f7","#ec4899","#22c55e","#fb7185","#84cc16","#dc2626","#f59e0b","#facc15","#38bdf8"];
+var SEQWORDS = ["FIRST","NEXT","THEN","LAST"];
+var CW = 600, CH = 420, GRAV = 0.32;
+
+function $(id){ return document.getElementById(id); }
+function beep(freq, dur, type, delay){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    var t = audioCtx.currentTime + (delay||0);
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type||"sine"; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.18, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+dur);
+  }catch(e){}
+}
+function sndSlice(){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    var t = audioCtx.currentTime;
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = "sawtooth"; o.frequency.setValueAtTime(900, t);
+    o.frequency.exponentialRampToValueAtTime(250, t+0.15);
+    g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.16);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.16);
+  }catch(e){}
+}
+function sndGood(){ beep(523,.12,"sine",0); beep(659,.12,"sine",.1); beep(784,.22,"sine",.2); }
+function sndBad(){ beep(200,.2,"sawtooth",0); }
+function sndCheer(){ [523,659,784,1047,784,1047].forEach(function(f,i){ beep(f,.15,"triangle",i*.12); }); }
+function shuffle(a){ var arr=a.slice(); for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; }
+function updateHUD(){
+  $("stars").textContent = stars;
+  $("points").textContent = points;
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("acc").textContent = acc + "%";
+  $("barFill").style.width = acc + "%";
+  if(CONFIG.kind === "seq"){
+    $("livesPill").textContent = "😬 Misses: " + misses + "/3";
+  } else {
+    var h = "";
+    for(var i=0;i<3;i++){ h += (i<lives) ? "❤️" : "🖤"; }
+    $("livesPill").textContent = h;
+  }
+}
+function recordTrial(correctFirst){
+  trialsDone++; storyTrials++;
+  if(correctFirst){ firstTry++; storyFirst++; stars++; points += 10; }
+  else { points += 2; }
+  updateHUD();
+  if(stars===5 || stars===10 || stars===15 || stars===20 || stars===25 || stars===30 || stars===40){ danceBreak(stars + " STARS!"); }
+}
+function show(id){
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.add("hidden"); });
+  $(id).classList.remove("hidden");
+  curScreen = id;
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+function celebrate(emoji, title, text, btn, cb){
+  $("celEmoji").textContent = emoji;
+  $("celTitle").textContent = title;
+  $("celText").textContent = text;
+  $("celBtn").textContent = btn || "LET'S GO!";
+  $("celebrate").style.display = "flex";
+  sndCheer();
+  $("celBtn").onclick = function(){ $("celebrate").style.display = "none"; if(cb) cb(); };
+}
+function danceBreak(msg){
+  celebrate("\uD83D\uDD7A\uD83D\uDC83", "DANCE BREAK!", msg + " Stand up, shake it out, then keep going!", "KEEP PLAYING!");
+}
+function shortLabel(t){
+  var w = t.split(" ");
+  if(w.length <= 5) return t;
+  return w.slice(0,5).join(" ") + "…";
+}
+function uniqueLabels(choices){
+  var labels = choices.map(shortLabel);
+  for(var i=0;i<labels.length;i++){
+    for(var j=i+1;j<labels.length;j++){
+      if(labels[i] === labels[j]){ labels[j] = choices[j]; }
+    }
+  }
+  return labels;
+}
+function wrapLines(ctx, text, maxW){
+  var words = text.split(" "), lines = [], cur = "";
+  for(var i=0;i<words.length;i++){
+    var t = cur ? cur + " " + words[i] : words[i];
+    if(ctx.measureText(t).width <= maxW || !cur){ cur = t; }
+    else { lines.push(cur); cur = words[i]; }
+  }
+  if(cur) lines.push(cur);
+  while(lines.length > 2){ lines = lines.slice(0,2); lines[1] = lines[1].replace(/…?$/, "…"); }
+  return lines;
+}
+
+/* ---------- slicing engine ---------- */
+var canvas = null, ctx = null;
+function initCanvas(){
+  canvas = $("gameCanvas");
+  ctx = null;
+  try{ ctx = canvas.getContext("2d"); }catch(e){ ctx = null; }
+  if(!ctx) return;
+  var onDown = function(e){ e.preventDefault(); var p = toCanvas(e); trail = [p]; trySlicePoint(p.x, p.y); };
+  var onMove = function(e){ if(trail.length===0) return; e.preventDefault(); var p = toCanvas(e); var prev = trail[trail.length-1]; trail.push(p); if(trail.length>14) trail.shift(); sliceSegment(prev.x, prev.y, p.x, p.y); };
+  var onUp = function(){ trail = []; };
+  canvas.addEventListener("pointerdown", onDown);
+  canvas.addEventListener("pointermove", onMove);
+  canvas.addEventListener("pointerup", onUp);
+  canvas.addEventListener("pointerleave", onUp);
+  canvas.addEventListener("mousedown", onDown);
+  canvas.addEventListener("mousemove", onMove);
+  canvas.addEventListener("mouseup", onUp);
+}
+function toCanvas(e){
+  var r = canvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * (CW / r.width), y: (e.clientY - r.top) * (CH / r.height) };
+}
+function distSeg(px, py, x1, y1, x2, y2){
+  var dx = x2-x1, dy = y2-y1, len2 = dx*dx + dy*dy;
+  var t = len2 ? ((px-x1)*dx + (py-y1)*dy) / len2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  var cx = x1 + t*dx, cy = y1 + t*dy;
+  return Math.hypot(px-cx, py-cy);
+}
+function trySlicePoint(x, y){
+  if(!sliceActive) return;
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state !== "fly") continue;
+    if(Math.hypot(x-f.x, y-f.y) <= f.r + 4){ sliceFruit(f); return; }
+  }
+}
+function sliceSegment(x1, y1, x2, y2){
+  if(!sliceActive) return;
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state !== "fly") continue;
+    if(distSeg(f.x, f.y, x1, y1, x2, y2) <= f.r + 6){ sliceFruit(f); }
+  }
+}
+function launchFruit(f, delayFrames){
+  f.x = 60 + Math.random() * (CW - 120);
+  f.y = CH + 60;
+  f.vy = -(13 + Math.random() * 3.5);
+  f.vx = (Math.random() - 0.5) * 3;
+  f.state = "fly";
+  f.delay = delayFrames || 0;
+}
+function spawnHalves(f){
+  halves.push({x:f.x-14, y:f.y, vx:-3.2, vy:f.vy*0.4, rot:-0.5, emoji:f.emoji, life:28});
+  halves.push({x:f.x+14, y:f.y, vx:3.2, vy:f.vy*0.4, rot:0.5, emoji:f.emoji, life:28});
+  for(var i=0;i<10;i++){
+    parts_fx.push({x:f.x, y:f.y, vx:(Math.random()-0.5)*8, vy:(Math.random()-0.7)*7, life:22, color:f.color, r:3+Math.random()*4});
+  }
+}
+function sliceFruit(f){
+  if(f.state !== "fly" || !sliceActive) return;
+  f.state = "sliced";
+  spawnHalves(f);
+  sndSlice();
+  onSlice(f);
+  if(!f.gone && f.state === "sliced"){ f.respawn = 45; }
+}
+function step(){
+  if(!sliceActive) return;
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state === "sliced"){
+      if(!f.gone){
+        f.respawn = (f.respawn === undefined ? 45 : f.respawn) - 1;
+        if(f.respawn <= 0){ launchFruit(f, 10); }
+      }
+      continue;
+    }
+    if(f.state !== "fly") continue;
+    if(f.delay > 0){ f.delay--; continue; }
+    f.vy += GRAV; f.x += f.vx; f.y += f.vy;
+    if(f.x < f.r){ f.x = f.r; f.vx = Math.abs(f.vx); }
+    if(f.x > CW - f.r){ f.x = CW - f.r; f.vx = -Math.abs(f.vx); }
+    if(f.y - f.r > CH + 40){ maybeRelaunch(f); }
+  }
+  for(var i=halves.length-1;i>=0;i--){
+    var h = halves[i];
+    h.vy += GRAV; h.x += h.vx; h.y += h.vy; h.life--;
+    if(h.life <= 0) halves.splice(i,1);
+  }
+  for(var i=parts_fx.length-1;i>=0;i--){
+    var p = parts_fx[i];
+    p.vy += 0.25; p.x += p.vx; p.y += p.vy; p.life--;
+    if(p.life <= 0) parts_fx.splice(i,1);
+  }
+  draw();
+}
+function maybeRelaunch(f){
+  if(!sliceActive) return;
+  if(CONFIG.kind === "seq"){
+    if(f.done) { f.state = "gone"; return; }
+  } else {
+    if(trialResolved) { f.state = "gone"; return; }
+  }
+  launchFruit(f, 15 + Math.floor(Math.random()*30));
+}
+function draw(){
+  if(!ctx) return;
+  ctx.clearRect(0, 0, CW, CH);
+  var g = ctx.createLinearGradient(0, 0, 0, CH);
+  g.addColorStop(0, "#dbeafe"); g.addColorStop(1, "#fef3c7");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
+  // swipe trail
+  if(trail.length > 1){
+    ctx.beginPath();
+    ctx.moveTo(trail[0].x, trail[0].y);
+    for(var i=1;i<trail.length;i++){ ctx.lineTo(trail[i].x, trail[i].y); }
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
+    ctx.lineWidth = 7; ctx.lineCap = "round"; ctx.stroke();
+    ctx.strokeStyle = "rgba(232,90,155,0.7)";
+    ctx.lineWidth = 3; ctx.stroke();
+  }
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state !== "fly" || f.delay > 0) continue;
+    var fg = ctx.createRadialGradient(f.x-14, f.y-16, 6, f.x, f.y, f.r);
+    fg.addColorStop(0, "#ffffff"); fg.addColorStop(0.25, f.color); fg.addColorStop(1, f.color);
+    ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+    ctx.fillStyle = fg; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.stroke();
+    ctx.font = "42px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(f.emoji, f.x, f.y - 12);
+    ctx.font = "bold 12px sans-serif";
+    var lines = wrapLines(ctx, f.label, f.r * 1.5);
+    ctx.fillStyle = "#fff";
+    ctx.shadowColor = "rgba(0,0,0,0.55)"; ctx.shadowBlur = 3;
+    for(var li=0; li<lines.length; li++){
+      ctx.fillText(lines[li], f.x, f.y + 16 + li * 14);
+    }
+    ctx.shadowBlur = 0;
+    if(CONFIG.kind === "seq" && f.badge){
+      ctx.font = "bold 13px sans-serif";
+      ctx.fillStyle = "#2563eb";
+      ctx.fillText(f.badge, f.x, f.y - f.r - 8);
+    }
+  }
+  for(var i=0;i<halves.length;i++){
+    var h = halves[i];
+    ctx.globalAlpha = Math.max(0, h.life / 28);
+    ctx.font = "36px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(h.emoji, h.x, h.y);
+    ctx.globalAlpha = 1;
+  }
+  for(var i=0;i<parts_fx.length;i++){
+    var p = parts_fx[i];
+    ctx.globalAlpha = Math.max(0, p.life / 22);
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = p.color; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+function loop(){
+  if(!engineOn) return;
+  step();
+  if(window.requestAnimationFrame){ requestAnimationFrame(loop); }
+  else { setTimeout(loop, 16); }
+}
+
+var CONFIG = { kind: "seq", data: [{"t": "The Lost Kite", "e": "\ud83e\ude81", "story": "On a windy Saturday, Sam took his red kite to the park. The wind pulled hard, and the kite flew up into a tall tree. Sam could not reach it, and he felt sad. Then Maya came with a long stick and a big smile. Together they shook the branch, and down came the kite, a little torn. They taped it up and flew it together all afternoon.", "short": ["Take the red kite to the park", "The kite gets stuck in a tall tree", "Maya comes with a long stick", "Tape the kite and fly it together"], "full": ["Sam takes his red kite to the park.", "The kite gets stuck in a tall tree.", "Maya comes with a long stick and they shake the branch.", "They tape the kite and fly it together."], "pics": [{"e": "\ud83e\ude81", "c": "Kite to park"}, {"e": "\ud83c\udf33", "c": "Stuck in tree"}, {"e": "\ud83e\udeb5", "c": "Maya's stick"}, {"e": "\ud83e\udd1d", "c": "Fly together"}], "parts": {"who": "Sam and Maya", "where": "The park on a windy Saturday", "problem": "The kite got stuck in a tall tree", "events": "Maya brings a long stick and they shake the branch", "ending": "They tape the kite and fly it together"}, "why": {"q": "Why did Sam and Maya tape the kite?", "c": ["Because the kite was a little torn", "Because the kite was too heavy to fly", "Because they wanted a brand-new kite"], "a": 0}}, {"t": "Brushing Teeth", "e": "\ud83e\udea5", "story": "After dinner, I get my toothbrush and my toothpaste from the bathroom shelf. I squeeze a little toothpaste onto the brush. Then I brush all my teeth, front and back, until they feel clean. Last, I rinse my mouth with water and smile in the mirror.", "short": ["Get the toothbrush and toothpaste", "Put toothpaste on the brush", "Brush all the teeth", "Rinse and smile"], "full": ["I get my toothbrush and toothpaste.", "I put toothpaste on the brush.", "I brush all my teeth.", "I rinse my mouth and smile."], "pics": [{"e": "\ud83e\udea5", "c": "Get the brush"}, {"e": "\ud83e\uddf4", "c": "Toothpaste"}, {"e": "\ud83d\ude01", "c": "Brush teeth"}, {"e": "\ud83d\udca7", "c": "Rinse"}], "parts": {"who": "A kid getting ready for bed", "where": "The bathroom", "problem": "Teeth need to be cleaned after dinner", "events": "Put toothpaste on the brush and brush all the teeth", "ending": "Rinse and smile in the mirror"}, "why": {"q": "Why do you brush your teeth?", "c": ["To keep your teeth clean and healthy", "To make your teeth turn blue", "To make your toothbrush wet"], "a": 0}}, {"t": "Making a Sandwich", "e": "\ud83e\udd6a", "story": "I was hungry after school, so I decided to make a sandwich. First, I got two slices of bread out of the bag. Then I spread peanut butter on one slice and jelly on the other. I put the slices together, cut the sandwich in half, and ate it all up.", "short": ["Get two slices of bread", "Spread peanut butter and jelly", "Put the slices together", "Cut it and eat it"], "full": ["I get two slices of bread.", "I spread peanut butter and jelly on them.", "I put the slices together.", "I cut the sandwich and eat it."], "pics": [{"e": "\ud83c\udf5e", "c": "Bread"}, {"e": "\ud83e\udd5c", "c": "Peanut butter"}, {"e": "\ud83e\udd6a", "c": "Together"}, {"e": "\u2702\ufe0f", "c": "Cut it"}], "parts": {"who": "A hungry kid", "where": "The kitchen after school", "problem": "Hungry after school", "events": "Spread peanut butter and jelly on the bread", "ending": "Cut the sandwich and eat it all up"}, "why": {"q": "Why did the kid make a sandwich?", "c": ["Because the kid was hungry after school", "Because the bread was too cold", "Because the kitchen was messy"], "a": 0}}, {"t": "Planting a Seed", "e": "\ud83c\udf31", "story": "In spring, I planted a seed in a little pot. First, I filled the pot with dark, soft soil. Then I poked a hole and put the seed inside. I watered the seed and set the pot on the windowsill. Every day I watched it, and soon a tiny green plant poked up through the soil.", "short": ["Fill a pot with soil", "Put a seed in the soil", "Water the seed", "Watch the plant grow"], "full": ["I fill a pot with soil.", "I put a seed in the soil.", "I water the seed.", "I watch the little plant grow."], "pics": [{"e": "\ud83e\udebc", "c": "Fill the pot"}, {"e": "\ud83c\udf31", "c": "The seed"}, {"e": "\ud83d\udca7", "c": "Water it"}, {"e": "\ud83c\udf3b", "c": "It grows"}], "parts": {"who": "A kid in spring", "where": "A little pot on the windowsill", "problem": "The seed needs soil, water, and sun to grow", "events": "Put the seed in the soil and water it", "ending": "A tiny green plant pokes up"}, "why": {"q": "Why did the kid water the seed every day?", "c": ["So the seed could grow into a plant", "So the pot would get heavier", "So the soil would stay dry"], "a": 0}}, {"t": "Baking Cookies", "e": "\ud83c\udf6a", "story": "On Saturday, I baked cookies with my mom. First, we mixed the dough in a big bowl. Then I rolled the dough into little balls and put them on a baking tray. We baked the cookies in the oven until they smelled sweet. When they were cool, I ate a warm cookie with a glass of milk.", "short": ["Mix the dough in a bowl", "Roll the dough into balls", "Bake the cookies", "Eat the warm cookies"], "full": ["I mix the dough in a big bowl.", "I roll the dough into little balls.", "I bake the cookies in the oven.", "I eat the warm cookies."], "pics": [{"e": "\ud83e\udd63", "c": "Mix dough"}, {"e": "\ud83d\udfe4", "c": "Roll balls"}, {"e": "\ud83d\udd25", "c": "Bake"}, {"e": "\ud83c\udf6a", "c": "Eat cookies"}], "parts": {"who": "A kid and mom", "where": "The kitchen on Saturday", "problem": "They want warm cookies", "events": "Mix the dough, roll balls, and bake them", "ending": "Eat a warm cookie with milk"}, "why": {"q": "Why did they bake the cookies in the oven?", "c": ["So the dough would turn into cookies", "So the cookies would stay cold", "So the bowl would get clean"], "a": 0}}, {"t": "A Day at the Beach", "e": "\ud83c\udfd6\ufe0f", "story": "Last summer, I spent a day at the beach. First, I packed a towel, sunscreen, and a snack in my bag. When I got there, I built a big sandcastle with a bucket and a shovel. Then I swam in the waves and splashed my friends. At the end of the day, I dried off with my towel and went home, sandy and happy.", "short": ["Pack a towel and sunscreen", "Build a sandcastle", "Swim in the waves", "Dry off and go home"], "full": ["I pack a towel and sunscreen in my bag.", "I build a big sandcastle.", "I swim in the waves.", "I dry off and go home."], "pics": [{"e": "\ud83c\udf92", "c": "Pack the bag"}, {"e": "\ud83c\udff0", "c": "Sandcastle"}, {"e": "\ud83c\udf0a", "c": "Swim"}, {"e": "\ud83c\udfe0", "c": "Go home"}], "parts": {"who": "A kid on summer break", "where": "The beach", "problem": "A whole day to fill at the beach", "events": "Build a sandcastle and swim in the waves", "ending": "Dry off and go home, sandy and happy"}, "why": {"q": "Why did the kid pack a towel and sunscreen?", "c": ["To stay dry and safe in the sun", "To build a sandcastle", "To swim in the waves"], "a": 0}}, {"t": "Washing Hands", "e": "\ud83e\uddfc", "story": "Before lunch, I went to wash my hands. First, I turned on the water and made it nice and warm. Then I rubbed soap all over my hands and made lots of bubbles. I rinsed all the soap off under the water. Last, I dried my hands with a clean towel.", "short": ["Turn on the water", "Rub soap all over hands", "Rinse the soap off", "Dry hands with a towel"], "full": ["I turn on the water.", "I rub soap all over my hands.", "I rinse all the soap off.", "I dry my hands with a towel."], "pics": [{"e": "\ud83d\udeb0", "c": "Water on"}, {"e": "\ud83e\uddfc", "c": "Soap"}, {"e": "\ud83d\udca7", "c": "Rinse"}, {"e": "\ud83d\udc4b", "c": "Dry hands"}], "parts": {"who": "A kid before lunch", "where": "The bathroom sink", "problem": "Hands are dirty before lunch", "events": "Rub soap on hands and rinse it off", "ending": "Dry hands with a clean towel"}, "why": {"q": "Why do you wash your hands before lunch?", "c": ["To get the germs and dirt off", "To make the soap smell nice", "To make the water warm"], "a": 0}}, {"t": "Building a Snowman", "e": "\u26c4", "story": "After the big snowstorm, I built a snowman in my yard. First, I rolled a big snowball for the body. Then I rolled a smaller one and put it on top for the head. I added a carrot nose, black buttons, and a smile made of little stones. Last, I put a hat and a scarf on my snowman, and he looked perfect.", "short": ["Roll a big snowball for the body", "Roll a smaller one for the head", "Add a carrot nose and buttons", "Put on a hat and scarf"], "full": ["I roll a big snowball for the body.", "I roll a smaller one for the head.", "I add a carrot nose and buttons.", "I put a hat and scarf on the snowman."], "pics": [{"e": "\u2744\ufe0f", "c": "Big snowball"}, {"e": "\u26c4", "c": "Little head"}, {"e": "\ud83e\udd55", "c": "Carrot nose"}, {"e": "\ud83c\udfa9", "c": "Hat and scarf"}], "parts": {"who": "A kid in the yard", "where": "The yard after a snowstorm", "problem": "Lots of fresh snow to play with", "events": "Roll snowballs and add a carrot nose and buttons", "ending": "Put on a hat and scarf \u2014 a perfect snowman"}, "why": {"q": "Why did the kid put a carrot on the snowman?", "c": ["To make a nose for the snowman", "To feed the snowman lunch", "To keep the snowman warm"], "a": 0}}, {"t": "Feeding the Dog", "e": "\ud83d\udc36", "story": "Every morning, I feed my dog, Biscuit. First, I pour his food into his bowl. Then I set the bowl on the floor in the kitchen. Biscuit eats it all up and wags his tail. Last, I fill his water bowl too, so he has something to drink.", "short": ["Pour food into the bowl", "Set the bowl on the floor", "The dog eats it all up", "Fill the water bowl too"], "full": ["I pour food into the dog's bowl.", "I set the bowl on the floor.", "The dog eats it all up.", "I fill the water bowl too."], "pics": [{"e": "\ud83e\udd63", "c": "Pour food"}, {"e": "\ud83d\udc36", "c": "Bowl down"}, {"e": "\ud83d\ude0b", "c": "Dog eats"}, {"e": "\ud83d\udca7", "c": "Water bowl"}], "parts": {"who": "A kid and Biscuit the dog", "where": "The kitchen in the morning", "problem": "Biscuit is hungry", "events": "Pour food in the bowl and set it down", "ending": "Fill the water bowl too"}, "why": {"q": "Why did the kid fill the water bowl too?", "c": ["So Biscuit has something to drink", "So the bowl looks nice", "So the food stays warm"], "a": 0}}, {"t": "Getting Ready for School", "e": "\ud83c\udf92", "story": "On school mornings, I get ready fast. First, I get dressed in my clothes for the day. Then I eat my breakfast at the table. Next, I pack my backpack with my books and my lunch. Last, I walk to the bus stop with my friends.", "short": ["Get dressed", "Eat breakfast", "Pack the backpack", "Walk to the bus"], "full": ["I get dressed for school.", "I eat breakfast.", "I pack my backpack.", "I walk to the bus."], "pics": [{"e": "\ud83d\udc55", "c": "Get dressed"}, {"e": "\ud83e\udd63", "c": "Breakfast"}, {"e": "\ud83c\udf92", "c": "Pack bag"}, {"e": "\ud83d\ude8c", "c": "Bus"}], "parts": {"who": "A kid on a school morning", "where": "Home in the morning", "problem": "Need to get ready fast for school", "events": "Get dressed, eat breakfast, pack the backpack", "ending": "Walk to the bus stop"}, "why": {"q": "Why did the kid pack the backpack?", "c": ["To carry books and lunch to school", "To keep the bus waiting", "To make breakfast"], "a": 0}}, {"t": "Making Lemonade", "e": "\ud83c\udf4b", "story": "On a hot day, I made lemonade. First, I squeezed lemons into a pitcher until my hands were sticky. Then I added sugar and cold water. I stirred it all up with a big spoon. Last, I poured a cold glass and drank it all up.", "short": ["Squeeze lemons into a pitcher", "Add sugar and water", "Stir it all up", "Pour a cold glass"], "full": ["I squeeze lemons into a pitcher.", "I add sugar and water.", "I stir it all up.", "I pour a cold glass of lemonade."], "pics": [{"e": "\ud83c\udf4b", "c": "Squeeze lemons"}, {"e": "\ud83e\udd44", "c": "Sugar and water"}, {"e": "\ud83c\udf00", "c": "Stir it"}, {"e": "\ud83e\udd5b", "c": "Pour a glass"}], "parts": {"who": "A kid on a hot day", "where": "The kitchen", "problem": "Hot and thirsty", "events": "Squeeze lemons, add sugar and water, stir", "ending": "Pour a cold glass and drink it up"}, "why": {"q": "Why did the kid add sugar to the lemonade?", "c": ["To make it taste sweet", "To make it turn blue", "To make it hot"], "a": 0}}, {"t": "Flying a Kite", "e": "\ud83e\ude81", "story": "One windy day, I took my kite to the park. First, I held the kite up and ran so it would lift into the air. Then I watched it fly high in the sky, dancing in the wind. I held the string tight so it would not fly away. At the end of the day, I wound the string in and went home.", "short": ["Take the kite to the park", "Run so the kite lifts up", "Watch the kite fly high", "Wind the string in to go home"], "full": ["I take my kite to the park.", "I run so the kite lifts up.", "I watch the kite fly high in the sky.", "I wind the string in and go home."], "pics": [{"e": "\ud83e\ude81", "c": "Kite to park"}, {"e": "\ud83c\udfc3", "c": "Run to lift it"}, {"e": "\u2601\ufe0f", "c": "Fly high"}, {"e": "\ud83e\uddf5", "c": "Wind it in"}], "parts": {"who": "A kid on a windy day", "where": "The park", "problem": "The kite needs wind to fly", "events": "Run so the kite lifts up and watch it fly", "ending": "Wind the string in and go home"}, "why": {"q": "Why did the kid hold the string tight?", "c": ["So the kite would not fly away", "So the kite would fall down", "So the wind would stop"], "a": 0}}, {"t": "A Birthday Party", "e": "\ud83c\udf82", "story": "For my birthday, we had a party at my house. First, we hung up balloons and streamers in the living room. Then everyone sang happy birthday to me. I blew out the candles on my cake in one big breath. Last, I ate cake and opened my gifts with my friends.", "short": ["Hang up balloons and streamers", "Sing happy birthday", "Blow out the candles", "Eat cake and open gifts"], "full": ["I hang up balloons and streamers.", "Everyone sings happy birthday.", "I blow out the candles.", "I eat cake and open my gifts."], "pics": [{"e": "\ud83c\udf88", "c": "Balloons"}, {"e": "\ud83c\udfb5", "c": "Sing happy birthday"}, {"e": "\ud83d\udd6f\ufe0f", "c": "Blow candles"}, {"e": "\ud83c\udf82", "c": "Eat cake"}], "parts": {"who": "A kid and friends", "where": "Home on a birthday", "problem": "Time to celebrate a birthday", "events": "Hang balloons, sing, and blow out candles", "ending": "Eat cake and open gifts"}, "why": {"q": "Why did everyone sing happy birthday?", "c": ["To celebrate the birthday", "To make the cake taste better", "To blow out the candles"], "a": 0}}, {"t": "Going Fishing", "e": "\ud83c\udfa3", "story": "On Saturday, I went fishing at the lake. First, I put a worm on the hook. Then I cast my line far into the water. I sat and waited for a fish to bite, watching the bobber float. Suddenly the bobber went under, and I reeled in a fish!", "short": ["Put a worm on the hook", "Cast the line into the water", "Wait for a fish to bite", "Reel in the fish"], "full": ["I put a worm on the hook.", "I cast the line into the water.", "I wait for a fish to bite.", "I reel in the fish."], "pics": [{"e": "\ud83e\udeb1", "c": "Worm on hook"}, {"e": "\ud83c\udfa3", "c": "Cast the line"}, {"e": "\u23f3", "c": "Wait"}, {"e": "\ud83d\udc1f", "c": "Reel it in"}], "parts": {"who": "A kid on Saturday", "where": "The lake", "problem": "Wants to catch a fish", "events": "Put a worm on the hook and cast the line", "ending": "Reel in a fish!"}, "why": {"q": "Why did the kid put a worm on the hook?", "c": ["To catch a fish", "To feed the fish in the lake", "To make the water warm"], "a": 0}}, {"t": "Making the Bed", "e": "\ud83d\udecf\ufe0f", "story": "Every morning, I make my bed. First, I pull up the sheet and smooth it out. Then I smooth out the blanket so there are no bumps. Next, I fluff the pillow and put it at the top. Last, I put my stuffed animals on top of the bed.", "short": ["Pull up the sheet", "Smooth out the blanket", "Fluff the pillow", "Put the stuffed animals on top"], "full": ["I pull up the sheet.", "I smooth out the blanket.", "I fluff the pillow.", "I put my stuffed animals on top."], "pics": [{"e": "\ud83d\udecf\ufe0f", "c": "Pull up sheet"}, {"e": "\u2728", "c": "Smooth blanket"}, {"e": "\ud83d\udca4", "c": "Fluff pillow"}, {"e": "\ud83e\uddf8", "c": "Stuffed animals"}], "parts": {"who": "A kid in the morning", "where": "The bedroom", "problem": "The bed is messy", "events": "Pull up the sheet and smooth the blanket", "ending": "Put stuffed animals on top"}, "why": {"q": "Why did the kid fluff the pillow?", "c": ["To make the bed soft and neat", "To wake up the pillow", "To make the blanket dirty"], "a": 0}}, {"t": "Washing the Car", "e": "\ud83d\ude97", "story": "On Saturday, I helped wash the car. First, I filled a bucket with soapy water. Then I scrubbed the car with a big sponge, top to bottom. I rinsed it with the hose until all the soap was gone. Last, I dried it with a towel until it shone in the sun.", "short": ["Fill a bucket with soapy water", "Scrub the car with a sponge", "Rinse it with the hose", "Dry it with a towel"], "full": ["I fill a bucket with soapy water.", "I scrub the car with a sponge.", "I rinse it with the hose.", "I dry it with a towel."], "pics": [{"e": "\ud83e\udea3", "c": "Soapy bucket"}, {"e": "\ud83e\uddfd", "c": "Scrub"}, {"e": "\ud83d\udebf", "c": "Rinse"}, {"e": "\u2728", "c": "Dry it"}], "parts": {"who": "A kid on Saturday", "where": "The driveway", "problem": "The car is dirty", "events": "Scrub with a sponge and rinse with the hose", "ending": "Dry it until it shines"}, "why": {"q": "Why did the kid rinse the car with the hose?", "c": ["To wash all the soap off", "To make the car dirty again", "To fill the bucket"], "a": 0}}, {"t": "Making Pizza", "e": "\ud83c\udf55", "story": "For dinner, I made pizza with my family. First, I rolled out the dough on the counter. Then I spread tomato sauce all over it. I sprinkled on lots of cheese and put on pepperoni. We baked it in the oven, sliced it up, and ate it while it was hot.", "short": ["Roll out the dough", "Spread the tomato sauce", "Sprinkle on cheese", "Bake it and slice it up"], "full": ["I roll out the dough.", "I spread the tomato sauce.", "I sprinkle on the cheese.", "I bake the pizza and slice it up."], "pics": [{"e": "\ud83c\udf5e", "c": "Roll dough"}, {"e": "\ud83c\udf45", "c": "Sauce"}, {"e": "\ud83e\uddc0", "c": "Cheese"}, {"e": "\ud83c\udf55", "c": "Bake and slice"}], "parts": {"who": "A kid and family", "where": "The kitchen at dinner", "problem": "Hungry for dinner", "events": "Roll dough, spread sauce, add cheese", "ending": "Bake it, slice it, and eat it hot"}, "why": {"q": "Why did they bake the pizza in the oven?", "c": ["So the dough and cheese would cook", "So the pizza would stay cold", "So the sauce would stay in the jar"], "a": 0}}, {"t": "Reading a Book", "e": "\ud83d\udcd6", "story": "Last night, I read a book before bed. First, I picked a book about animals from the shelf. Then I found a cozy spot on the couch with a blanket. I read the whole story, page by page, until the end. Last, I closed the book and put it back on the shelf.", "short": ["Pick a book from the shelf", "Find a cozy spot to sit", "Read the story", "Close the book and put it back"], "full": ["I pick a book from the shelf.", "I find a cozy spot to sit.", "I read the whole story.", "I close the book and put it back."], "pics": [{"e": "\ud83d\udcda", "c": "Pick a book"}, {"e": "\ud83d\udecb\ufe0f", "c": "Cozy spot"}, {"e": "\ud83d\udcd6", "c": "Read it"}, {"e": "\ud83d\udcd5", "c": "Put it back"}], "parts": {"who": "A kid before bed", "where": "Home on the couch", "problem": "Wants a good story before bed", "events": "Pick a book and read it page by page", "ending": "Close the book and put it back"}, "why": {"q": "Why did the kid read the whole story?", "c": ["To find out how it ends", "To make the book heavy", "To put it on the shelf"], "a": 0}}, {"t": "Going to the Library", "e": "\ud83d\udcda", "story": "On Tuesday, I walked to the library. First, I looked at the shelves and picked out two books. Then I took them to the desk and checked them out. I carried them home in my bag. That night, I read them in bed before I went to sleep.", "short": ["Walk to the library", "Pick out two books", "Check out the books", "Read them at home"], "full": ["I walk to the library.", "I pick out two books.", "I check out the books.", "I read them at home."], "pics": [{"e": "\ud83d\udeb6", "c": "Walk there"}, {"e": "\ud83d\udcda", "c": "Pick books"}, {"e": "\u2705", "c": "Check out"}, {"e": "\ud83c\udfe0", "c": "Read at home"}], "parts": {"who": "A kid on Tuesday", "where": "The library", "problem": "Wants new books to read", "events": "Pick two books and check them out", "ending": "Read them in bed that night"}, "why": {"q": "Why did the kid check out the books at the desk?", "c": ["So the kid could take them home to read", "So the books would stay on the shelf", "So the library would close"], "a": 0}}, {"t": "Riding a Bike", "e": "\ud83d\udeb2", "story": "Yesterday, I rode my bike around the block. First, I put on my helmet and buckled it tight. Then I got on my bike and pushed off. I pedaled down the street, past the park and the big tree. At the end, I rang my bell and rode home.", "short": ["Put on a helmet", "Get on the bike", "Pedal down the street", "Ring the bell and ride home"], "full": ["I put on my helmet.", "I get on my bike.", "I pedal down the street.", "I ring the bell and ride home."], "pics": [{"e": "\ud83e\ude96", "c": "Helmet on"}, {"e": "\ud83d\udeb2", "c": "Get on"}, {"e": "\ud83d\udca8", "c": "Pedal fast"}, {"e": "\ud83d\udd14", "c": "Ring the bell"}], "parts": {"who": "A kid yesterday", "where": "Around the block", "problem": "Wants to ride the bike", "events": "Put on a helmet and pedal down the street", "ending": "Ring the bell and ride home"}, "why": {"q": "Why did the kid put on a helmet?", "c": ["To keep the head safe", "To make the bike go faster", "To ring the bell"], "a": 0}}, {"t": "Making a Snow Fort", "e": "\u2744\ufe0f", "story": "After the snowstorm, I built a snow fort. First, I packed snow into blocks with my hands. Then I stacked the blocks into walls, one on top of the other. I made a little door so I could crawl inside. Last, I sat inside my fort and felt like a snow king.", "short": ["Pack snow into blocks", "Stack the blocks into walls", "Make a little door", "Sit inside the fort"], "full": ["I pack snow into blocks.", "I stack the blocks into walls.", "I make a little door.", "I sit inside my snow fort."], "pics": [{"e": "\u2744\ufe0f", "c": "Pack blocks"}, {"e": "\ud83e\uddf1", "c": "Stack walls"}, {"e": "\ud83d\udeaa", "c": "Make a door"}, {"e": "\ud83c\udfe0", "c": "Sit inside"}], "parts": {"who": "A kid after the snowstorm", "where": "The yard", "problem": "Lots of snow to build with", "events": "Pack snow blocks and stack them into walls", "ending": "Sit inside the fort like a snow king"}, "why": {"q": "Why did the kid make a little door in the fort?", "c": ["So the kid could crawl inside", "So the snow would melt", "So the walls would fall down"], "a": 0}}, {"t": "Watering the Garden", "e": "\ud83c\udf3b", "story": "In the morning, I watered the garden. First, I filled the watering can at the hose. Then I poured water on the flowers, one by one. I watched the bees visit the flowers and buzz from bloom to bloom. Last, I picked a flower and put it on the table inside.", "short": ["Fill the watering can", "Pour water on the flowers", "Watch the bees visit", "Pick a flower for the table"], "full": ["I fill the watering can.", "I pour water on the flowers.", "I watch the bees visit the flowers.", "I pick a flower for the table."], "pics": [{"e": "\ud83d\udeb0", "c": "Fill the can"}, {"e": "\ud83c\udf3b", "c": "Water flowers"}, {"e": "\ud83d\udc1d", "c": "Bees visit"}, {"e": "\ud83c\udf38", "c": "Pick a flower"}], "parts": {"who": "A kid in the morning", "where": "The garden", "problem": "The flowers are thirsty", "events": "Fill the can and pour water on the flowers", "ending": "Pick a flower for the table"}, "why": {"q": "Why did the kid water the flowers?", "c": ["So the flowers could grow", "So the bees would go away", "So the table would be clean"], "a": 0}}, {"t": "Making a Card", "e": "\ud83d\udc8c", "story": "For my friend's birthday, I made a card. First, I folded a piece of paper in half. Then I drew a picture on the front with my crayons. I wrote a happy message inside in my best handwriting. Last, I gave the card to my friend, and she smiled.", "short": ["Fold a piece of paper", "Draw a picture on the front", "Write a happy message", "Give the card to a friend"], "full": ["I fold a piece of paper.", "I draw a picture on the front.", "I write a happy message inside.", "I give the card to my friend."], "pics": [{"e": "\ud83d\udcc4", "c": "Fold paper"}, {"e": "\u270f\ufe0f", "c": "Draw a picture"}, {"e": "\ud83d\udc8c", "c": "Write a message"}, {"e": "\ud83c\udf81", "c": "Give the card"}], "parts": {"who": "A kid and a friend", "where": "Home before a birthday", "problem": "A friend's birthday is coming", "events": "Fold paper, draw a picture, write a message", "ending": "Give the card and see a smile"}, "why": {"q": "Why did the kid make a card?", "c": ["To give the friend a birthday surprise", "To use up the crayons", "To fold the paper"], "a": 0}}, {"t": "Going to the Park", "e": "\ud83c\udf33", "story": "On Sunday, I walked to the park. First, I swung on the swings, going higher and higher. Then I climbed up and slid down the slide. I played until my legs were tired. Last, I went home for lunch.", "short": ["Walk to the park", "Swing on the swings", "Slide down the slide", "Go home for lunch"], "full": ["I walk to the park.", "I swing on the swings.", "I slide down the slide.", "I go home for lunch."], "pics": [{"e": "\ud83d\udeb6", "c": "Walk to park"}, {"e": "\ud83c\udfa0", "c": "Swing"}, {"e": "\ud83d\udedd", "c": "Slide"}, {"e": "\ud83c\udfe0", "c": "Home for lunch"}], "parts": {"who": "A kid on Sunday", "where": "The park", "problem": "Wants to play outside", "events": "Swing high and slide down the slide", "ending": "Go home for lunch"}, "why": {"q": "Why did the kid go home for lunch?", "c": ["Because it was time to eat", "Because the swings broke", "Because the slide was too tall"], "a": 0}}, {"t": "Making Hot Chocolate", "e": "\u2615", "story": "On a cold night, I made hot chocolate. First, I heated up the milk in a pot. Then I stirred in the chocolate until it melted. I poured it into a big mug. Last, I added marshmallows on top and drank it slowly.", "short": ["Heat up the milk", "Stir in the chocolate", "Pour it into a mug", "Add marshmallows on top"], "full": ["I heat up the milk.", "I stir in the chocolate.", "I pour it into a mug.", "I add marshmallows on top."], "pics": [{"e": "\ud83e\udd5b", "c": "Heat milk"}, {"e": "\ud83c\udf6b", "c": "Stir chocolate"}, {"e": "\u2615", "c": "Pour in mug"}, {"e": "\u2601\ufe0f", "c": "Marshmallows"}], "parts": {"who": "A kid on a cold night", "where": "The kitchen", "problem": "Cold and wants something warm", "events": "Heat milk and stir in chocolate", "ending": "Add marshmallows and drink it slowly"}, "why": {"q": "Why did the kid heat up the milk?", "c": ["To make warm hot chocolate", "To make the marshmallows cold", "To make the mug heavy"], "a": 0}}, {"t": "Picking Apples", "e": "\ud83c\udf4e", "story": "In the fall, I went apple picking. First, I walked to the big apple tree in the orchard. I reached up and picked a shiny red apple. Then I put the apples in a basket until it was full. Last, I washed one apple and took a big bite.", "short": ["Walk to the apple tree", "Reach up and pick an apple", "Put the apples in a basket", "Wash one and take a bite"], "full": ["I walk to the apple tree.", "I reach up and pick an apple.", "I put the apples in a basket.", "I wash one apple and take a bite."], "pics": [{"e": "\ud83c\udf33", "c": "Walk to tree"}, {"e": "\ud83c\udf4e", "c": "Pick an apple"}, {"e": "\ud83e\uddfa", "c": "Basket"}, {"e": "\ud83d\ude0b", "c": "Wash and bite"}], "parts": {"who": "A kid in the fall", "where": "The orchard", "problem": "Apples are ripe and ready", "events": "Pick apples and fill the basket", "ending": "Wash one and take a big bite"}, "why": {"q": "Why did the kid wash the apple?", "c": ["To clean it before eating it", "To make it turn green", "To put it back on the tree"], "a": 0}}, {"t": "Making a Puppet", "e": "\ud83e\uddf8", "story": "For art class, I made a puppet. First, I glued googly eyes on an old sock. Then I added yarn for hair, red and yellow. I put the puppet on my hand and made it talk. Last, I put on a puppet show for my friends.", "short": ["Glue eyes on a sock", "Add yarn for hair", "Put the puppet on your hand", "Put on a puppet show"], "full": ["I glue eyes on a sock.", "I add yarn for hair.", "I put the puppet on my hand.", "I put on a puppet show."], "pics": [{"e": "\ud83e\udde6", "c": "Eyes on sock"}, {"e": "\ud83e\uddf6", "c": "Yarn hair"}, {"e": "\u270b", "c": "Puppet on hand"}, {"e": "\ud83c\udfad", "c": "Puppet show"}], "parts": {"who": "A kid in art class", "where": "Art class", "problem": "Needs a puppet for a show", "events": "Glue eyes on a sock and add yarn hair", "ending": "Put on a puppet show for friends"}, "why": {"q": "Why did the kid put the puppet on a hand?", "c": ["To make it talk and move", "To keep the hand warm", "To hide the sock"], "a": 0}}, {"t": "Going Camping", "e": "\u26fa", "story": "Last summer, I went camping with my family. First, we packed a tent and sleeping bags in the car. When we got to the campsite, we set up the tent. That night, we roasted marshmallows by the fire. Last, we crawled into our sleeping bags and slept under the stars.", "short": ["Pack a tent and sleeping bags", "Set up the tent", "Roast marshmallows by the fire", "Sleep under the stars"], "full": ["I pack a tent and sleeping bags.", "I set up the tent.", "I roast marshmallows by the fire.", "I sleep under the stars."], "pics": [{"e": "\ud83c\udf92", "c": "Pack the tent"}, {"e": "\u26fa", "c": "Set up tent"}, {"e": "\ud83d\udd25", "c": "Roast marshmallows"}, {"e": "\ud83c\udf1f", "c": "Sleep under stars"}], "parts": {"who": "A kid and family", "where": "The campsite", "problem": "A weekend in the woods", "events": "Set up the tent and roast marshmallows", "ending": "Sleep under the stars"}, "why": {"q": "Why did they roast marshmallows by the fire?", "c": ["To make a tasty campfire snack", "To keep the tent dry", "To scare the stars away"], "a": 0}}, {"t": "Making a Fruit Salad", "e": "\ud83c\udf53", "story": "For a snack, I made a fruit salad. First, I washed the fruit in the sink. Then I cut it into small pieces with a safe knife. I mixed it all in a big bowl. Last, I ate it with a spoon, and it was sweet and cold.", "short": ["Wash the fruit", "Cut it into small pieces", "Mix it all in a bowl", "Eat it with a spoon"], "full": ["I wash the fruit.", "I cut it into small pieces.", "I mix it all in a bowl.", "I eat it with a spoon."], "pics": [{"e": "\ud83c\udf53", "c": "Wash fruit"}, {"e": "\ud83d\udd2a", "c": "Cut it up"}, {"e": "\ud83e\udd63", "c": "Mix it"}, {"e": "\ud83e\udd44", "c": "Eat it"}], "parts": {"who": "A kid at snack time", "where": "The kitchen", "problem": "Hungry for a snack", "events": "Wash fruit, cut it up, and mix it", "ending": "Eat it with a spoon \u2014 sweet and cold"}, "why": {"q": "Why did the kid wash the fruit first?", "c": ["To clean it before cutting it", "To make it taste like soap", "To keep the knife dry"], "a": 0}}, {"t": "Blowing Bubbles", "e": "\ud83e\udee7", "story": "In the backyard, I blew bubbles. First, I dipped the wand in the soapy water. Then I blew gently through the wand, and a big bubble floated out. I watched the bubbles float up into the sky, shiny and round. Last, I popped the bubbles with my finger.", "short": ["Dip the wand in the soap", "Blow gently through the wand", "Watch the bubbles float", "Pop the bubbles"], "full": ["I dip the wand in the soap.", "I blow gently through the wand.", "I watch the bubbles float away.", "I pop the bubbles."], "pics": [{"e": "\ud83e\uded7", "c": "Dip the wand"}, {"e": "\ud83d\udca8", "c": "Blow gently"}, {"e": "\ud83c\udf88", "c": "Bubbles float"}, {"e": "\ud83d\udca5", "c": "Pop them"}], "parts": {"who": "A kid in the backyard", "where": "The backyard", "problem": "Wants to play with bubbles", "events": "Dip the wand and blow gently", "ending": "Pop the bubbles with a finger"}, "why": {"q": "Why did the kid blow gently through the wand?", "c": ["To make big bubbles", "To pop the bubbles fast", "To spill the soap"], "a": 0}}, {"t": "Making Playdough", "e": "\ud83c\udfa8", "story": "In art class, I made playdough. First, I mixed flour, salt, and water in a bowl. Then I stirred in red food coloring. I kneaded the dough with my hands until it was soft. Last, I made shapes with the dough: a star, a snake, and a little cup.", "short": ["Mix flour, salt, and water", "Stir in food coloring", "Knead the dough", "Make shapes with the dough"], "full": ["I mix flour, salt, and water.", "I stir in food coloring.", "I knead the dough.", "I make shapes with the dough."], "pics": [{"e": "\ud83e\udd63", "c": "Mix it up"}, {"e": "\ud83c\udfa8", "c": "Add color"}, {"e": "\ud83e\udd32", "c": "Knead it"}, {"e": "\u2b50", "c": "Make shapes"}], "parts": {"who": "A kid in art class", "where": "Art class", "problem": "Wants to make playdough", "events": "Mix, add color, and knead the dough", "ending": "Make shapes: a star, a snake, a cup"}, "why": {"q": "Why did the kid knead the dough?", "c": ["To make it soft", "To make it turn red", "To make it melt"], "a": 0}}, {"t": "Going to the Dentist", "e": "\ud83e\uddb7", "story": "Last week, I went to the dentist. First, I sat in the big chair, and it went up, up, up. Then I opened my mouth wide. The dentist counted my teeth and told me they looked great. Last, I got a sticker at the end, and I picked a star.", "short": ["Sit in the big chair", "Open wide", "The dentist counts the teeth", "Get a sticker at the end"], "full": ["I sit in the big chair.", "I open my mouth wide.", "The dentist counts my teeth.", "I get a sticker at the end."], "pics": [{"e": "\ud83e\ude91", "c": "Big chair"}, {"e": "\ud83d\ude2e", "c": "Open wide"}, {"e": "\ud83e\uddb7", "c": "Count teeth"}, {"e": "\u2b50", "c": "Sticker"}], "parts": {"who": "A kid last week", "where": "The dentist's office", "problem": "Time for a teeth check", "events": "Sit in the big chair and open wide", "ending": "Get a star sticker"}, "why": {"q": "Why did the dentist count the kid's teeth?", "c": ["To check that the teeth look great", "To make the chair go up", "To give a sticker"], "a": 0}}, {"t": "Making a Paper Plane", "e": "\u2708\ufe0f", "story": "At recess, I made a paper plane. First, I folded a piece of paper in half. Then I folded the corners in to make a point. I folded the wings down on both sides. Last, I threw it, and it flew across the whole playground.", "short": ["Fold a piece of paper in half", "Fold the corners in", "Fold the wings down", "Throw it and watch it fly"], "full": ["I fold a piece of paper in half.", "I fold the corners in.", "I fold the wings down.", "I throw it and watch it fly."], "pics": [{"e": "\ud83d\udcc4", "c": "Fold in half"}, {"e": "\u2708\ufe0f", "c": "Fold corners"}, {"e": "\ud83d\udee9\ufe0f", "c": "Fold wings"}, {"e": "\ud83d\udca8", "c": "Throw it"}], "parts": {"who": "A kid at recess", "where": "The playground", "problem": "Wants to make a paper plane", "events": "Fold the paper and the wings", "ending": "Throw it and watch it fly"}, "why": {"q": "Why did the kid fold the corners in?", "c": ["To make a point at the front", "To make the paper heavier", "To make the plane land"], "a": 0}}, {"t": "Feeding the Fish", "e": "\ud83d\udc1f", "story": "Every day, I feed my fish. First, I open the fish food. Then I sprinkle a tiny pinch into the tank. I watch the fish swim up and eat the food. Last, I put the food away on the shelf.", "short": ["Open the fish food", "Sprinkle a pinch in the tank", "Watch the fish eat", "Put the food away"], "full": ["I open the fish food.", "I sprinkle a pinch in the tank.", "I watch the fish eat.", "I put the food away."], "pics": [{"e": "\ud83d\udc1f", "c": "Open the food"}, {"e": "\u2728", "c": "Sprinkle it"}, {"e": "\ud83d\udc40", "c": "Watch them eat"}, {"e": "\ud83d\udce6", "c": "Put it away"}], "parts": {"who": "A kid every day", "where": "Home by the fish tank", "problem": "The fish are hungry", "events": "Sprinkle a pinch of food in the tank", "ending": "Put the food away on the shelf"}, "why": {"q": "Why did the kid sprinkle only a tiny pinch?", "c": ["So the fish get just enough food", "So the fish get very full", "So the tank gets dirty"], "a": 0}}, {"t": "Building a Blanket Fort", "e": "\ud83d\uded6", "story": "On a rainy day, I built a blanket fort. First, I draped blankets over the chairs in the living room. Then I put pillows inside to make it cozy. I brought in my books and some snacks. Last, I read inside my fort until dinner.", "short": ["Drape blankets over chairs", "Put pillows inside", "Bring in books and snacks", "Read inside the fort"], "full": ["I drape blankets over the chairs.", "I put pillows inside.", "I bring in books and snacks.", "I read inside my fort."], "pics": [{"e": "\ud83d\udecb\ufe0f", "c": "Drape blankets"}, {"e": "\ud83d\udca4", "c": "Pillows inside"}, {"e": "\ud83d\udcda", "c": "Books and snacks"}, {"e": "\ud83d\udcd6", "c": "Read inside"}], "parts": {"who": "A kid on a rainy day", "where": "The living room", "problem": "Rainy day, stuck inside", "events": "Drape blankets and put pillows inside", "ending": "Read inside the fort until dinner"}, "why": {"q": "Why did the kid build a fort inside?", "c": ["Because it was raining outside", "Because the chairs were dirty", "Because dinner was ready"], "a": 0}}, {"t": "Going on a Picnic", "e": "\ud83e\uddfa", "story": "On Saturday, we went on a picnic. First, I packed sandwiches and fruit in a basket. Then we spread a blanket on the grass in the park. We ate our lunch outside in the sunshine. Last, we played a game before going home.", "short": ["Pack sandwiches and fruit", "Spread a blanket on the grass", "Eat lunch outside", "Play a game before going home"], "full": ["I pack sandwiches and fruit.", "I spread a blanket on the grass.", "I eat lunch outside.", "I play a game before going home."], "pics": [{"e": "\ud83e\uddfa", "c": "Pack lunch"}, {"e": "\ud83c\udf3f", "c": "Spread blanket"}, {"e": "\ud83e\udd6a", "c": "Eat outside"}, {"e": "\u26bd", "c": "Play a game"}], "parts": {"who": "A kid and family on Saturday", "where": "The park", "problem": "A sunny day for lunch outside", "events": "Pack lunch and spread a blanket", "ending": "Play a game before going home"}, "why": {"q": "Why did they spread a blanket on the grass?", "c": ["To have a clean spot to sit and eat", "To keep the sandwiches cold", "To make the grass grow"], "a": 0}}, {"t": "Making Ice Cream Sundaes", "e": "\ud83c\udf68", "story": "For dessert, I made an ice cream sundae. First, I scooped ice cream into a bowl. Then I poured chocolate sauce all over it. I added sprinkles on top, red and green and yellow. Last, I ate it with a spoon, and it was so good.", "short": ["Scoop ice cream into a bowl", "Pour on chocolate sauce", "Add sprinkles", "Eat it with a spoon"], "full": ["I scoop ice cream into a bowl.", "I pour on chocolate sauce.", "I add sprinkles.", "I eat it with a spoon."], "pics": [{"e": "\ud83c\udf66", "c": "Scoop ice cream"}, {"e": "\ud83c\udf6b", "c": "Chocolate sauce"}, {"e": "\u2728", "c": "Sprinkles"}, {"e": "\ud83e\udd44", "c": "Eat it"}], "parts": {"who": "A kid at dessert time", "where": "The kitchen", "problem": "Wants a sweet dessert", "events": "Scoop ice cream and pour chocolate sauce", "ending": "Eat it with a spoon \u2014 so good"}, "why": {"q": "Why did the kid pour chocolate sauce on top?", "c": ["To make the sundae taste sweet", "To make the ice cream cold", "To make the bowl heavy"], "a": 0}}, {"t": "Raking Leaves", "e": "\ud83c\udf42", "story": "In the fall, I raked the leaves in the yard. First, I grabbed a rake from the garage. Then I raked the leaves into a big pile. I jumped right into the pile, and leaves flew everywhere! Last, I bagged up the leaves and put them by the curb.", "short": ["Grab a rake", "Rake the leaves into a pile", "Jump in the pile", "Bag up the leaves"], "full": ["I grab a rake.", "I rake the leaves into a pile.", "I jump right in the pile.", "I bag up the leaves."], "pics": [{"e": "\ud83c\udf42", "c": "Grab a rake"}, {"e": "\ud83c\udf41", "c": "Rake a pile"}, {"e": "\ud83e\udd38", "c": "Jump in"}, {"e": "\ud83d\uddd1\ufe0f", "c": "Bag them up"}], "parts": {"who": "A kid in the fall", "where": "The yard", "problem": "Leaves cover the yard", "events": "Rake the leaves into a big pile", "ending": "Bag them up by the curb"}, "why": {"q": "Why did the kid jump in the leaf pile?", "c": ["Because it looked fun", "Because the rake broke", "Because the bags were full"], "a": 0}}, {"t": "Jumping in Puddles", "e": "\ud83c\udf27\ufe0f", "story": "After the rain, I went outside to play. First, I put on my rain boots. Then I found the biggest puddle on the sidewalk. I jumped right in, and water splashed everywhere. I splashed and laughed until my boots were full of water.", "short": ["Put on rain boots", "Find a big puddle", "Jump right in", "Splash and laugh"], "full": ["I put on my rain boots.", "I find a big puddle.", "I jump right in.", "I splash and laugh."], "pics": [{"e": "\ud83d\udc62", "c": "Rain boots"}, {"e": "\ud83c\udf27\ufe0f", "c": "Find a puddle"}, {"e": "\ud83d\udca6", "c": "Jump in"}, {"e": "\ud83d\ude02", "c": "Splash and laugh"}], "parts": {"who": "A kid after the rain", "where": "The sidewalk", "problem": "Big puddles after the rain", "events": "Put on boots and find a big puddle", "ending": "Splash and laugh"}, "why": {"q": "Why did the kid put on rain boots?", "c": ["To keep feet dry in the puddles", "To find the biggest puddle", "To make the water splash"], "a": 0}}, {"t": "Bedtime Routine", "e": "\ud83c\udf19", "story": "Every night, I get ready for bed. First, I take a warm bath with bubbles. Then I put on my pajamas. Next, I read a bedtime story with my mom. Last, I turn off the light and go to sleep.", "short": ["Take a warm bath", "Put on pajamas", "Read a bedtime story", "Turn off the light and sleep"], "full": ["I take a warm bath.", "I put on my pajamas.", "I read a bedtime story.", "I turn off the light and go to sleep."], "pics": [{"e": "\ud83d\udec1", "c": "Warm bath"}, {"e": "\ud83d\udc55", "c": "Pajamas"}, {"e": "\ud83d\udcd6", "c": "Bedtime story"}, {"e": "\ud83c\udf19", "c": "Lights out"}], "parts": {"who": "A kid every night", "where": "Home at bedtime", "problem": "Time to get ready for bed", "events": "Take a bath and put on pajamas", "ending": "Turn off the light and sleep"}, "why": {"q": "Why did the kid read a bedtime story?", "c": ["To relax before going to sleep", "To make the light stay on", "To take a bath"], "a": 0}}] };
+/* ---------- per-game flow ---------- */
+function curStory(){ return CONFIG.data[order[orderPos]]; }
+function startGame(){
+  order = shuffle(CONFIG.data.map(function(_, i){ return i; }));
+  orderPos = 0; stars = 0; points = 0; firstTry = 0; trialsDone = 0;
+  lives = 3; misses = 0;
+  updateHUD();
+  showRead();
+}
+function showRead(){
+  sliceActive = false;
+  storyIdx = order[orderPos];
+  storyFirst = 0; storyTrials = 0;
+  var s = curStory();
+  if(CONFIG.kind === "seq"){
+    $("readTag").textContent = "Story " + (orderPos+1) + " of " + order.length;
+    $("readTitle").textContent = s.e + " " + s.t;
+    $("readText").textContent = s.story;
+    $("readParts").innerHTML =
+      "<div class=\"part\"><b>Character</b>" + s.parts.who + "</div>" +
+      "<div class=\"part\"><b>Setting</b>" + s.parts.where + "</div>" +
+      "<div class=\"part\"><b>Problem</b>" + s.parts.problem + "</div>" +
+      "<div class=\"part\"><b>Events</b>" + s.parts.events + "</div>" +
+      "<div class=\"part wide\"><b>Ending</b>" + s.parts.ending + "</div>";
+  } else if(CONFIG.kind === "mi"){
+    $("readTag").textContent = "Story " + (orderPos+1) + " of " + order.length;
+    $("readTitle").textContent = s.e + " " + s.t;
+    $("readText").textContent = s.text;
+  } else {
+    $("readTag").textContent = CONFIG.TYPE_LABEL[s.type] + "  •  Question " + (orderPos+1) + " of " + order.length;
+    $("readTitle").textContent = s.q;
+    $("readText").innerHTML = "<b>📖 The story:</b><br>" + s.story;
+  }
+  show("screen-read");
+}
+function startSlice(){
+  var s = curStory();
+  trialFirst = true; trialResolved = false;
+  fruits = []; halves = []; parts_fx = []; trail = [];
+  if(CONFIG.kind === "seq"){
+    expected = 0; misses = 0;
+    updateHUD();
+    $("sliceTag").textContent = s.e + " " + s.t;
+    $("slicePrompt").textContent = "Slice FIRST! 🍉 Swipe the fruit that happens FIRST!";
+    $("sliceStory").classList.add("hidden");
+    $("sliceChoices").classList.add("hidden");
+    for(var i=0;i<4;i++){
+      var f = { id:i, emoji:s.pics[i].e, label:s.pics[i].c, color:FRUIT_COLOR[i], r:52, state:"fly", done:false, badge:null };
+      launchFruit(f, i * 22);
+      fruits.push(f);
+    }
+    updateSeqBadges();
+  } else if(CONFIG.kind === "mi"){
+    lives = 3; updateHUD();
+    $("sliceTag").textContent = s.e + " " + s.t;
+    $("slicePrompt").textContent = "Slice ONLY the MAIN IDEA! 🍉";
+    $("sliceStory").innerHTML = "<b>📖 " + s.e + " " + s.t + "</b><br>" + s.text;
+    $("sliceStory").classList.remove("hidden");
+    var labels = uniqueLabels(s.mi.c);
+    var html = "<b>Choices:</b>";
+    for(var i=0;i<3;i++){ html += "<div>🍉 " + s.mi.c[i] + "</div>"; }
+    $("sliceChoices").innerHTML = html;
+    $("sliceChoices").classList.remove("hidden");
+    var ord = shuffle([0,1,2]);
+    for(var i=0;i<3;i++){
+      var ci = ord[i];
+      var f = { id:ci, emoji:FRUIT_EMOJI[i], label:labels[ci], color:FRUIT_COLOR[i], r:52, state:"fly", correct:(ci === s.mi.a) };
+      launchFruit(f, i * 22);
+      fruits.push(f);
+    }
+  } else {
+    lives = 3; updateHUD();
+    $("sliceTag").textContent = CONFIG.TYPE_LABEL[s.type];
+    $("slicePrompt").textContent = s.q + " 🍉 Slice the right answer!";
+    $("sliceStory").innerHTML = "<b>📖 The story:</b><br>" + s.story;
+    $("sliceStory").classList.remove("hidden");
+    var labels = uniqueLabels(s.c);
+    var html = "<b>Choices:</b>";
+    for(var i=0;i<3;i++){ html += "<div>🍉 " + s.c[i] + "</div>"; }
+    $("sliceChoices").innerHTML = html;
+    $("sliceChoices").classList.remove("hidden");
+    var ord = shuffle([0,1,2]);
+    for(var i=0;i<3;i++){
+      var ci = ord[i];
+      var f = { id:ci, emoji:FRUIT_EMOJI[i+3], label:labels[ci], color:FRUIT_COLOR[i+3], r:52, state:"fly", correct:(ci === s.a) };
+      launchFruit(f, i * 22);
+      fruits.push(f);
+    }
+  }
+  $("sliceFeed").textContent = "";
+  $("sliceFeed").className = "feedback";
+  $("nextBtn").classList.add("hidden");
+  $("retryBtn").classList.add("hidden");
+  $("mapBox").classList.add("hidden");
+  show("screen-slice");
+  sliceActive = true;
+}
+function updateSeqBadges(){
+  var el = $("seqBadges");
+  if(!el) return;
+  var html = "";
+  for(var i=0;i<4;i++){
+    var cls = i < expected ? "badge done" : (i === expected ? "badge next" : "badge");
+    html += "<span class=\"" + cls + "\">" + SEQWORDS[i] + "</span>";
+  }
+  el.innerHTML = html;
+}
+function onSlice(f){
+  var s = curStory();
+  if(CONFIG.kind === "seq"){
+    if(f.id === expected){
+      recordTrial(trialFirst);
+      trialFirst = true;
+      f.done = true; f.gone = true; f.state = "gone";
+      expected++;
+      updateSeqBadges();
+      sndGood();
+      if(expected >= 4){
+        sliceActive = false;
+        $("sliceFeed").textContent = "🎉 You sliced the whole story in order!";
+        $("sliceFeed").className = "feedback good";
+        setTimeout(function(){ startRetell(); }, 900);
+      } else {
+        $("sliceFeed").textContent = "⭐ Yes! Now slice " + SEQWORDS[expected] + "!";
+        $("sliceFeed").className = "feedback good";
+      }
+    } else {
+      trialFirst = false;
+      misses++;
+      updateHUD();
+      sndBad();
+      if(misses >= 3){
+        sliceActive = false;
+        $("sliceFeed").textContent = "😅 3 misses — let's try this story again!";
+        $("sliceFeed").className = "feedback try";
+        $("retryBtn").classList.remove("hidden");
+      } else {
+        $("sliceFeed").textContent = "Not yet — that comes " + (f.id < expected ? "earlier" : "later") + " in the story. " + (3-misses) + " tries left!";
+        $("sliceFeed").className = "feedback try";
+      }
+    }
+  } else {
+    if(trialResolved) return;
+    if(f.correct){
+      trialResolved = true;
+      sliceActive = false;
+      recordTrial(trialFirst);
+      f.gone = true;
+      sndGood();
+      if(CONFIG.kind === "mi"){
+        $("sliceFeed").textContent = "⭐ Yes! That's the main idea!";
+        var m = s.map;
+        $("mapBox").innerHTML = "<b>🗺️ Story map:</b><br><b>Who:</b> " + m.who + "<br><b>Where:</b> " + m.where + "<br><b>Problem:</b> " + m.problem + "<br><b>How it ended:</b> " + m.ended;
+      } else {
+        $("sliceFeed").textContent = "⭐ Yes! Great thinking! 🔍 Clue: " + s.clue;
+        $("mapBox").innerHTML = "<b>🔍 Clue:</b> " + s.clue;
+      }
+      $("sliceFeed").className = "feedback good";
+      $("mapBox").classList.remove("hidden");
+      $("nextBtn").classList.remove("hidden");
+    } else {
+      trialFirst = false;
+      lives--;
+      updateHUD();
+      sndBad();
+      if(lives <= 0){
+        trialResolved = true;
+        sliceActive = false;
+        recordTrial(false);
+        var ans = (CONFIG.kind === "mi") ? s.mi.c[s.mi.a] : s.c[s.a];
+        $("sliceFeed").textContent = "The right answer was: " + ans;
+        $("sliceFeed").className = "feedback try";
+        $("nextBtn").classList.remove("hidden");
+      } else {
+        $("sliceFeed").textContent = "Nope — that's not it! " + lives + (lives===1 ? " life" : " lives") + " left. Try again!";
+        $("sliceFeed").className = "feedback try";
+      }
+    }
+  }
+}
+function retrySlice(){
+  misses = 0; trialFirst = true;
+  halves = []; parts_fx = []; trail = [];
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.done){ f.state = "gone"; continue; }
+    launchFruit(f, i * 22);
+  }
+  updateHUD(); updateSeqBadges();
+  $("sliceFeed").textContent = "";
+  $("sliceFeed").className = "feedback";
+  $("retryBtn").classList.add("hidden");
+  $("slicePrompt").textContent = "Slice " + SEQWORDS[expected] + "! 🍉 Swipe the fruit that comes " + SEQWORDS[expected].toLowerCase() + "!";
+  sliceActive = true;
+}
+function buildRetell(){
+  var s = curStory();
+  var sh = s.short, w = s.why;
+  return [
+    {q:"What happens FIRST in the story?", c:[sh[0], sh[2], sh[3]], a:0},
+    {q:"What happens NEXT in the story?", c:[sh[1], sh[3], sh[0]], a:0},
+    {q:w.q, c:w.c, a:w.a},
+    {q:"How does the story END?", c:[sh[3], sh[1], sh[0]], a:0}
+  ];
+}
+function startRetell(){
+  sliceActive = false;
+  RETELL = buildRetell();
+  qIdx = 0; retellScore = 0;
+  show("screen-retell");
+  askRetell();
+}
+function askRetell(){
+  var item = RETELL[qIdx];
+  $("qNum").textContent = "Retell question " + (qIdx+1) + " of " + RETELL.length;
+  $("prompt").textContent = item.q;
+  $("feed").textContent = "";
+  $("feed").className = "feedback";
+  $("retellNextBtn").classList.add("hidden");
+  var box = $("choices");
+  box.innerHTML = "";
+  var ord = shuffle([0,1,2]);
+  var firstTryQ = true;
+  ord.forEach(function(ci){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "choice";
+    b.textContent = item.c[ci];
+    b.onclick = function(){
+      var ok = (ci === item.a);
+      if(ok){
+        recordTrial(firstTryQ);
+        if(firstTryQ) retellScore++;
+        b.classList.add("correct");
+        $("feed").textContent = "⭐ Yes! Great retelling!";
+        $("feed").className = "feedback good";
+        sndGood();
+      } else {
+        firstTryQ = false;
+        b.classList.add("wrong");
+        b.disabled = true;
+        $("feed").textContent = "Try again — which one really happened?";
+        $("feed").className = "feedback try";
+        sndBad();
+        return;
+      }
+      Array.prototype.forEach.call(box.children, function(ch){ ch.disabled = true; });
+      $("retellNextBtn").classList.remove("hidden");
+    };
+    box.appendChild(b);
+  });
+}
+function showDone(){
+  sliceActive = false;
+  var s = curStory();
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("doneTitle").textContent = "Story complete! 🎉";
+  var nm = s.t ? s.t : s.q;
+  $("doneSummary").textContent = nm + " — " + storyFirst + " / " + storyTrials + " first try this story • " + acc + "% overall";
+  show("screen-done");
+}
+function nextStory(){
+  orderPos++;
+  if(orderPos >= order.length){ showEnd(); }
+  else { showRead(); }
+}
+function showEnd(){
+  sliceActive = false;
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("endSummary").textContent = "⭐ " + stars + " stars • 🏆 " + points + " points • 🎯 " + acc + "% first try (" + firstTry + " / " + trialsDone + ")";
+  show("screen-end");
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  initCanvas();
+  $("soundBtn").addEventListener("click", function(){
+    soundOn = !soundOn;
+    $("soundBtn").textContent = soundOn ? "🔊 Sound on" : "🔇 Sound off";
+  });
+  $("startBtn").addEventListener("click", function(){ startGame(); });
+  $("readGoBtn").addEventListener("click", function(){ startSlice(); });
+  $("nextBtn").addEventListener("click", function(){ showDone(); });
+  $("retryBtn").addEventListener("click", function(){ if(CONFIG.kind === "seq"){ retrySlice(); } else { startSlice(); } });
+  $("retellNextBtn").addEventListener("click", function(){
+    qIdx++;
+    if(qIdx < RETELL.length){ askRetell(); } else { showDone(); }
+  });
+  $("nextStoryBtn").addEventListener("click", function(){ nextStory(); });
+  $("shuffleBtn").addEventListener("click", function(){
+    var rest = order.slice(orderPos+1);
+    order = order.slice(0, orderPos+1).concat(shuffle(rest));
+    $("shuffleBtn").textContent = "🔀 Shuffled!";
+    setTimeout(function(){ $("shuffleBtn").textContent = "🔀 Shuffle the rest"; }, 1200);
+  });
+  $("replayBtn").addEventListener("click", function(){ showRead(); });
+  $("againBtn").addEventListener("click", function(){ startGame(); });
+  $("restartBtn").addEventListener("click", function(){ startGame(); });
+  loop();
+});
+
+window.SLICE_TEST = {
+  get state(){ return { stars:stars, points:points, trialsDone:trialsDone, firstTry:firstTry, lives:lives, misses:misses, expected:expected, orderPos:orderPos, screen:curScreen, sliceActive:sliceActive, trialResolved:trialResolved,
+    fruits: fruits.map(function(f){ return {id:f.id, x:Math.round(f.x), y:Math.round(f.y), state:f.state, correct:!!f.correct, done:!!f.done}; }) }; },
+  sliceAt: function(x, y){ trySlicePoint(x, y); },
+  swipe: function(x1, y1, x2, y2){ trail = [{x:x1, y:y1}]; sliceSegment(x1, y1, x2, y2); trail = []; },
+  step: function(n){ for(var i=0;i<(n||1);i++){ step(); } },
+  start: function(){ startGame(); },
+  stop: function(){ engineOn = false; sliceActive = false; }
+};
+
+</script>
+</body>
+</html>

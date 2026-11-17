@@ -90,6 +90,7 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
 .mapcell.wide{grid-column:1 / -1}
 .seqword{display:inline-block;background:#2563eb;color:#fff;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:800;margin-top:10px;letter-spacing:1px}
 .planbtn{background:#2563eb;color:#fff;white-space:nowrap}
+.arcadebtn{background:#e85a9b;color:#fff;white-space:nowrap;text-decoration:none;display:inline-block}
 </style>
 </head>
 <body>
@@ -126,6 +127,12 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
         <div class="planrow"><span><b>30–45</b> &nbsp;Main Idea Mission — play 5 stories</span><button class="smallbtn planbtn" data-go="r3" type="button">🎯 Play</button></div>
         <div class="planrow"><span><b>45–55</b> &nbsp;Detective Time — 5 kinds of questions</span><button class="smallbtn planbtn" data-go="r4" type="button">🕵️ Play</button></div>
         <div class="planrow"><span><b>55–60</b> &nbsp;Celebrate!</span><button class="smallbtn planbtn" data-go="cel" type="button">🎉 Celebrate</button></div>
+      </div>
+      <div class="storytext" style="text-align:left">
+        <b>🍉 Arcade Mode — Slice It!</b>
+        <div class="planrow"><span><b>🍉</b> &nbsp;Slice the Story — 40 stories, swipe the events in order</span><a class="smallbtn arcadebtn" href="slice-sequencing.html">🍉 Play</a></div>
+        <div class="planrow"><span><b>🎯</b> &nbsp;Main Idea Slicer — slice ONLY the main idea</span><a class="smallbtn arcadebtn" href="slice-main-idea.html">🎯 Play</a></div>
+        <div class="planrow"><span><b>🕵️</b> &nbsp;Detective Slicer — slice the right answer</span><a class="smallbtn arcadebtn" href="slice-inference.html">🕵️ Play</a></div>
       </div>
       <div class="timer" style="margin:10px 0">⏱ Session time: <span id="sessTimer">0:00</span></div>
       <button class="bigbtn green" id="startBtn" type="button">▶ START THE GAME!</button>

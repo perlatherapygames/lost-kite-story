@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Main Idea Slicer">
+<meta name="theme-color" content="#e85a9b">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.png">
+<title>Main Idea Slicer</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fde7ef;color:#1f2937;min-height:100vh}
+#app{max-width:640px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#e85a9b 0%,#f9a8d4 55%,#fde68a 100%);padding:14px 14px 30px}
+.card{background:#fff;border-radius:24px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+h1{font-size:38px;line-height:1.05;margin:6px 0;color:#be185d;text-align:center}
+h2{font-size:26px;margin:8px 0;color:#be185d;text-align:center}
+.sub{text-align:center;font-size:18px;font-weight:700;color:#374151}
+.emoji-big{font-size:80px;text-align:center;line-height:1.1}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-weight:800}
+.bigbtn{display:block;width:100%;padding:18px;font-size:24px;background:#e85a9b;color:#fff;box-shadow:0 6px 0 #be185d;margin:16px 0}
+.bigbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #be185d}
+.bigbtn.green{background:#22c55e;box-shadow:0 6px 0 #15803d}
+.bigbtn.blue{background:#2563eb;box-shadow:0 6px 0 #1e40af}
+.bigbtn.orange{background:#f97316;box-shadow:0 6px 0 #c2410c}
+.smallbtn{padding:10px 14px;font-size:16px;background:#e5e7eb;color:#111827;margin:4px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.pill{background:#fdf2f8;border:2px solid #f9a8d4;border-radius:999px;padding:8px 12px;font-weight:800;font-size:15px}
+.pill.lives{background:#fef2f2;border-color:#fca5a5}
+.bar{height:16px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:8px 0}
+.bar>div{height:100%;background:linear-gradient(90deg,#e85a9b,#22c55e);width:0%;transition:width .4s}
+.prompt{font-size:22px;font-weight:800;text-align:center;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin:12px 0;line-height:1.35}
+.feedback{font-size:20px;font-weight:800;text-align:center;min-height:30px;margin:8px 0}
+.feedback.good{color:#15803d}
+.feedback.try{color:#dc2626}
+.choice{display:block;width:100%;text-align:left;padding:16px;font-size:19px;line-height:1.35;background:#fdf2f8;border:3px solid #e85a9b;color:#111827;border-radius:18px;margin:10px 0}
+.choice:active{transform:scale(.98)}
+.choice.correct{background:#dcfce7;border-color:#22c55e}
+.choice.wrong{background:#fee2e2;border-color:#dc2626;opacity:.6}
+.choice:disabled{cursor:default}
+.storytext{font-size:18px;line-height:1.6;background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:16px;margin:12px 0}
+.storytext b{color:#be185d}
+.storybox{font-size:17px;line-height:1.55;background:#eff6ff;border:2px solid #2563eb;border-radius:16px;padding:14px;margin:12px 0;max-height:190px;overflow-y:auto}
+.storybox b{color:#1e40af}
+.parts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.part{background:#eff6ff;border:2px solid #2563eb;border-radius:14px;padding:10px;font-size:15px;line-height:1.35}
+.part b{display:block;color:#1e40af;font-size:13px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.part.wide{grid-column:1 / -1}
+.mapbox{background:#f0fdf4;border:2px solid #22c55e;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;line-height:1.55}
+.mapbox b{color:#15803d}
+.cluebox{background:#eff6ff;border:2px solid #2563eb;border-radius:16px;padding:14px;margin:12px 0;font-size:18px;line-height:1.5;font-weight:700}
+#gameCanvas{width:100%;height:auto;display:block;border-radius:20px;border:3px solid #f9a8d4;background:linear-gradient(180deg,#dbeafe 0%,#fef3c7 100%);touch-action:none}
+.badge{display:inline-block;background:#2563eb;color:#fff;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:800;margin:2px;letter-spacing:1px}
+.badge.done{background:#22c55e}
+.badge.next{background:#f97316}
+.choices-list{font-size:16px;line-height:1.5;background:#fdf2f8;border:2px solid #f9a8d4;border-radius:14px;padding:10px 14px;margin:10px 0;text-align:left}
+.choices-list div{margin:4px 0}
+#celebrate{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+#celebrate .pop{background:#fff;border-radius:28px;padding:28px 22px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#celebrate .pop .big{font-size:64px}
+#celebrate h2{font-size:30px}
+.hidden{display:none}
+.qnum{text-align:center;font-weight:800;color:#6b7280;font-size:15px}
+.roundtag{display:inline-block;background:#fce7f3;color:#be185d;border-radius:999px;padding:6px 14px;font-weight:800;font-size:14px}
+.note{text-align:center;color:#6b7280;font-size:14px;margin-top:10px}
+.seqword{display:inline-block;background:#2563eb;color:#fff;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:800;margin-top:10px;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div id="app"><div class="card">
+<div class="hud">
+      <span class="pill">⭐ <span id="stars">0</span></span>
+      <span class="pill">🏆 <span id="points">0</span> pts</span>
+      <span class="pill">🎯 <span id="acc">0%</span> first try</span>
+      <span class="pill lives" id="livesPill">❤️❤️❤️</span>
+      <button class="smallbtn" id="soundBtn" type="button">🔊 Sound on</button>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div style="text-align:center"><span class="pill">Goal: 90% first try!</span></div>
+
+    <div id="screen-start" class="screen">
+      <div class="emoji-big">🍉🎯</div>
+      <h1>Main Idea Slicer!</h1>
+      <p class="sub">20 stories • Read the story, then slice ONLY the main idea<br>Watch out — the other fruits are tricky!</p>
+      <p class="note">One fruit is the true main idea. One is a small detail. One is way too big. Slice the main idea — you have 3 lives!</p>
+      <button class="bigbtn green" id="startBtn" type="button">▶ START SLICING!</button>
+      <p class="note">20 trials • Goal: 18/20 first try = 90%!</p>
+    </div>
+    <div id="screen-read" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag" id="readTag"></span></div>
+      <h2 id="readTitle"></h2>
+      <div class="storytext" id="readText"></div>
+      <p class="note">Read the story, then slice the MAIN IDEA!</p>
+      <button class="bigbtn blue" id="readGoBtn" type="button">🍉 SLICE THE MAIN IDEA!</button>
+    </div>
+    <div id="screen-slice" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag" id="sliceTag"></span></div>
+      <div class="prompt" id="slicePrompt"></div>
+      <div style="text-align:center" id="seqBadges"></div>
+      <div class="storybox" id="sliceStory"></div>
+      <div class="choices-list" id="sliceChoices"></div>
+      <canvas id="gameCanvas" width="600" height="420"></canvas>
+      <div class="feedback" id="sliceFeed"></div>
+      <div class="mapbox hidden" id="mapBox"></div>
+      <button class="bigbtn green hidden" id="nextBtn" type="button">NEXT ➜</button>
+      <button class="bigbtn orange hidden" id="retryBtn" type="button">🔄 TRY THIS STORY AGAIN</button>
+    </div>
+    <div id="screen-retell" class="screen hidden">
+      <div style="text-align:center"><span class="roundtag">Retell Check 🎤</span></div>
+      <h2>Retell Check!</h2>
+      <div class="qnum" id="qNum"></div>
+      <div class="prompt" id="prompt"></div>
+      <div id="choices"></div>
+      <div class="feedback" id="feed"></div>
+      <button class="bigbtn green hidden" id="retellNextBtn" type="button">NEXT ➜</button>
+    </div>
+    <div id="screen-done" class="screen hidden">
+      <div class="emoji-big">🎉</div>
+      <h2 id="doneTitle">Story complete!</h2>
+      <p class="sub" id="doneSummary"></p>
+      <button class="bigbtn green" id="nextStoryBtn" type="button">NEXT STORY ➜</button>
+      <button class="bigbtn blue" id="shuffleBtn" type="button">🔀 Shuffle the rest</button>
+      <button class="bigbtn orange" id="replayBtn" type="button">🔄 PLAY THIS STORY AGAIN</button>
+    </div>
+    <div id="screen-end" class="screen hidden">
+      <div class="emoji-big">🏆</div>
+      <h2>You sliced all 20 stories!</h2>
+      <p class="sub" id="endSummary"></p>
+      <button class="bigbtn green" id="againBtn" type="button">🔄 PLAY AGAIN</button>
+    </div>
+    <div style="text-align:center;margin-top:14px">
+      <button class="smallbtn" id="restartBtn" type="button">🔄 Start over</button>
+    </div>
+
+</div></div>
+
+<div id="celebrate"><div class="pop">
+  <div class="big" id="celEmoji"></div>
+  <h2 id="celTitle"></h2>
+  <p class="sub" id="celText"></p>
+  <button class="bigbtn green" id="celBtn" type="button">LET'S GO!</button>
+</div></div>
+
+<script>
+"use strict";
+
+var soundOn = true, audioCtx = null;
+var stars = 0, points = 0, firstTry = 0, trialsDone = 0;
+var lives = 3, misses = 0;
+var order = [], orderPos = 0, storyIdx = 0;
+var expected = 0, trialFirst = true, trialResolved = false;
+var fruits = [], parts_fx = [], halves = [], trail = [];
+var sliceActive = false, engineOn = true, curScreen = "screen-start";
+var RETELL = [], qIdx = 0, retellScore = 0, storyFirst = 0, storyTrials = 0;
+var FRUIT_EMOJI = ["\uD83C\uDF4E","\uD83C\uDF4A","\uD83C\uDF4B","\uD83C\uDF47","\uD83C\uDF53","\uD83C\uDF49","\uD83C\uDF51","\uD83E\uDD5D","\uD83C\uDF52","\uD83C\uDF4D","\uD83E\uDD6D","\uD83E\uDED0"];
+var FRUIT_COLOR = ["#ef4444","#f97316","#eab308","#a855f7","#ec4899","#22c55e","#fb7185","#84cc16","#dc2626","#f59e0b","#facc15","#38bdf8"];
+var SEQWORDS = ["FIRST","NEXT","THEN","LAST"];
+var CW = 600, CH = 420, GRAV = 0.32;
+
+function $(id){ return document.getElementById(id); }
+function beep(freq, dur, type, delay){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    var t = audioCtx.currentTime + (delay||0);
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type||"sine"; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.18, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+dur);
+  }catch(e){}
+}
+function sndSlice(){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    var t = audioCtx.currentTime;
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = "sawtooth"; o.frequency.setValueAtTime(900, t);
+    o.frequency.exponentialRampToValueAtTime(250, t+0.15);
+    g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.16);
+    o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.16);
+  }catch(e){}
+}
+function sndGood(){ beep(523,.12,"sine",0); beep(659,.12,"sine",.1); beep(784,.22,"sine",.2); }
+function sndBad(){ beep(200,.2,"sawtooth",0); }
+function sndCheer(){ [523,659,784,1047,784,1047].forEach(function(f,i){ beep(f,.15,"triangle",i*.12); }); }
+function shuffle(a){ var arr=a.slice(); for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; }
+function updateHUD(){
+  $("stars").textContent = stars;
+  $("points").textContent = points;
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("acc").textContent = acc + "%";
+  $("barFill").style.width = acc + "%";
+  if(CONFIG.kind === "seq"){
+    $("livesPill").textContent = "😬 Misses: " + misses + "/3";
+  } else {
+    var h = "";
+    for(var i=0;i<3;i++){ h += (i<lives) ? "❤️" : "🖤"; }
+    $("livesPill").textContent = h;
+  }
+}
+function recordTrial(correctFirst){
+  trialsDone++; storyTrials++;
+  if(correctFirst){ firstTry++; storyFirst++; stars++; points += 10; }
+  else { points += 2; }
+  updateHUD();
+  if(stars===5 || stars===10 || stars===15 || stars===20 || stars===25 || stars===30 || stars===40){ danceBreak(stars + " STARS!"); }
+}
+function show(id){
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.add("hidden"); });
+  $(id).classList.remove("hidden");
+  curScreen = id;
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+function celebrate(emoji, title, text, btn, cb){
+  $("celEmoji").textContent = emoji;
+  $("celTitle").textContent = title;
+  $("celText").textContent = text;
+  $("celBtn").textContent = btn || "LET'S GO!";
+  $("celebrate").style.display = "flex";
+  sndCheer();
+  $("celBtn").onclick = function(){ $("celebrate").style.display = "none"; if(cb) cb(); };
+}
+function danceBreak(msg){
+  celebrate("\uD83D\uDD7A\uD83D\uDC83", "DANCE BREAK!", msg + " Stand up, shake it out, then keep going!", "KEEP PLAYING!");
+}
+function shortLabel(t){
+  var w = t.split(" ");
+  if(w.length <= 5) return t;
+  return w.slice(0,5).join(" ") + "…";
+}
+function uniqueLabels(choices){
+  var labels = choices.map(shortLabel);
+  for(var i=0;i<labels.length;i++){
+    for(var j=i+1;j<labels.length;j++){
+      if(labels[i] === labels[j]){ labels[j] = choices[j]; }
+    }
+  }
+  return labels;
+}
+function wrapLines(ctx, text, maxW){
+  var words = text.split(" "), lines = [], cur = "";
+  for(var i=0;i<words.length;i++){
+    var t = cur ? cur + " " + words[i] : words[i];
+    if(ctx.measureText(t).width <= maxW || !cur){ cur = t; }
+    else { lines.push(cur); cur = words[i]; }
+  }
+  if(cur) lines.push(cur);
+  while(lines.length > 2){ lines = lines.slice(0,2); lines[1] = lines[1].replace(/…?$/, "…"); }
+  return lines;
+}
+
+/* ---------- slicing engine ---------- */
+var canvas = null, ctx = null;
+function initCanvas(){
+  canvas = $("gameCanvas");
+  ctx = null;
+  try{ ctx = canvas.getContext("2d"); }catch(e){ ctx = null; }
+  if(!ctx) return;
+  var onDown = function(e){ e.preventDefault(); var p = toCanvas(e); trail = [p]; trySlicePoint(p.x, p.y); };
+  var onMove = function(e){ if(trail.length===0) return; e.preventDefault(); var p = toCanvas(e); var prev = trail[trail.length-1]; trail.push(p); if(trail.length>14) trail.shift(); sliceSegment(prev.x, prev.y, p.x, p.y); };
+  var onUp = function(){ trail = []; };
+  canvas.addEventListener("pointerdown", onDown);
+  canvas.addEventListener("pointermove", onMove);
+  canvas.addEventListener("pointerup", onUp);
+  canvas.addEventListener("pointerleave", onUp);
+  canvas.addEventListener("mousedown", onDown);
+  canvas.addEventListener("mousemove", onMove);
+  canvas.addEventListener("mouseup", onUp);
+}
+function toCanvas(e){
+  var r = canvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * (CW / r.width), y: (e.clientY - r.top) * (CH / r.height) };
+}
+function distSeg(px, py, x1, y1, x2, y2){
+  var dx = x2-x1, dy = y2-y1, len2 = dx*dx + dy*dy;
+  var t = len2 ? ((px-x1)*dx + (py-y1)*dy) / len2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  var cx = x1 + t*dx, cy = y1 + t*dy;
+  return Math.hypot(px-cx, py-cy);
+}
+function trySlicePoint(x, y){
+  if(!sliceActive) return;
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state !== "fly") continue;
+    if(Math.hypot(x-f.x, y-f.y) <= f.r + 4){ sliceFruit(f); return; }
+  }
+}
+function sliceSegment(x1, y1, x2, y2){
+  if(!sliceActive) return;
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state !== "fly") continue;
+    if(distSeg(f.x, f.y, x1, y1, x2, y2) <= f.r + 6){ sliceFruit(f); }
+  }
+}
+function launchFruit(f, delayFrames){
+  f.x = 60 + Math.random() * (CW - 120);
+  f.y = CH + 60;
+  f.vy = -(13 + Math.random() * 3.5);
+  f.vx = (Math.random() - 0.5) * 3;
+  f.state = "fly";
+  f.delay = delayFrames || 0;
+}
+function spawnHalves(f){
+  halves.push({x:f.x-14, y:f.y, vx:-3.2, vy:f.vy*0.4, rot:-0.5, emoji:f.emoji, life:28});
+  halves.push({x:f.x+14, y:f.y, vx:3.2, vy:f.vy*0.4, rot:0.5, emoji:f.emoji, life:28});
+  for(var i=0;i<10;i++){
+    parts_fx.push({x:f.x, y:f.y, vx:(Math.random()-0.5)*8, vy:(Math.random()-0.7)*7, life:22, color:f.color, r:3+Math.random()*4});
+  }
+}
+function sliceFruit(f){
+  if(f.state !== "fly" || !sliceActive) return;
+  f.state = "sliced";
+  spawnHalves(f);
+  sndSlice();
+  onSlice(f);
+  if(!f.gone && f.state === "sliced"){ f.respawn = 45; }
+}
+function step(){
+  if(!sliceActive) return;
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state === "sliced"){
+      if(!f.gone){
+        f.respawn = (f.respawn === undefined ? 45 : f.respawn) - 1;
+        if(f.respawn <= 0){ launchFruit(f, 10); }
+      }
+      continue;
+    }
+    if(f.state !== "fly") continue;
+    if(f.delay > 0){ f.delay--; continue; }
+    f.vy += GRAV; f.x += f.vx; f.y += f.vy;
+    if(f.x < f.r){ f.x = f.r; f.vx = Math.abs(f.vx); }
+    if(f.x > CW - f.r){ f.x = CW - f.r; f.vx = -Math.abs(f.vx); }
+    if(f.y - f.r > CH + 40){ maybeRelaunch(f); }
+  }
+  for(var i=halves.length-1;i>=0;i--){
+    var h = halves[i];
+    h.vy += GRAV; h.x += h.vx; h.y += h.vy; h.life--;
+    if(h.life <= 0) halves.splice(i,1);
+  }
+  for(var i=parts_fx.length-1;i>=0;i--){
+    var p = parts_fx[i];
+    p.vy += 0.25; p.x += p.vx; p.y += p.vy; p.life--;
+    if(p.life <= 0) parts_fx.splice(i,1);
+  }
+  draw();
+}
+function maybeRelaunch(f){
+  if(!sliceActive) return;
+  if(CONFIG.kind === "seq"){
+    if(f.done) { f.state = "gone"; return; }
+  } else {
+    if(trialResolved) { f.state = "gone"; return; }
+  }
+  launchFruit(f, 15 + Math.floor(Math.random()*30));
+}
+function draw(){
+  if(!ctx) return;
+  ctx.clearRect(0, 0, CW, CH);
+  var g = ctx.createLinearGradient(0, 0, 0, CH);
+  g.addColorStop(0, "#dbeafe"); g.addColorStop(1, "#fef3c7");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
+  // swipe trail
+  if(trail.length > 1){
+    ctx.beginPath();
+    ctx.moveTo(trail[0].x, trail[0].y);
+    for(var i=1;i<trail.length;i++){ ctx.lineTo(trail[i].x, trail[i].y); }
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
+    ctx.lineWidth = 7; ctx.lineCap = "round"; ctx.stroke();
+    ctx.strokeStyle = "rgba(232,90,155,0.7)";
+    ctx.lineWidth = 3; ctx.stroke();
+  }
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.state !== "fly" || f.delay > 0) continue;
+    var fg = ctx.createRadialGradient(f.x-14, f.y-16, 6, f.x, f.y, f.r);
+    fg.addColorStop(0, "#ffffff"); fg.addColorStop(0.25, f.color); fg.addColorStop(1, f.color);
+    ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+    ctx.fillStyle = fg; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.stroke();
+    ctx.font = "42px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(f.emoji, f.x, f.y - 12);
+    ctx.font = "bold 12px sans-serif";
+    var lines = wrapLines(ctx, f.label, f.r * 1.5);
+    ctx.fillStyle = "#fff";
+    ctx.shadowColor = "rgba(0,0,0,0.55)"; ctx.shadowBlur = 3;
+    for(var li=0; li<lines.length; li++){
+      ctx.fillText(lines[li], f.x, f.y + 16 + li * 14);
+    }
+    ctx.shadowBlur = 0;
+    if(CONFIG.kind === "seq" && f.badge){
+      ctx.font = "bold 13px sans-serif";
+      ctx.fillStyle = "#2563eb";
+      ctx.fillText(f.badge, f.x, f.y - f.r - 8);
+    }
+  }
+  for(var i=0;i<halves.length;i++){
+    var h = halves[i];
+    ctx.globalAlpha = Math.max(0, h.life / 28);
+    ctx.font = "36px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(h.emoji, h.x, h.y);
+    ctx.globalAlpha = 1;
+  }
+  for(var i=0;i<parts_fx.length;i++){
+    var p = parts_fx[i];
+    ctx.globalAlpha = Math.max(0, p.life / 22);
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = p.color; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+function loop(){
+  if(!engineOn) return;
+  step();
+  if(window.requestAnimationFrame){ requestAnimationFrame(loop); }
+  else { setTimeout(loop, 16); }
+}
+
+var CONFIG = { kind: "mi", data: [{"t": "Piano Practice", "e": "\ud83c\udfb9", "text": "Mia had been taking piano lessons for one whole year, and every day after school she sat down at the old piano in the living room to practice. At first, her fingers felt slow and clumsy, and the notes came out wrong more often than right. Sometimes she wanted to quit and go play outside instead, but her mom reminded her that getting good at anything takes time. So Mia kept going, a little bit each day, playing her scales and then her favorite song. Her teacher, Mrs. Lopez, helped her fix the tricky parts and cheered her on when she got them right. After weeks of practice, the song started to sound smooth and pretty. One sunny Saturday, Mia's family took her to the music school for the spring recital. She walked up to the big piano on the stage, took a deep breath, and played her song from start to finish without stopping. When the last note faded away, the whole room clapped and cheered. Mia smiled and took a bow. All that practice had been worth it.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Mia practiced hard and played her song at a recital.", "Mia's teacher helped her learn a new song.", "Music is fun for everyone."], "a": 0}, "dq": {"q": "What did Mia play at the recital?", "c": ["The song she had been practicing", "A song she had never seen before", "A song on the guitar"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Mia played her song from start to finish at the recital", "Mia's mom reminded her that getting good takes time", "Mia sat at the old piano every day after school"], "a": 0}, "map": {"who": "Mia", "where": "Home and the music school", "problem": "Mia's fingers felt slow and the notes came out wrong", "ended": "Mia played her song at the recital and everyone clapped"}}, {"t": "The Birdhouse", "e": "\ud83d\udc26", "text": "Leo loved watching the birds in his backyard, but every time it rained, the little birds had nowhere dry to hide. One morning, he decided to build them a birdhouse. He went to the garage and found some wood, a hammer, nails, and a can of bright blue paint. First, Leo measured the wood carefully and drew lines where he needed to cut. Then he nailed the pieces together: two walls, a floor, a roof, and a tiny front with a round hole for the door. It took a while, and one nail bent, but Leo pulled it out and tried again. When the house was built, he painted it bright blue so it would be easy to spot among the green leaves. He waited for the paint to dry, then carried the birdhouse outside and hung it on a strong branch of the big oak tree. The next morning, Leo looked out his window and smiled. A small brown bird was already peeking out of the round hole, and it looked right at home.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Leo built a birdhouse and hung it in a tree.", "Leo painted the birdhouse bright blue.", "Birds live in trees."], "a": 0}, "dq": {"q": "What color did Leo paint the birdhouse?", "c": ["Blue", "Red", "Green"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["A small brown bird was already peeking out of the birdhouse", "Leo painted the birdhouse bright blue", "Leo found wood, a hammer, and nails in the garage"], "a": 0}, "map": {"who": "Leo", "where": "Leo's backyard and the big oak tree", "problem": "The birds had nowhere dry to hide when it rained", "ended": "A small brown bird moved into the birdhouse"}}, {"t": "The Class Garden", "e": "\ud83c\udf3b", "text": "At the start of spring, Ms. Green's class got a big surprise: their teacher told them they would plant a real garden behind the school. Each student got a small patch of soil, a packet of seeds, and a watering can. Some students planted carrots, some planted beans, and a few planted tall sunflowers along the fence. Every week, the class went outside to water the plants, pull out weeds, and check how much everything had grown. The carrots were slow, and the beans needed sticks to climb, but the sunflowers shot up fast. By summer, the sunflowers were taller than some of the students, and their big yellow faces turned to follow the sun. One warm afternoon, the class pulled up their carrots, washed them off, and ate them for lunch. They were crunchy and sweet, and everyone agreed they tasted better than any carrots from the store because they had grown them all by themselves.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["A class planted and cared for a garden at school.", "The class planted carrots and beans.", "Plants need water to grow."], "a": 0}, "dq": {"q": "What did the class eat for lunch?", "c": ["The carrots they grew", "Pizza from the cafeteria", "Apples from a store"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["The class pulled up their carrots and ate them for lunch", "The sunflowers grew taller than some students", "Some students planted beans along the fence"], "a": 0}, "map": {"who": "Ms. Green's class", "where": "The garden behind the school", "problem": "The class wanted to grow their own food", "ended": "They ate the crunchy, sweet carrots they grew"}}, {"t": "The Lost Library Book", "e": "\ud83d\udcda", "text": "Jonah loved the library, and every week he borrowed a new book about animals. But one Tuesday morning, he could not find his library book anywhere. He looked under his bed, inside his backpack, behind the couch, and even in the bathtub, but the book was gone. Jonah felt worried because the book was due back that very day, and he did not want to pay a fine or lose his chance to borrow a new one. He sat down at the kitchen table and thought hard about the last time he had seen it. He remembered reading it after dinner, right there at the table, while he ate a snack. Then he remembered something else: he had left it on the kitchen table when he went to brush his teeth! Jonah ran to the table, and there it was, under a pile of papers. He grabbed the book, put on his shoes, and ran all the way to the library. He handed the book to the librarian just in time, and she smiled and said he could pick out a new one.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Jonah lost his library book, then found it and returned it.", "Jonah looked under his bed.", "Libraries have lots of books."], "a": 0}, "dq": {"q": "Where had Jonah left the book?", "c": ["On the kitchen table", "At school", "In the car"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Jonah found the book on the kitchen table and returned it just in time", "Jonah looked under his bed and behind the couch", "Jonah borrowed a new book about animals every week"], "a": 0}, "map": {"who": "Jonah", "where": "Home and the library", "problem": "Jonah could not find his library book, and it was due back", "ended": "Jonah found the book and returned it just in time"}}, {"t": "The Rainy-Day Fort", "e": "\u26c8\ufe0f", "text": "On Saturday morning, Noah woke up hoping to play outside, but rain was tapping on the windows, and gray clouds covered the sky. His friend Sam came over anyway, and the two of them stood at the window, watching the rain fall. Then Noah had an idea. They dragged two chairs into the middle of the living room and draped big blankets over them to make a roof. Inside their fort, they put soft pillows, their favorite books, and a bowl of crackers for a snack. They read stories to each other and pretended the fort was a castle, and they were the kings of a rainy kingdom. They even used a flashlight to make shadows on the blanket walls. When the rain finally stopped in the afternoon, the sun came out, and Noah's mom called them outside to play. But the two friends looked at each other and laughed: they did not want to take the fort down yet, because it was the best castle they had ever built.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Two friends built a blanket fort on a rainy day.", "They put pillows inside the fort.", "Rain is good for plants."], "a": 0}, "dq": {"q": "What did they pretend the fort was?", "c": ["A castle", "A spaceship", "A school"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Noah and Sam built a blanket fort and pretended it was a castle", "They put soft pillows inside the fort", "It rained all morning on Saturday"], "a": 0}, "map": {"who": "Noah and Sam", "where": "Noah's living room", "problem": "Rain kept them from playing outside", "ended": "They did not want to take the fort down, even when the sun came out"}}, {"t": "The New Bike", "e": "\ud83d\udeb2", "text": "Ava had been saving her allowance for months because she wanted a new bike more than anything. Every week, she put her coins into a glass jar on her shelf and watched the jar fill up, a little at a time. Sometimes it was hard not to spend the money on candy or stickers, but Ava kept her eyes on her goal. When she finally counted the coins and had enough, she went to the bike shop with her mom. The shop was full of bikes in every color, and Ava looked at all of them before she chose a bright purple one with a shiny silver bell. The shop owner helped her adjust the seat, and Ava put on her helmet. She rode the bike all the way home, ringing the bell the whole way and waving at her neighbors. That evening, she parked her new purple bike next to the front door, and she could not wait to ride it again the next day.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Ava saved money and bought a purple bike.", "Ava kept her money in a jar.", "Bikes are fun to ride."], "a": 0}, "dq": {"q": "What color was Ava's new bike?", "c": ["Purple", "Red", "Blue"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Ava saved her allowance and bought a bright purple bike", "Ava kept her coins in a glass jar on her shelf", "The shop owner helped Ava adjust the seat"], "a": 0}, "map": {"who": "Ava", "where": "Home and the bike shop", "problem": "Ava wanted a new bike but did not have enough money yet", "ended": "Ava rode her bright purple bike home, ringing the bell"}}, {"t": "The Lemonade Stand", "e": "\ud83c\udf4b", "text": "It was one of the hottest days of summer, and Sam and his friend Jay were bored. There was nothing good on TV, and their bikes were both getting fixed. Then Jay had an idea: they would set up a lemonade stand on the front lawn. First, they squeezed lemons into a big pitcher, added sugar and cold water, and stirred it all together. Sam poured the first cup carefully so it would not spill, and it tasted sweet and cold. Then they made a sign on a piece of cardboard that said Lemonade, 25 cents! and taped it to the front of the table. Soon, neighbors walking by stopped to buy a cup. A lady with a dog bought two cups, and the mail carrier bought one too. By the end of the afternoon, the pitcher was empty, and the boys had a pile of coins on the table. They counted the money and laughed: they had earned enough to buy more lemons and do it all over again the next day.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Two friends sold lemonade on a hot day.", "They made a sign for the stand.", "Summer is the hottest season."], "a": 0}, "dq": {"q": "How much did a cup of lemonade cost?", "c": ["25 cents", "One dollar", "Five dollars"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Sam and Jay sold lemonade to their neighbors until the pitcher was empty", "They made a sign that said Lemonade, 25 cents!", "The mail carrier bought a cup of lemonade"], "a": 0}, "map": {"who": "Sam and Jay", "where": "The front lawn", "problem": "The boys were bored on a hot summer day", "ended": "They sold all the lemonade and earned money to do it again"}}, {"t": "The Lost Kitten", "e": "\ud83d\udc31", "text": "One evening, Rosa was walking home from the park when she heard a tiny meow coming from behind the bushes. She peeked through the leaves and found a small gray kitten, cold, hungry, and all alone. Rosa picked the kitten up gently and carried it home in her arms. She gave it a bowl of warm milk, and the kitten drank it all up, purring the whole time. Then she made a soft bed from an old towel in a box and tucked the kitten in for the night. The next morning, Rosa made signs with a drawing of the kitten and taped them to trees and fences all around the block. That afternoon, a neighbor from down the street knocked on the door. She smiled when she saw the kitten and said, That is my kitten! She slipped out yesterday, and I have been looking everywhere. Rosa was happy the kitten was going home, and she was glad she had taken care of her.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Rosa found a lost kitten, cared for it, and returned it to its owner.", "Rosa gave the kitten warm milk.", "Cats make good pets."], "a": 0}, "dq": {"q": "What color was the kitten?", "c": ["Gray", "Orange", "Black"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Rosa cared for the lost kitten and found its owner", "Rosa gave the kitten a bowl of warm milk", "Rosa made signs with a drawing of the kitten"], "a": 0}, "map": {"who": "Rosa", "where": "The park and Rosa's home", "problem": "A small gray kitten was cold, hungry, and all alone", "ended": "The kitten's owner came, and Rosa was glad the kitten was going home"}}, {"t": "The Science Fair", "e": "\ud83d\udd2c", "text": "Ben was excited about the science fair, but he could not decide what to show. Then he thought of a question: do plants grow better in the sun or in the shade? To find out, he planted bean seeds in three cups of soil. He put one cup on the sunny windowsill, one cup in the shade of a tree, and one cup in a dark closet. Every day, Ben watered all three cups the same amount and measured how tall each plant grew. He wrote the numbers in a notebook and drew a chart with colored pencils. After two weeks, the results were clear. The bean in the sun was the tallest by far, the one in the shade was shorter, and the one in the dark closet was pale and tiny. At the science fair, Ben set up his three cups, showed his chart, and explained what he had learned. His teacher said it was a great experiment, and Ben was proud of his work.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Ben did a plant experiment for the science fair.", "Ben planted beans in three cups.", "Science is important in school."], "a": 0}, "dq": {"q": "Which bean grew tallest?", "c": ["The one in the sun", "The one in the shade", "The one in the dark closet"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Ben tested bean plants in sun, shade, and dark and showed what he learned", "Ben planted bean seeds in three cups of soil", "Ben drew a chart with colored pencils"], "a": 0}, "map": {"who": "Ben", "where": "Home and the science fair", "problem": "Ben could not decide what to show at the science fair", "ended": "Ben showed his chart and explained what he learned"}}, {"t": "The Snow Day", "e": "\u2744\ufe0f", "text": "When Maya woke up on Tuesday morning, everything outside was white. It had snowed all night, and school was closed for the day. Maya put on her warmest coat, her boots, her hat, and her mittens, and ran outside into the deep snow. First, she rolled three big snowballs and stacked them to build a snowman, giving it a carrot for a nose and black buttons for eyes. Then she lay down in the fresh snow and waved her arms and legs to make snow angels. Later, her friends came over, and they had a big snowball fight, laughing and ducking behind the snowman. When Maya's fingers started to feel cold, she went inside, took off her wet boots, and sat by the window with a warm cup of hot chocolate. She watched the snow fall and thought about her snowman outside. It was the best snow day ever.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Maya played in the snow all day on a snow day.", "Maya built a snowman.", "Winter is cold."], "a": 0}, "dq": {"q": "What did Maya drink when she went inside?", "c": ["Hot chocolate", "Lemonade", "Cold milk"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Maya built a snowman, made snow angels, and had a snowball fight", "Maya put on her coat, boots, hat, and mittens", "Maya lay down in the snow to make snow angels"], "a": 0}, "map": {"who": "Maya", "where": "Home and the snowy yard", "problem": "School was closed, and Maya wanted to play in the snow", "ended": "Maya went inside for hot chocolate and thought about her snowman"}}, {"t": "The Lost Tooth", "e": "\ud83e\uddb7", "text": "Lily had a wiggly tooth that had been loose for a week. Every day, she pushed it with her tongue and wiggled it with her finger, but it just would not come out. One night at dinner, she took a big bite of a crunchy apple, and pop! The tooth came right out. Lily held it up and laughed: it was so tiny, and there was a little gap in her smile. Her mom gave her a small box to keep the tooth safe. That night, Lily put the tooth under her pillow and went to sleep, wondering what would happen. In the morning, she lifted her pillow and found a shiny coin in the place where her tooth had been. Lily grinned with her brand-new gap and ran to show her mom. The tooth fairy had come, and now she had a coin to put in her piggy bank.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Lily lost her tooth and the tooth fairy left her a coin.", "Lily ate a crunchy apple.", "Teeth are important."], "a": 0}, "dq": {"q": "What did Lily find under her pillow?", "c": ["A shiny coin", "A new toothbrush", "A tiny toy"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Lily's tooth came out, and the tooth fairy left her a coin", "Lily wiggled her tooth with her finger every day", "Lily's mom gave her a small box for the tooth"], "a": 0}, "map": {"who": "Lily", "where": "Home", "problem": "Lily had a wiggly tooth that would not come out", "ended": "The tooth fairy left a shiny coin under her pillow"}}, {"t": "The Bake Sale", "e": "\ud83e\uddc1", "text": "Emma's school was having a bake sale to raise money for new library books, and Emma wanted to help. She asked her mom if they could bake muffins together, and her mom said yes. On Saturday morning, they put on aprons and got out the flour, sugar, eggs, and a big bowl of blueberries. Emma stirred the batter while her mom greased the muffin pan. They poured the batter into the cups and put the pan in the oven. While the muffins baked, the whole kitchen smelled sweet. When the timer rang, Emma took the muffins out with oven mitts and let them cool. At the bake sale, Emma set up her table with a sign that said Blueberry Muffins, 50 cents! One by one, people bought her muffins, and soon the whole tray was empty. Emma was proud: her muffins had helped the library buy new books.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Emma baked muffins and sold them at the bake sale.", "Emma's mom greased the muffin pan.", "Baking is fun on Saturdays."], "a": 0}, "dq": {"q": "What kind of muffins did Emma bake?", "c": ["Blueberry muffins", "Chocolate muffins", "Banana muffins"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Emma baked blueberry muffins and sold them all at the bake sale", "Emma stirred the batter while her mom greased the pan", "Emma's sign said Blueberry Muffins, 50 cents!"], "a": 0}, "map": {"who": "Emma and her mom", "where": "Home and the school bake sale", "problem": "The school needed money for new library books", "ended": "Emma sold all her muffins and helped the library"}}, {"t": "The Field Trip", "e": "\ud83d\ude9c", "text": "On Thursday, Ms. Carter's class went on a field trip to a farm. The students rode the bus for an hour, singing songs and looking out the windows at the fields. When they got to the farm, the farmer met them at the gate and showed them around. They saw cows in the barn, chickens pecking in the yard, and a big red tractor. The farmer let each student pick a pumpkin from the pumpkin patch to take home. The farmer also showed the class how the cows are milked, and everyone got to pet a fluffy baby goat in the barn. Then the class ate lunch under a big oak tree, and the farmer gave everyone a cup of fresh apple cider. On the bus ride back, the students talked about their favorite parts of the day. It was the best field trip the class had ever been on, and they could not wait to tell their families about it.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["A class visited a farm on a field trip.", "The class rode a bus for an hour.", "Farms have cows and chickens."], "a": 0}, "dq": {"q": "What did each student pick to take home?", "c": ["A pumpkin", "A baby chick", "A bag of apples"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["The class visited a farm, saw the animals, and picked pumpkins", "The students rode the bus for an hour", "The farmer gave everyone apple cider"], "a": 0}, "map": {"who": "Ms. Carter's class", "where": "A farm", "problem": "The class wanted to learn about a farm", "ended": "The students talked about their favorite parts on the bus ride home"}}, {"t": "The Treehouse", "e": "\ud83c\udf33", "text": "Max had always wanted a treehouse in the big oak tree in his backyard. One summer, his dad said they could build one together. They started by nailing wooden planks to the trunk to make a ladder. Then they built a floor between two strong branches and put up walls with a window that looked out over the yard. Max hammered nails and held boards while his dad did the tricky parts. When the walls were done, they put on a roof made of wood and hung a bright red flag on top. Max carried his books and a blanket up the ladder and sat inside his new treehouse. From the window, he could see the whole backyard. It was the best hiding spot in the world, and Max planned to eat lunch there every day. That night, Max lay in bed thinking about his treehouse and all the games he would play there with his friends.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Max built a treehouse in the backyard with his dad.", "Max hung a red flag on the treehouse.", "Trees are good for climbing."], "a": 0}, "dq": {"q": "What did Max hang on top of the treehouse?", "c": ["A bright red flag", "A string of lights", "A birdhouse"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Max and his dad built a treehouse in the oak tree", "Max carried his books and a blanket up the ladder", "Max hung a bright red flag on top"], "a": 0}, "map": {"who": "Max and his dad", "where": "The big oak tree in the backyard", "problem": "Max had always wanted a treehouse", "ended": "Max sat in his treehouse and planned to eat lunch there every day"}}, {"t": "The Pet Fish", "e": "\ud83d\udc1f", "text": "For her birthday, Sofia got a pet goldfish. Her mom helped her set up a small tank with water, rocks, and a little castle. Sofia named the fish Sunny because he was bright orange and swam in happy circles. Every morning, Sofia fed Sunny a tiny pinch of food and watched him gobble it up. Once a week, she helped her mom clean the tank so the water would stay clear. One day, Sofia noticed Sunny was hiding behind the castle and not eating. She felt worried and asked her mom what to do. Her mom said the tank was too warm, so they moved it away from the sunny window. The next day, Sunny was swimming in circles again, and Sofia was so glad her fish was healthy. Now Sofia tells everyone that taking care of a pet means watching it every day, and she checks on Sunny first thing every morning.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Sofia took care of her new pet goldfish.", "Sofia named her fish Sunny.", "Fish live in water."], "a": 0}, "dq": {"q": "What color was Sofia's fish?", "c": ["Orange", "Blue", "Silver"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Sofia moved the tank away from the window and Sunny got healthy again", "Sofia named her goldfish Sunny", "Sofia fed Sunny a tiny pinch of food every morning"], "a": 0}, "map": {"who": "Sofia", "where": "Home", "problem": "Sofia's fish Sunny stopped eating and hid behind the castle", "ended": "Sunny was swimming in circles again, and Sofia checks on him every morning"}}, {"t": "The Soccer Game", "e": "\u26bd", "text": "Jay's soccer team had been practicing all season, and now it was time for the big game. The other team was fast, and in the first half they scored a goal. Jay's team did not give up. They passed the ball, ran hard, and cheered each other on. At half time, their coach told them to keep working together and to believe in themselves. In the second half, Jay's friend Alex scored a goal, and the score was tied. With only one minute left, the ball came to Jay near the goal. He took a deep breath, kicked the ball hard, and watched it fly past the goalie and into the net. The crowd cheered, and Jay's whole team ran to hug him. They had won the game, and Jay knew they had done it together. After the game, the coach gave the whole team high fives and said they had played like a real team. Jay went home with a big smile, and he could not wait for the next game.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Jay's team won the big soccer game.", "Jay's friend Alex scored a goal.", "Soccer is a fun sport."], "a": 0}, "dq": {"q": "What did Jay do in the last minute?", "c": ["Kicked the winning goal", "Passed the ball to Alex", "Caught the ball"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Jay kicked the winning goal in the last minute and his team won", "Jay's friend Alex scored a goal to tie the game", "The coach told the team to keep working together"], "a": 0}, "map": {"who": "Jay and his soccer team", "where": "The soccer field", "problem": "The other team was fast and scored first", "ended": "Jay kicked the winning goal and the team won together"}}, {"t": "The Art Contest", "e": "\ud83c\udfa8", "text": "Noah loved to draw, and when his teacher told the class about an art contest, he wanted to enter. He thought about what to draw for a long time, and finally he picked his favorite subject: his dog, Biscuit. Noah drew Biscuit sitting in the yard with his floppy ears and his wagging tail. He colored the dog brown, the grass green, and the sky a bright blue. He worked on the picture for three whole days, adding details like Biscuit's spots and his red collar. When the picture was done, Noah's teacher hung it in the hallway with the other entries. At the end of the week, the principal announced the winners, and Noah's picture won a blue ribbon. Noah was so proud that he taped the ribbon to his bedroom wall, right next to his drawing of Biscuit. Every time he looked at it, he remembered how hard he had worked and how much fun it was to make something he loved.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Noah won a ribbon in the art contest.", "Noah's dog is named Biscuit.", "Drawing takes a long time."], "a": 0}, "dq": {"q": "What did Noah draw for the contest?", "c": ["His dog, Biscuit", "His house", "A rainbow"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Noah drew his dog Biscuit and won a blue ribbon", "Noah colored the grass green and the sky blue", "Noah's teacher hung his picture in the hallway"], "a": 0}, "map": {"who": "Noah", "where": "School", "problem": "Noah wanted to enter the art contest", "ended": "Noah's picture won a blue ribbon"}}, {"t": "The Camping Trip", "e": "\u26fa", "text": "Alex's family went camping in the woods for the weekend. They drove to a campground, set up their tent, and put their sleeping bags inside. Alex helped his dad gather sticks for the campfire while his mom made sandwiches for lunch. After lunch, they hiked on a trail through the trees and saw a deer drinking from a stream. When the sun went down, they sat around the campfire and roasted marshmallows on long sticks. Alex told a funny story, and everyone laughed. Then they crawled into the tent and fell asleep under the stars, listening to the crickets. In the morning, Alex woke up to birds singing, and he wished the trip could last one more day. Before they left, Alex helped pack up the tent and made sure they left the campsite clean. On the drive home, he looked out the window at the trees and thought about the deer, the campfire, and the stars.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Alex's family went camping in the woods.", "Alex gathered sticks for the fire.", "Camping is fun in the summer."], "a": 0}, "dq": {"q": "What did they roast over the campfire?", "c": ["Marshmallows", "Hot dogs", "Corn on the cob"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Alex's family camped in the woods, hiked, and roasted marshmallows", "Alex helped his dad gather sticks for the fire", "Alex saw a deer drinking from a stream"], "a": 0}, "map": {"who": "Alex and his family", "where": "The woods and the campground", "problem": "The family wanted a weekend in the woods", "ended": "Alex wished the trip could last one more day"}}, {"t": "The Broken Vase", "e": "\ud83c\udffa", "text": "Zoe was playing ball in the living room when she accidentally knocked over her mom's favorite blue vase. It fell off the table and broke into pieces on the floor. Zoe's heart pounded. She thought about sweeping up the pieces and saying nothing, but she knew that would be wrong. She took a deep breath, picked up the pieces carefully, and waited for her mom to come home. When her mom walked in, Zoe told her the truth: she had been playing ball inside, and she had broken the vase by accident. She said she was sorry. Her mom was sad about the vase, but she hugged Zoe and said she was proud of her for telling the truth. Zoe promised to play ball outside from now on, and she helped her mom clean up the broken pieces. Her mom gave her a hug and said that telling the truth was the most important part. Zoe felt much better, and she knew she had done the right thing.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["Zoe told the truth when she broke a vase.", "Zoe was playing ball in the living room.", "Vases break easily."], "a": 0}, "dq": {"q": "What did Zoe break?", "c": ["A blue vase", "A picture frame", "A glass cup"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Zoe told her mom the truth about breaking the vase", "Zoe was playing ball in the living room", "Zoe helped her mom clean up the pieces"], "a": 0}, "map": {"who": "Zoe and her mom", "where": "The living room", "problem": "Zoe broke her mom's favorite blue vase", "ended": "Zoe told the truth, and her mom was proud of her"}}, {"t": "The New Student", "e": "\ud83c\udfeb", "text": "On Monday morning, Ella walked into a brand-new school. She did not know anyone, and she felt nervous as she looked for her classroom. Her teacher, Mr. Lee, welcomed her and showed her to a desk near the window. At lunch, Ella sat alone at the end of a long table, eating her sandwich and wishing she had a friend. Then a girl named Grace walked over with her tray and asked, Can I sit with you? Ella smiled and said yes. Grace asked Ella about her old school and her favorite things, and they found out they both loved drawing and soccer. By the end of the day, Ella had a new friend, and school did not feel so scary anymore. She could not wait to come back the next day. That night, Ella told her mom all about Grace and her new school. She picked out her clothes for the next day and went to sleep with a smile on her face.", "mi": {"q": "What is the MAIN IDEA of this story?", "c": ["A new student made a friend on her first day.", "Ella sat alone at lunch.", "School can be scary."], "a": 0}, "dq": {"q": "Who invited Ella to sit with her at lunch?", "c": ["Grace", "Mr. Lee", "A boy named Jay"], "a": 0}, "eq": {"q": "Which detail BEST shows the main idea?", "c": ["Grace asked Ella to sit with her, and Ella made a new friend", "Ella sat alone at lunch eating her sandwich", "Ella's teacher showed her to a desk near the window"], "a": 0}, "map": {"who": "Ella and Grace", "where": "A brand-new school", "problem": "Ella did not know anyone and felt nervous", "ended": "Ella had a new friend and could not wait to come back"}}] };
+/* ---------- per-game flow ---------- */
+function curStory(){ return CONFIG.data[order[orderPos]]; }
+function startGame(){
+  order = shuffle(CONFIG.data.map(function(_, i){ return i; }));
+  orderPos = 0; stars = 0; points = 0; firstTry = 0; trialsDone = 0;
+  lives = 3; misses = 0;
+  updateHUD();
+  showRead();
+}
+function showRead(){
+  sliceActive = false;
+  storyIdx = order[orderPos];
+  storyFirst = 0; storyTrials = 0;
+  var s = curStory();
+  if(CONFIG.kind === "seq"){
+    $("readTag").textContent = "Story " + (orderPos+1) + " of " + order.length;
+    $("readTitle").textContent = s.e + " " + s.t;
+    $("readText").textContent = s.story;
+    $("readParts").innerHTML =
+      "<div class=\"part\"><b>Character</b>" + s.parts.who + "</div>" +
+      "<div class=\"part\"><b>Setting</b>" + s.parts.where + "</div>" +
+      "<div class=\"part\"><b>Problem</b>" + s.parts.problem + "</div>" +
+      "<div class=\"part\"><b>Events</b>" + s.parts.events + "</div>" +
+      "<div class=\"part wide\"><b>Ending</b>" + s.parts.ending + "</div>";
+  } else if(CONFIG.kind === "mi"){
+    $("readTag").textContent = "Story " + (orderPos+1) + " of " + order.length;
+    $("readTitle").textContent = s.e + " " + s.t;
+    $("readText").textContent = s.text;
+  } else {
+    $("readTag").textContent = CONFIG.TYPE_LABEL[s.type] + "  •  Question " + (orderPos+1) + " of " + order.length;
+    $("readTitle").textContent = s.q;
+    $("readText").innerHTML = "<b>📖 The story:</b><br>" + s.story;
+  }
+  show("screen-read");
+}
+function startSlice(){
+  var s = curStory();
+  trialFirst = true; trialResolved = false;
+  fruits = []; halves = []; parts_fx = []; trail = [];
+  if(CONFIG.kind === "seq"){
+    expected = 0; misses = 0;
+    updateHUD();
+    $("sliceTag").textContent = s.e + " " + s.t;
+    $("slicePrompt").textContent = "Slice FIRST! 🍉 Swipe the fruit that happens FIRST!";
+    $("sliceStory").classList.add("hidden");
+    $("sliceChoices").classList.add("hidden");
+    for(var i=0;i<4;i++){
+      var f = { id:i, emoji:s.pics[i].e, label:s.pics[i].c, color:FRUIT_COLOR[i], r:52, state:"fly", done:false, badge:null };
+      launchFruit(f, i * 22);
+      fruits.push(f);
+    }
+    updateSeqBadges();
+  } else if(CONFIG.kind === "mi"){
+    lives = 3; updateHUD();
+    $("sliceTag").textContent = s.e + " " + s.t;
+    $("slicePrompt").textContent = "Slice ONLY the MAIN IDEA! 🍉";
+    $("sliceStory").innerHTML = "<b>📖 " + s.e + " " + s.t + "</b><br>" + s.text;
+    $("sliceStory").classList.remove("hidden");
+    var labels = uniqueLabels(s.mi.c);
+    var html = "<b>Choices:</b>";
+    for(var i=0;i<3;i++){ html += "<div>🍉 " + s.mi.c[i] + "</div>"; }
+    $("sliceChoices").innerHTML = html;
+    $("sliceChoices").classList.remove("hidden");
+    var ord = shuffle([0,1,2]);
+    for(var i=0;i<3;i++){
+      var ci = ord[i];
+      var f = { id:ci, emoji:FRUIT_EMOJI[i], label:labels[ci], color:FRUIT_COLOR[i], r:52, state:"fly", correct:(ci === s.mi.a) };
+      launchFruit(f, i * 22);
+      fruits.push(f);
+    }
+  } else {
+    lives = 3; updateHUD();
+    $("sliceTag").textContent = CONFIG.TYPE_LABEL[s.type];
+    $("slicePrompt").textContent = s.q + " 🍉 Slice the right answer!";
+    $("sliceStory").innerHTML = "<b>📖 The story:</b><br>" + s.story;
+    $("sliceStory").classList.remove("hidden");
+    var labels = uniqueLabels(s.c);
+    var html = "<b>Choices:</b>";
+    for(var i=0;i<3;i++){ html += "<div>🍉 " + s.c[i] + "</div>"; }
+    $("sliceChoices").innerHTML = html;
+    $("sliceChoices").classList.remove("hidden");
+    var ord = shuffle([0,1,2]);
+    for(var i=0;i<3;i++){
+      var ci = ord[i];
+      var f = { id:ci, emoji:FRUIT_EMOJI[i+3], label:labels[ci], color:FRUIT_COLOR[i+3], r:52, state:"fly", correct:(ci === s.a) };
+      launchFruit(f, i * 22);
+      fruits.push(f);
+    }
+  }
+  $("sliceFeed").textContent = "";
+  $("sliceFeed").className = "feedback";
+  $("nextBtn").classList.add("hidden");
+  $("retryBtn").classList.add("hidden");
+  $("mapBox").classList.add("hidden");
+  show("screen-slice");
+  sliceActive = true;
+}
+function updateSeqBadges(){
+  var el = $("seqBadges");
+  if(!el) return;
+  var html = "";
+  for(var i=0;i<4;i++){
+    var cls = i < expected ? "badge done" : (i === expected ? "badge next" : "badge");
+    html += "<span class=\"" + cls + "\">" + SEQWORDS[i] + "</span>";
+  }
+  el.innerHTML = html;
+}
+function onSlice(f){
+  var s = curStory();
+  if(CONFIG.kind === "seq"){
+    if(f.id === expected){
+      recordTrial(trialFirst);
+      trialFirst = true;
+      f.done = true; f.gone = true; f.state = "gone";
+      expected++;
+      updateSeqBadges();
+      sndGood();
+      if(expected >= 4){
+        sliceActive = false;
+        $("sliceFeed").textContent = "🎉 You sliced the whole story in order!";
+        $("sliceFeed").className = "feedback good";
+        setTimeout(function(){ startRetell(); }, 900);
+      } else {
+        $("sliceFeed").textContent = "⭐ Yes! Now slice " + SEQWORDS[expected] + "!";
+        $("sliceFeed").className = "feedback good";
+      }
+    } else {
+      trialFirst = false;
+      misses++;
+      updateHUD();
+      sndBad();
+      if(misses >= 3){
+        sliceActive = false;
+        $("sliceFeed").textContent = "😅 3 misses — let's try this story again!";
+        $("sliceFeed").className = "feedback try";
+        $("retryBtn").classList.remove("hidden");
+      } else {
+        $("sliceFeed").textContent = "Not yet — that comes " + (f.id < expected ? "earlier" : "later") + " in the story. " + (3-misses) + " tries left!";
+        $("sliceFeed").className = "feedback try";
+      }
+    }
+  } else {
+    if(trialResolved) return;
+    if(f.correct){
+      trialResolved = true;
+      sliceActive = false;
+      recordTrial(trialFirst);
+      f.gone = true;
+      sndGood();
+      if(CONFIG.kind === "mi"){
+        $("sliceFeed").textContent = "⭐ Yes! That's the main idea!";
+        var m = s.map;
+        $("mapBox").innerHTML = "<b>🗺️ Story map:</b><br><b>Who:</b> " + m.who + "<br><b>Where:</b> " + m.where + "<br><b>Problem:</b> " + m.problem + "<br><b>How it ended:</b> " + m.ended;
+      } else {
+        $("sliceFeed").textContent = "⭐ Yes! Great thinking! 🔍 Clue: " + s.clue;
+        $("mapBox").innerHTML = "<b>🔍 Clue:</b> " + s.clue;
+      }
+      $("sliceFeed").className = "feedback good";
+      $("mapBox").classList.remove("hidden");
+      $("nextBtn").classList.remove("hidden");
+    } else {
+      trialFirst = false;
+      lives--;
+      updateHUD();
+      sndBad();
+      if(lives <= 0){
+        trialResolved = true;
+        sliceActive = false;
+        recordTrial(false);
+        var ans = (CONFIG.kind === "mi") ? s.mi.c[s.mi.a] : s.c[s.a];
+        $("sliceFeed").textContent = "The right answer was: " + ans;
+        $("sliceFeed").className = "feedback try";
+        $("nextBtn").classList.remove("hidden");
+      } else {
+        $("sliceFeed").textContent = "Nope — that's not it! " + lives + (lives===1 ? " life" : " lives") + " left. Try again!";
+        $("sliceFeed").className = "feedback try";
+      }
+    }
+  }
+}
+function retrySlice(){
+  misses = 0; trialFirst = true;
+  halves = []; parts_fx = []; trail = [];
+  for(var i=0;i<fruits.length;i++){
+    var f = fruits[i];
+    if(f.done){ f.state = "gone"; continue; }
+    launchFruit(f, i * 22);
+  }
+  updateHUD(); updateSeqBadges();
+  $("sliceFeed").textContent = "";
+  $("sliceFeed").className = "feedback";
+  $("retryBtn").classList.add("hidden");
+  $("slicePrompt").textContent = "Slice " + SEQWORDS[expected] + "! 🍉 Swipe the fruit that comes " + SEQWORDS[expected].toLowerCase() + "!";
+  sliceActive = true;
+}
+function buildRetell(){
+  var s = curStory();
+  var sh = s.short, w = s.why;
+  return [
+    {q:"What happens FIRST in the story?", c:[sh[0], sh[2], sh[3]], a:0},
+    {q:"What happens NEXT in the story?", c:[sh[1], sh[3], sh[0]], a:0},
+    {q:w.q, c:w.c, a:w.a},
+    {q:"How does the story END?", c:[sh[3], sh[1], sh[0]], a:0}
+  ];
+}
+function startRetell(){
+  sliceActive = false;
+  RETELL = buildRetell();
+  qIdx = 0; retellScore = 0;
+  show("screen-retell");
+  askRetell();
+}
+function askRetell(){
+  var item = RETELL[qIdx];
+  $("qNum").textContent = "Retell question " + (qIdx+1) + " of " + RETELL.length;
+  $("prompt").textContent = item.q;
+  $("feed").textContent = "";
+  $("feed").className = "feedback";
+  $("retellNextBtn").classList.add("hidden");
+  var box = $("choices");
+  box.innerHTML = "";
+  var ord = shuffle([0,1,2]);
+  var firstTryQ = true;
+  ord.forEach(function(ci){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "choice";
+    b.textContent = item.c[ci];
+    b.onclick = function(){
+      var ok = (ci === item.a);
+      if(ok){
+        recordTrial(firstTryQ);
+        if(firstTryQ) retellScore++;
+        b.classList.add("correct");
+        $("feed").textContent = "⭐ Yes! Great retelling!";
+        $("feed").className = "feedback good";
+        sndGood();
+      } else {
+        firstTryQ = false;
+        b.classList.add("wrong");
+        b.disabled = true;
+        $("feed").textContent = "Try again — which one really happened?";
+        $("feed").className = "feedback try";
+        sndBad();
+        return;
+      }
+      Array.prototype.forEach.call(box.children, function(ch){ ch.disabled = true; });
+      $("retellNextBtn").classList.remove("hidden");
+    };
+    box.appendChild(b);
+  });
+}
+function showDone(){
+  sliceActive = false;
+  var s = curStory();
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("doneTitle").textContent = "Story complete! 🎉";
+  var nm = s.t ? s.t : s.q;
+  $("doneSummary").textContent = nm + " — " + storyFirst + " / " + storyTrials + " first try this story • " + acc + "% overall";
+  show("screen-done");
+}
+function nextStory(){
+  orderPos++;
+  if(orderPos >= order.length){ showEnd(); }
+  else { showRead(); }
+}
+function showEnd(){
+  sliceActive = false;
+  var acc = trialsDone ? Math.round(firstTry/trialsDone*100) : 0;
+  $("endSummary").textContent = "⭐ " + stars + " stars • 🏆 " + points + " points • 🎯 " + acc + "% first try (" + firstTry + " / " + trialsDone + ")";
+  show("screen-end");
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  initCanvas();
+  $("soundBtn").addEventListener("click", function(){
+    soundOn = !soundOn;
+    $("soundBtn").textContent = soundOn ? "🔊 Sound on" : "🔇 Sound off";
+  });
+  $("startBtn").addEventListener("click", function(){ startGame(); });
+  $("readGoBtn").addEventListener("click", function(){ startSlice(); });
+  $("nextBtn").addEventListener("click", function(){ showDone(); });
+  $("retryBtn").addEventListener("click", function(){ if(CONFIG.kind === "seq"){ retrySlice(); } else { startSlice(); } });
+  $("retellNextBtn").addEventListener("click", function(){
+    qIdx++;
+    if(qIdx < RETELL.length){ askRetell(); } else { showDone(); }
+  });
+  $("nextStoryBtn").addEventListener("click", function(){ nextStory(); });
+  $("shuffleBtn").addEventListener("click", function(){
+    var rest = order.slice(orderPos+1);
+    order = order.slice(0, orderPos+1).concat(shuffle(rest));
+    $("shuffleBtn").textContent = "🔀 Shuffled!";
+    setTimeout(function(){ $("shuffleBtn").textContent = "🔀 Shuffle the rest"; }, 1200);
+  });
+  $("replayBtn").addEventListener("click", function(){ showRead(); });
+  $("againBtn").addEventListener("click", function(){ startGame(); });
+  $("restartBtn").addEventListener("click", function(){ startGame(); });
+  loop();
+});
+
+window.SLICE_TEST = {
+  get state(){ return { stars:stars, points:points, trialsDone:trialsDone, firstTry:firstTry, lives:lives, misses:misses, expected:expected, orderPos:orderPos, screen:curScreen, sliceActive:sliceActive, trialResolved:trialResolved,
+    fruits: fruits.map(function(f){ return {id:f.id, x:Math.round(f.x), y:Math.round(f.y), state:f.state, correct:!!f.correct, done:!!f.done}; }) }; },
+  sliceAt: function(x, y){ trySlicePoint(x, y); },
+  swipe: function(x1, y1, x2, y2){ trail = [{x:x1, y:y1}]; sliceSegment(x1, y1, x2, y2); trail = []; },
+  step: function(n){ for(var i=0;i<(n||1);i++){ step(); } },
+  start: function(){ startGame(); },
+  stop: function(){ engineOn = false; sliceActive = false; }
+};
+
+</script>
+</body>
+</html>
