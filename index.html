@@ -80,6 +80,15 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
 .storytext li{margin:8px 0}
 .note{text-align:center;color:#6b7280;font-size:14px;margin-top:10px}
 .planrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-top:1px solid #f9a8d4;font-size:16px}
+.parts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.part{background:#eff6ff;border:2px solid #2563eb;border-radius:14px;padding:10px;font-size:15px;line-height:1.35}
+.part b{display:block;color:#1e40af;font-size:13px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.part.wide{grid-column:1 / -1}
+.mapgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.mapcell{background:#f0fdf4;border:2px solid #22c55e;border-radius:14px;padding:10px;font-size:15px;line-height:1.35}
+.mapcell b{display:block;color:#15803d;font-size:13px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.mapcell.wide{grid-column:1 / -1}
+.seqword{display:inline-block;background:#2563eb;color:#fff;border-radius:999px;padding:4px 14px;font-size:14px;font-weight:800;margin-top:10px;letter-spacing:1px}
 .planbtn{background:#2563eb;color:#fff;white-space:nowrap}
 </style>
 </head>
@@ -113,9 +122,9 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
         <b>🕐 Our 60-minute session plan</b>
         <div class="planrow"><span><b>0–5</b> &nbsp;Book Detective</span><button class="smallbtn planbtn" data-go="r1" type="button">▶ Play</button></div>
         <div class="planrow"><span><b>5–15</b> &nbsp;Read the story</span><button class="smallbtn planbtn" data-go="read" type="button">📖 Read</button></div>
-        <div class="planrow"><span><b>15–30</b> &nbsp;Story Order Race — play 4 stories</span><button class="smallbtn planbtn" data-go="r2" type="button">🏃 Play</button></div>
+        <div class="planrow"><span><b>15–30</b> &nbsp;Story Order Race — Story Parts + FIRST/NEXT/THEN/LAST</span><button class="smallbtn planbtn" data-go="r2" type="button">🏃 Play</button></div>
         <div class="planrow"><span><b>30–45</b> &nbsp;Main Idea Mission — play 5 stories</span><button class="smallbtn planbtn" data-go="r3" type="button">🎯 Play</button></div>
-        <div class="planrow"><span><b>45–55</b> &nbsp;Detective Time</span><button class="smallbtn planbtn" data-go="r4" type="button">🕵️ Play</button></div>
+        <div class="planrow"><span><b>45–55</b> &nbsp;Detective Time — 5 kinds of questions</span><button class="smallbtn planbtn" data-go="r4" type="button">🕵️ Play</button></div>
         <div class="planrow"><span><b>55–60</b> &nbsp;Celebrate!</span><button class="smallbtn planbtn" data-go="cel" type="button">🎉 Celebrate</button></div>
       </div>
       <div class="timer" style="margin:10px 0">⏱ Session time: <span id="sessTimer">0:00</span></div>
@@ -211,8 +220,24 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:18px;font-we
         <li>Maya came over with a long stick, and together they shook the branch — down came the kite!</li>
         <li>Sam and Maya taped the kite and flew it together all afternoon.</li>
       </ol></div>
+      <div class="parts">
+        <div class="part"><b>👤 Character</b>Sam and Maya</div>
+        <div class="part"><b>📍 Setting</b>The park on a windy Saturday</div>
+        <div class="part"><b>❓ Problem</b>The kite got stuck in a tall tree</div>
+        <div class="part wide"><b>📖 Events</b>Maya brings a long stick and they shake the branch</div>
+        <div class="part wide"><b>🎉 Ending</b>They tape the kite and fly it together</div>
+      </div>
       <p class="note">Read it together, then put the story in order!</p>
       <button class="bigbtn green" id="readGoBtn" type="button">🏃 STORY ORDER RACE!</button>
+    </div>
+
+    <!-- STORY MAP (Round 3) -->
+    <div id="screen-map" class="hidden">
+      <div style="text-align:center"><span class="roundtag">🗺️ Story Map</span></div>
+      <h2 id="mapTitle">Story Map!</h2>
+      <div class="mapgrid" id="mapContent"></div>
+      <p class="note">Say it back: WHO was it about? WHERE? What was the PROBLEM? How did it END?</p>
+      <button class="bigbtn green" id="mapNextBtn" type="button">NEXT STORY ➜</button>
     </div>
 
     <!-- FINAL -->
@@ -259,9 +284,11 @@ var R1 = [
   {part:"picture", label:"a PICTURE", prompt:"Tap a PICTURE in the book!"},
   {part:"word", label:"a WORD", prompt:"Tap a WORD on the page!"}
 ];
-var R3S = [{"t": "Piano Practice", "e": "🎹", "text": "Mia had been taking piano lessons for one whole year, and every day after school she sat down at the old piano in the living room to practice. At first, her fingers felt slow and clumsy, and the notes came out wrong more often than right. Sometimes she wanted to quit and go play outside instead, but her mom reminded her that getting good at anything takes time. So Mia kept going, a little bit each day, playing her scales and then her favorite song. Her teacher, Mrs. Lopez, helped her fix the tricky parts and cheered her on when she got them right. After weeks of practice, the song started to sound smooth and pretty. One sunny Saturday, Mia's family took her to the music school for the spring recital. She walked up to the big piano on the stage, took a deep breath, and played her song from start to finish without stopping. When the last note faded away, the whole room clapped and cheered. Mia smiled and took a bow. All that practice had been worth it.", "qs": [{"q": "What is the MAIN IDEA of this story?", "c": ["Mia practiced hard and played her song at a recital.", "Mia's teacher helped her learn a new song.", "Music is fun for everyone."], "a": 0}, {"q": "What did Mia play at the recital?", "c": ["The song she had been practicing", "A song she had never seen before", "A song on the guitar"], "a": 0}]}, {"t": "The Birdhouse", "e": "🐦", "text": "Leo loved watching the birds in his backyard, but every time it rained, the little birds had nowhere dry to hide. One morning, he decided to build them a birdhouse. He went to the garage and found some wood, a hammer, nails, and a can of bright blue paint. First, Leo measured the wood carefully and drew lines where he needed to cut. Then he nailed the pieces together: two walls, a floor, a roof, and a tiny front with a round hole for the door. It took a while, and one nail bent, but Leo pulled it out and tried again. When the house was built, he painted it bright blue so it would be easy to spot among the green leaves. He waited for the paint to dry, then carried the birdhouse outside and hung it on a strong branch of the big oak tree. The next morning, Leo looked out his window and smiled. A small brown bird was already peeking out of the round hole, and it looked right at home.", "qs": [{"q": "What is the MAIN IDEA of this story?", "c": ["Leo built a birdhouse and hung it in a tree.", "Leo painted the birdhouse bright blue.", "Birds live in trees."], "a": 0}, {"q": "What color did Leo paint the birdhouse?", "c": ["Blue", "Red", "Green"], "a": 0}]}, {"t": "The Class Garden", "e": "🌻", "text": "At the start of spring, Ms. Green's class got a big surprise: their teacher told them they would plant a real garden behind the school. Each student got a small patch of soil, a packet of seeds, and a watering can. Some students planted carrots, some planted beans, and a few planted tall sunflowers along the fence. Every week, the class went outside to water the plants, pull out weeds, and check how much everything had grown. The carrots were slow, and the beans needed sticks to climb, but the sunflowers shot up fast. By summer, the sunflowers were taller than some of the students, and their big yellow faces turned to follow the sun. One warm afternoon, the class pulled up their carrots, washed them off, and ate them for lunch. They were crunchy and sweet, and everyone agreed they tasted better than any carrots from the store because they had grown them all by themselves.", "qs": [{"q": "What is the MAIN IDEA of this story?", "c": ["A class planted and cared for a garden at school.", "The class planted carrots and beans.", "Plants need water to grow."], "a": 0}, {"q": "What did the class eat for lunch?", "c": ["The carrots they grew", "Pizza from the cafeteria", "Apples from a store"], "a": 0}]}, {"t": "The Lost Library Book", "e": "📚", "text": "Jonah loved the library, and every week he borrowed a new book about animals. But one Tuesday morning, he could not find his library book anywhere. He looked under his bed, inside his backpack, behind the couch, and even in the bathtub, but the book was gone. Jonah felt worried because the book was due back that very day, and he did not want to pay a fine or lose his chance to borrow a new one. He sat down at the kitchen table and thought hard about the last time he had seen it. He remembered reading it after dinner, right there at the table, while he ate a snack. Then he remembered something else: he had left it on the kitchen table when he went to brush his teeth! Jonah ran to the table, and there it was, under a pile of papers. He grabbed the book, put on his shoes, and ran all the way to the library. He handed the book to the librarian just in time, and she smiled and said he could pick out a new one.", "qs": [{"q": "What is the MAIN IDEA of this story?", "c": ["Jonah lost his library book, then found it and returned it.", "Jonah looked under his bed.", "Libraries have lots of books."], "a": 0}, {"q": "Where had Jonah left the book?", "c": ["On the kitchen table", "At school", "In the car"], "a": 0}]}, {"t": "The Rainy-Day Fort", "e": "⛈️", "text": "On Saturday morning, Noah woke up hoping to play outside, but rain was tapping on the windows, and gray clouds covered the sky. His friend Sam came over anyway, and the two of them stood at the window, watching the rain fall. Then Noah had an idea. They dragged two chairs into the middle of the living room and draped big blankets over them to make a roof. Inside their fort, they put soft pillows, their favorite books, and a bowl of crackers for a snack. They read stories to each other and pretended the fort was a castle, and they were the kings of a rainy kingdom. They even used a flashlight to make shadows on the blanket walls. When the rain finally stopped in the afternoon, the sun came out, and Noah's mom called them outside to play. But the two friends looked at each other and laughed: they did not want to take the fort down yet, because it was the best castle they had ever built.", "qs": [{"q": "What is the MAIN IDEA of this story?", "c": ["Two friends built a blanket fort on a rainy day.", "They put pillows inside the fort.", "Rain is good for plants."], "a": 0}, {"q": "What did they pretend the fort was?", "c": ["A castle", "A spaceship", "A school"], "a": 0}]}];
-var R4 = [{"q": "Look at the cover! What do you think will happen in this story?", "c": ["Sam will fly his kite at the park", "Sam will go swimming", "Sam will bake a cake"], "a": 0}, {"q": "Sam's kite is stuck in the tree. How do you think Sam feels? How do you know?", "c": ["Sad, because his kite is stuck", "Happy, because he loves trees", "Scared of Maya"], "a": 0}, {"q": "Maya is coming with a long stick. What do you think she will do?", "c": ["Help reach the kite", "Hit Sam with it", "Plant a tree"], "a": 0}, {"q": "Why did Sam and Maya tape the kite?", "c": ["It was a little torn", "They wanted a new colour", "To make it heavier"], "a": 0}, {"q": "Your friend is sad because their toy broke. What do you say or do?", "c": ["“Are you okay? Want help fixing it?”", "Laugh at them", "Walk away"], "a": 0}, {"q": "What do you think Sam and Maya will do tomorrow at the park?", "c": ["Fly the kite again", "Never go to the park again", "Lose the kite forever"], "a": 0}, {"q": "Why did Maya smile when she came over?", "c": ["She was happy to help her friend", "She was laughing at Sam", "She was sleepy"], "a": 0}, {"q": "You want to join a game at the park. What do you say?", "c": ["“Can I play too?”", "Grab the ball", "Stand and watch silently"], "a": 0}];
+var R3S = [{"t": "Piano Practice", "e": "🎹", "text": "Mia had been taking piano lessons for one whole year, and every day after school she sat down at the old piano in the living room to practice. At first, her fingers felt slow and clumsy, and the notes came out wrong more often than right. Sometimes she wanted to quit and go play outside instead, but her mom reminded her that getting good at anything takes time. So Mia kept going, a little bit each day, playing her scales and then her favorite song. Her teacher, Mrs. Lopez, helped her fix the tricky parts and cheered her on when she got them right. After weeks of practice, the song started to sound smooth and pretty. One sunny Saturday, Mia's family took her to the music school for the spring recital. She walked up to the big piano on the stage, took a deep breath, and played her song from start to finish without stopping. When the last note faded away, the whole room clapped and cheered. Mia smiled and took a bow. All that practice had been worth it.", "qs": [{"q": "What is the MAIN IDEA of this story?", "c": ["Mia practiced hard and played her song at a recital.", "Mia's teacher helped her learn a new song.", "Music is fun for everyone."], "a": 0}, {"q": "What did Mia play at the recital?", "c": ["The song she had been practicing", "A song she had never seen before", "A song on the guitar"], "a": 0}], "map": {"who": "Mia", "where": "Home and the music school", "problem": "Mia's fingers felt slow and the notes came out wrong", "ended": "Mia played her song at the recital and everyone clapped"}}, {"t": "The Birdhouse", "e": "🐦", "text": "Leo loved watching the birds in his backyard, but every time it rained, the little birds had nowhere dry to hide. One morning, he decided to build them a birdhouse. He went to the garage and found some wood, a hammer, nails, and a can of bright blue paint. First, Leo measured the wood carefully and drew lines where he needed to cut. Then he nailed the pieces together: two walls, a floor, a roof, and a tiny front with a round hole for the door. It took a while, and one nail bent, but Leo pulled it out and tried again. When the house was built, he painted it bright blue so it would be easy to spot among the green leaves. He waited for the paint to dry, then carried the birdhouse outside and hung it on a strong branch of the big oak tree. The next morning, Leo looked out his window and smiled. A small brown bird was already peeking out of the round hole, and it looked right at home.", "qs": [{"q": "What is the MAIN IDEA of this story?", "c": ["Leo built a birdhouse and hung it in a tree.", "Leo painted the birdhouse bright blue.", "Birds live in trees."], "a": 0}, {"q": "What color did Leo paint the birdhouse?", "c": ["Blue", "Red", "Green"], "a": 0}], "map": {"who": "Leo", "where": "Leo's backyard and the big oak tree", "problem": "The birds had nowhere dry to hide when it rained", "ended": "A small brown bird moved into the birdhouse"}}, {"t": "The Class Garden", "e": "🌻", "text": "At the start of spring, Ms. Green's class got a big surprise: their teacher told them they would plant a real garden behind the school. Each student got a small patch of soil, a packet of seeds, and a watering can. Some students planted carrots, some planted beans, and a few planted tall sunflowers along the fence. Every week, the class went outside to water the plants, pull out weeds, and check how much everything had grown. The carrots were slow, and the beans needed sticks to climb, but the sunflowers shot up fast. By summer, the sunflowers were taller than some of the students, and their big yellow faces turned to follow the sun. One warm afternoon, the class pulled up their carrots, washed them off, and ate them for lunch. They were crunchy and sweet, and everyone agreed they tasted better than any carrots from the store because they had grown them all by themselves.", "qs": [{"q": "What is the MAIN IDEA of this story?", "c": ["A class planted and cared for a garden at school.", "The class planted carrots and beans.", "Plants need water to grow."], "a": 0}, {"q": "What did the class eat for lunch?", "c": ["The carrots they grew", "Pizza from the cafeteria", "Apples from a store"], "a": 0}], "map": {"who": "Ms. Green's class", "where": "The garden behind the school", "problem": "The class wanted to grow their own food", "ended": "They ate the crunchy, sweet carrots they grew"}}, {"t": "The Lost Library Book", "e": "📚", "text": "Jonah loved the library, and every week he borrowed a new book about animals. But one Tuesday morning, he could not find his library book anywhere. He looked under his bed, inside his backpack, behind the couch, and even in the bathtub, but the book was gone. Jonah felt worried because the book was due back that very day, and he did not want to pay a fine or lose his chance to borrow a new one. He sat down at the kitchen table and thought hard about the last time he had seen it. He remembered reading it after dinner, right there at the table, while he ate a snack. Then he remembered something else: he had left it on the kitchen table when he went to brush his teeth! Jonah ran to the table, and there it was, under a pile of papers. He grabbed the book, put on his shoes, and ran all the way to the library. He handed the book to the librarian just in time, and she smiled and said he could pick out a new one.", "qs": [{"q": "What is the MAIN IDEA of this story?", "c": ["Jonah lost his library book, then found it and returned it.", "Jonah looked under his bed.", "Libraries have lots of books."], "a": 0}, {"q": "Where had Jonah left the book?", "c": ["On the kitchen table", "At school", "In the car"], "a": 0}], "map": {"who": "Jonah", "where": "Home and the library", "problem": "Jonah could not find his library book, and it was due back", "ended": "Jonah found the book and returned it just in time"}}, {"t": "The Rainy-Day Fort", "e": "⛈️", "text": "On Saturday morning, Noah woke up hoping to play outside, but rain was tapping on the windows, and gray clouds covered the sky. His friend Sam came over anyway, and the two of them stood at the window, watching the rain fall. Then Noah had an idea. They dragged two chairs into the middle of the living room and draped big blankets over them to make a roof. Inside their fort, they put soft pillows, their favorite books, and a bowl of crackers for a snack. They read stories to each other and pretended the fort was a castle, and they were the kings of a rainy kingdom. They even used a flashlight to make shadows on the blanket walls. When the rain finally stopped in the afternoon, the sun came out, and Noah's mom called them outside to play. But the two friends looked at each other and laughed: they did not want to take the fort down yet, because it was the best castle they had ever built.", "qs": [{"q": "What is the MAIN IDEA of this story?", "c": ["Two friends built a blanket fort on a rainy day.", "They put pillows inside the fort.", "Rain is good for plants."], "a": 0}, {"q": "What did they pretend the fort was?", "c": ["A castle", "A spaceship", "A school"], "a": 0}], "map": {"who": "Noah and Sam", "where": "Noah's living room", "problem": "Rain kept them from playing outside", "ended": "They did not want to take the fort down, even when the sun came out"}}];
+var R4 = [{"type": "next", "q": "Look at the cover! What do you think will happen in this story?", "c": ["Sam will fly his kite at the park", "Sam will go swimming", "Sam will bake a cake"], "a": 0, "clue": "The cover shows Sam with a red kite at the park."}, {"type": "feelings", "q": "Sam's kite is stuck in the tree. How do you think Sam feels? How do you know?", "c": ["Sad, because his kite is stuck", "Happy, because he loves trees", "Scared of Maya"], "a": 0, "clue": "Sam's kite is stuck and he cannot reach it — that would make anyone feel sad."}, {"type": "next", "q": "Maya is coming with a long stick. What do you think she will do?", "c": ["Help reach the kite", "Hit Sam with it", "Plant a tree"], "a": 0, "clue": "Maya is coming to help her friend, and the kite is stuck high up."}, {"type": "why", "q": "Why did Sam and Maya tape the kite?", "c": ["It was a little torn", "They wanted a new colour", "To make it heavier"], "a": 0, "clue": "The kite got a little torn when it came down from the tree."}, {"type": "feelings", "q": "Your friend is sad because their toy broke. What do you say or do?", "c": ["“Are you okay? Want help fixing it?”", "Laugh at them", "Walk away"], "a": 0, "clue": "Your friend feels sad, so kind words help them feel better."}, {"type": "next", "q": "What do you think Sam and Maya will do tomorrow at the park?", "c": ["Fly the kite again", "Never go to the park again", "Lose the kite forever"], "a": 0, "clue": "They taped the kite and flew it together all afternoon — they had fun!"}, {"type": "why", "q": "Why did Maya smile when she came over?", "c": ["She was happy to help her friend", "She was laughing at Sam", "She was sleepy"], "a": 0, "clue": "Maya came with a stick to help Sam get his kite down."}, {"type": "meaning", "q": "You want to join a game at the park. What do you say?", "c": ["“Can I play too?”", "Grab the ball", "Stand and watch silently"], "a": 0, "clue": "Asking “Can I play too?” tells the other kids you want to join their game."}];
 var TOTAL = 5 + 4 + 10 + 8; // 27 trials
+var TYPE_LABEL = {"feelings": "😊 Feelings", "why": "🤔 Why", "next": "🔮 What Happens Next", "meaning": "💡 What Does It Mean", "evidence": "🔍 How Do You Know"};
+var SEQWORDS = ["FIRST", "NEXT", "THEN", "LAST"];
 
 var soundOn = true, audioCtx = null;
 var stars = 0, points = 0, firstTry = 0, trialsDone = 0, firstTryThis = true;
@@ -302,7 +329,7 @@ function recordTrial(correctFirst){
   if(stars===10 || stars===20){ danceBreak(stars + " STARS! 🕺💃"); }
 }
 function show(id){
-  ["screen-start","screen-r1","screen-r2","screen-mcq","screen-story","screen-read","screen-end"].forEach(function(s){ $(s).classList.add("hidden"); });
+  ["screen-start","screen-r1","screen-r2","screen-mcq","screen-story","screen-read","screen-map","screen-end"].forEach(function(s){ $(s).classList.add("hidden"); });
   $(id).classList.remove("hidden");
   window.scrollTo(0,0);
 }
@@ -394,6 +421,7 @@ function tapSeq(idx, btn){
     if(ok) r2Score++;
     firstTryThis = true;
     btn.classList.add("done"); btn.disabled = true;
+    btn.insertAdjacentHTML("beforeend", "<div class=\"seqword\">" + SEQWORDS[r2next] + "</div>");
     var sl = $("storyline");
     sl.classList.remove("hidden");
     sl.innerHTML += "<div><b>" + (r2next+1) + ".</b> " + STORY[r2next] + "</div>";
@@ -453,7 +481,7 @@ function askMCQ(){
   else { $("mcqStory").classList.add("hidden"); }
   var item = mcqList[mcqIdx].q;
   var total = mcqList.length;
-  $("mcqNum").textContent = "Question " + (mcqIdx+1) + " of " + total;
+  $("mcqNum").textContent = "Question " + (mcqIdx+1) + " of " + total + (mcqRound===4 ? " • " + TYPE_LABEL[item.type] : "");
   $("mcqQ").textContent = item.q;
   $("mcqFeed").textContent = "";
   $("mcqFeed").className = "feedback";
@@ -476,7 +504,8 @@ function tapChoice(correct, btn){
     if(mcqRound===3 && ok) r3Score++;
     if(mcqRound===4 && ok) r4Score++;
     btn.classList.add("correct");
-    $("mcqFeed").textContent = "⭐ Yes! Great thinking!";
+    var qi = mcqList[mcqIdx].q;
+    $("mcqFeed").textContent = "⭐ Yes! Great thinking!" + (mcqRound===4 && qi.clue ? " 🔍 Clue: " + qi.clue : "");
     $("mcqFeed").className = "feedback good";
     sndGood();
     Array.prototype.forEach.call(document.querySelectorAll("#mcqChoices .choice"), function(b){ b.disabled = true; });
@@ -489,17 +518,31 @@ function tapChoice(correct, btn){
     sndBad();
   }
 }
-$("mcqNext").addEventListener("click", function(){
-  mcqIdx++;
-  if(mcqIdx < mcqList.length){
-    if(mcqRound===3 && mcqList[mcqIdx].story !== mcqList[mcqIdx-1].story){ showR3Story(mcqList[mcqIdx].story); }
-    else { askMCQ(); }
-  }
-  else if(mcqRound===3){
+function showR3Map(si){
+  var st = R3S[si];
+  var mp = st.map;
+  $("mapTitle").textContent = "🗺️ " + st.e + " " + st.t + " — Story Map!";
+  $("mapContent").innerHTML =
+    "<div class=\"mapcell\"><b>👤 Who</b>" + mp.who + "</div>" +
+    "<div class=\"mapcell\"><b>📍 Where</b>" + mp.where + "</div>" +
+    "<div class=\"mapcell wide\"><b>❓ Problem</b>" + mp.problem + "</div>" +
+    "<div class=\"mapcell wide\"><b>🎉 How it ended</b>" + mp.ended + "</div>";
+  show("screen-map");
+}
+$("mapNextBtn").addEventListener("click", function(){
+  if(mcqIdx >= mcqList.length){
     celebrate("🎯⭐", "Main Idea Mission — DONE!", "You answered all 10 main idea questions! One round left — Detective Time!", "LAST ROUND! 🕵️", function(){ startMCQ(4); });
   } else {
-    finishGame();
+    showR3Story(mcqList[mcqIdx].story);
   }
+});
+$("mcqNext").addEventListener("click", function(){
+  mcqIdx++;
+  if(mcqRound===3 && (mcqIdx >= mcqList.length || mcqList[mcqIdx].story !== mcqList[mcqIdx-1].story)){
+    showR3Map(mcqList[mcqIdx-1].story);
+  }
+  else if(mcqIdx < mcqList.length){ askMCQ(); }
+  else { finishGame(); }
 });
 
 /* ---------- Finish / reset ---------- */
